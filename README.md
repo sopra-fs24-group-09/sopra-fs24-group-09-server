@@ -1,4 +1,4 @@
-# SoPra RESTful Service Template FS24
+# SoPra RESTful Service Group-09 FS24
 
 ## Getting started with Spring Boot
 -   Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
