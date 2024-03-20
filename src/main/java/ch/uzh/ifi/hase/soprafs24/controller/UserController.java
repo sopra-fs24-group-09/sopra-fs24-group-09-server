@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -53,5 +54,53 @@ public class UserController {
     User createdUser = userService.createUser(userInput);
     // convert internal representation of user back to API
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+  }
+
+  //login
+  @PostMapping("/users/login")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public UserGetDTO loginUser(@RequestBody UserPostDTO userPostDTO) {
+      // convert API user to internal representation
+      User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+      // login user
+      User loggedInUser = userService.loginUser(userInput);
+
+      // convert internal representation of user back to API
+      return DTOMapper.INSTANCE.convertEntityToUserGetDTO(loggedInUser);
+  }
+
+  //logout
+  @PostMapping("/users/logout")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public UserGetDTO logoutUser(@RequestBody UserPostDTO userPostDTO) {
+      // convert API user to internal representation
+      User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+      User loggedOutUser = userService.logoutUser(userInput);
+
+      // convert internal representation of user back to API
+      return DTOMapper.INSTANCE.convertEntityToUserGetDTO(loggedOutUser);
+  }
+
+  //Get method for getting the information for profile page
+  @GetMapping("/users/{userId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public UserGetDTO userProfile (@PathVariable("userId") Long userId) {
+    User user = userService.userProfileById(userId);
+    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+  }
+
+  //Put method for editing the user profile
+  @PutMapping("/users/{userId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ResponseBody
+  public void userEditProfile(@PathVariable("userId") Long userId, @RequestBody UserPutDTO userPutDTO) {
+      // convert API user to internal representation
+      User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+      userService.userEditProfile(userInput);
   }
 }
