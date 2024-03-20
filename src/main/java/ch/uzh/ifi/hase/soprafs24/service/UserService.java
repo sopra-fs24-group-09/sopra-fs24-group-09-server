@@ -69,7 +69,7 @@ public class UserService {
   private void checkIfUserExists(User userToBeCreated) {
     User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
     String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-    if (userByUsername != null && userToBeCreated.getId()!= userByUsername.getId()) {
+    if (userByUsername != null && !userToBeCreated.getId().equals(userByUsername.getId())) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
           String.format(baseErrorMessage, "username and the name", "are"));
     }
