@@ -27,30 +27,8 @@ public class Room implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_sequence")
     @SequenceGenerator(name = "room_sequence", sequenceName = "room_sequence", allocationSize = 1, initialValue = 10001)
     private long roomId;
-
     @Column()
     private Theme theme;
-    @Column()
-    private String undercoverWord;
-
-    public String getUndercoverWord() {
-        return undercoverWord;
-    }
-
-    public void setUndercoverWord(String undercoverWord) {
-        this.undercoverWord = undercoverWord;
-    }
-
-    public String getDetectiveWord() {
-        return detectiveWord;
-    }
-
-    public void setDetectiveWord(String detectiveWord) {
-        this.detectiveWord = detectiveWord;
-    }
-
-    @Column()
-    private String detectiveWord;
 
     @Column(nullable = false)
     private long roomOwnerId;
@@ -61,9 +39,6 @@ public class Room implements Serializable {
     @Column(nullable = false)
     private RoomProperty roomProperty;
 
-    @OneToMany(mappedBy = "room")
-    private List<User> roomPlayers = new ArrayList<>();
-
     @Column
     @ElementCollection
     private List<Long> roomPlayersList= new ArrayList<>();
@@ -72,13 +47,6 @@ public class Room implements Serializable {
     @ElementCollection
     private List<Long> alivePlayersList = new ArrayList<>();
 
-    @Column
-    @ElementCollection
-    private List<Long> detectivesList= new ArrayList<>();
-
-    @Column
-    @ElementCollection
-    private List<Long> undercoversList = new ArrayList<>();
 
 
     private int currentPlayerIndex = 0; // index inside
@@ -123,17 +91,6 @@ public class Room implements Serializable {
         return maxPlayersNum;
     }
 
-    public List<User> getRoomPlayers() {
-        return roomPlayers;
-    }
-
-    public void addRoomPlayer(Optional<User> user) {
-        if (user.isPresent()) {
-            User owner = user.get();
-            this.roomPlayers.add(owner);
-        }
-    }
-
     public void addRoomPlayerList(Long id) {
         if (id!=null) {
             this.roomPlayersList.add(id);
@@ -174,29 +131,5 @@ public class Room implements Serializable {
 
     public void setPlayToOuted(Long playToOuted) {
         this.playToOuted = playToOuted;
-    }
-
-    public List<Long> getAlivePlayersList() {
-        return alivePlayersList;
-    }
-
-    public void setAlivePlayersList(List<Long> alivePlayersList) {
-        this.alivePlayersList = alivePlayersList;
-    }
-
-    public List<Long> getDetectivesList() {
-        return detectivesList;
-    }
-
-    public void setDetectivesList(List<Long> detectivesList) {
-        this.detectivesList = detectivesList;
-    }
-
-    public List<Long> getUndercoversList() {
-        return undercoversList;
-    }
-
-    public void setUndercoversList(List<Long> undercoversList) {
-        this.undercoversList = undercoversList;
     }
 }
