@@ -60,6 +60,7 @@ sonar {
         property "sonar.projectKey", "sopra-fs24-group-09_sopra-fs24-group-09-server"
         property "sonar.organization", "sopra-fs24-group-09"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.projectName", "sopra-fs24-group-09-server"
     }
 }
 
