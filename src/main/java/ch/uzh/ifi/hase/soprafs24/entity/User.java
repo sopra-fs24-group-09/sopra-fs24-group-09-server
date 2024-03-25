@@ -1,108 +1,87 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-
-import javax.persistence.*;
-
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Internal User Representation
- * This class composes the internal representation of the user and defines how
- * the user is stored in the database.
- * Every variable will be mapped into a database field with the @Column
- * annotation
- * - nullable = false -> this cannot be left empty
- * - unique = true -> this value must be unqiue across the database -> composes
- * the primary key
- */
-@Entity
-@Table(name = "USER")
+@Document(collection = "user")
 public class User implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue
-  private Long id;
+    @Id // 标记为文档的ID
+    private String id;
 
-  @Column(nullable = false)
-  private String password;
+    private String password;
 
-  @Column(nullable = false, unique = true)
-  private String username;
+    private String username;
 
-  @Column(nullable = false, unique = true)
-  private String token;
+    private String token;
 
-  @Column(nullable = false)
-  private UserStatus status;
+    private UserStatus status;
 
-  @JsonFormat(pattern="dd-MM-yyyy")
-  @Column
-  private Date registerdate;;
-  
-  @JsonFormat(pattern="dd-MM-yyyy")
-  @Column(nullable = true)
-  private Date birthday;
+    @JsonFormat(pattern="dd-MM-yyyy")
+    private Date registerDate;
 
-  public Long getId() {
-    return id;
-  }
+    @JsonFormat(pattern="dd-MM-yyyy")
+    private Date birthday;
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public String getId() {
+        return id;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public String getUsername() {
-    return username;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public String getToken() {
-    return token;
-  }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-  public void setToken(String token) {
-    this.token = token;
-  }
+    public String getToken() {
+        return token;
+    }
 
-  public UserStatus getStatus() {
-    return status;
-  }
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-  public void setStatus(UserStatus status) {
-    this.status = status;
-  }
-  
-  public Date getRegisterDate() {
-    return registerdate;
-  }
-  
-  public void setRegisterDate(Date registerdate) {
-    this.registerdate = registerdate;
-  }
-  
-  public Date getBirthday() {
-    return birthday;
-  }
-  
-  public void setBirthday(Date birthday) {
-    this.birthday = birthday;
-  }
+    public UserStatus getStatus() {
+        return status;
+    }
 
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+
+    public void setRegisterDate(Date registerdate) {
+        this.registerDate = registerdate;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
 }

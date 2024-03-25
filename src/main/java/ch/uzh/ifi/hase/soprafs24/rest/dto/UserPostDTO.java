@@ -4,13 +4,13 @@ public class UserPostDTO {
 
   private String username;
   private String password;
-  private long id;
+  private String id;
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setID(Long id) {
+  public void setID(String id) {
     this.id = id;
   }
 

@@ -89,7 +89,7 @@ public class UserController {
   @GetMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public UserGetDTO userProfile (@PathVariable("userId") Long userId) {
+  public UserGetDTO userProfile (@PathVariable("userId") String userId) {
     User user = userService.userProfileById(userId);
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
   }
@@ -98,7 +98,7 @@ public class UserController {
   @PutMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
-  public void userEditProfile(@PathVariable("userId") Long userId, @RequestBody UserPutDTO userPutDTO) {
+  public void userEditProfile(@PathVariable("userId") String userId, @RequestBody UserPutDTO userPutDTO) {
       // convert API user to internal representation
       User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
       userService.userEditProfile(userInput);

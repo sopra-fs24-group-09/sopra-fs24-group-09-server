@@ -8,7 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 public class UserGetDTO {
 
-  private Long id;
+  private String id;
   private String username;
   private UserStatus status;
   @JsonFormat(pattern="dd-MM-yyyy")
@@ -17,11 +17,11 @@ public class UserGetDTO {
   @JsonFormat(pattern="dd-MM-yyyy")
   private Date registerDate;
 
-  public Long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(String id) {
     this.id = id;
   }
 

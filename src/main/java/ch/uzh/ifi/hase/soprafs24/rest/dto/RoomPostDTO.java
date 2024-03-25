@@ -6,7 +6,7 @@ import java.util.List;
 
 public class RoomPostDTO {
 
-    private long roomId;
+    private String roomId;
     private Theme theme;
     private RoomProperty roomProperty;
     private int maxPlayersNum;
@@ -32,11 +32,11 @@ public class RoomPostDTO {
 
     //private ArrayList<User> roomPlayers;
 
-    public long getRoomId() {
+    public String getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(long roomId) {
+    public void setRoomId(String roomId) {
         this.roomId = roomId;
     }
 

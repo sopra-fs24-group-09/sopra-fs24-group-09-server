@@ -50,7 +50,7 @@ public class UserService {
     // flush() is called
     newUser.setStatus(UserStatus.ONLINE);
     newUser = userRepository.save(newUser);
-    userRepository.flush();
+    userRepository.save(newUser);
 
     log.debug("Created Information for User: {}", newUser);
     return newUser;
@@ -67,13 +67,16 @@ public class UserService {
    * @see User
    */
   private void checkIfUserExists(User userToBeCreated) {
-    User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-    String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-    if (userByUsername != null && !userToBeCreated.getId().equals(userByUsername.getId())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
-          String.format(baseErrorMessage, "username and the name", "are"));
-    }
+      String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+
+      userRepository.findByUsername(userToBeCreated.getUsername()).ifPresent(userByUsername -> {
+          if (!userToBeCreated.getId().equals(userByUsername.getId())) {
+              throw new ResponseStatusException(HttpStatus.CONFLICT,
+                      String.format(baseErrorMessage, "username and the name", "are"));
+          }
+      });
   }
+
 
 
   public User loginUser(User user) {
@@ -86,7 +89,7 @@ public class UserService {
 
   User checkIfPasswordWrong(User userToBeLoggedIn) {
 
-    User userByUsername = userRepository.findByUsername(userToBeLoggedIn.getUsername());
+    User userByUsername = userRepository.findByUsername(userToBeLoggedIn.getUsername()).get();
 
     if (userByUsername == null) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username not exist!");
@@ -102,16 +105,16 @@ public class UserService {
   //Define the logout function to set the status to OFFLINE when log out
   public User logoutUser(User userToBeLoggedOut) {
     try {
-        User userByUsername = userRepository.getOne(userToBeLoggedOut.getId());
+        User userByUsername = userRepository.findById(userToBeLoggedOut.getId()).get();
         userByUsername.setStatus(UserStatus.OFFLINE);
-        userRepository.flush();
+        userRepository.save(userByUsername);
   
         return userByUsername;
     } catch (Exception e) {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found or error during logout.", e);
     }}
 
-  public User userProfileById(Long id) {
+  public User userProfileById(String id) {
     Optional<User> userByUserid = userRepository.findById(id);
     if (userByUserid.isPresent()) {
       return userByUserid.get();
@@ -125,7 +128,7 @@ public class UserService {
     if(!userRepository.existsById(user.getId())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user ID was not found");
       }
-    User userByUserid = userRepository.getOne(user.getId());
+    User userByUserid = userRepository.findById(user.getId()).get();
 
     if(user.getUsername()!=null){
           checkIfUserExists(user);
@@ -136,6 +139,6 @@ public class UserService {
           userByUserid.setBirthday(user.getBirthday());
           };
 
-    userRepository.flush();
+    userRepository.save(userByUserid);
   }
 }

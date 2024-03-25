@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 
 public class UserPutDTO {
-    private Long id;
+    private String id;
     private String username;
     private String token;
 
@@ -15,11 +15,11 @@ public class UserPutDTO {
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date registerDate;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
