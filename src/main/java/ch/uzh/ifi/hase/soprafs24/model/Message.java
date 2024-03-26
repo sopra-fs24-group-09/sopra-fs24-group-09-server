@@ -1,72 +1,63 @@
-// package ch.uzh.ifi.hase.soprafs24.model;
+package ch.uzh.ifi.hase.soprafs24.model;
 
-// import lombok.AllArgsConstructor;
+import lombok.AllArgsConstructor;
 
-// import lombok.NoArgsConstructor;
+import lombok.NoArgsConstructor;
 
-// import lombok.ToString;
+import lombok.ToString;
 
-// import java.util.List;
+import ch.uzh.ifi.hase.soprafs24.constant.MessageStatus;
 
-// @NoArgsConstructor
-// @AllArgsConstructor
-// @ToString
-// public class Message {
-// 	private String senderName;
-// 	private String receiverName;
-// 	private String message;
-// 	private String date;
-// 	private String role;
-// 	private Status status;
-
-
-// 	public String getSenderName() {
-// 		return senderName;
-// 	}
-
-// 	public void setRole(String role) {
-// 		this.role = role;
-// 	}
-
-// 	public String getRole() {
-// 		return role;
-// 	}
-
-// 	public void setSenderName(String senderName) {
-// 		this.senderName = senderName;
-// 	}
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class Message {
+	private String senderName;
+	private String receiverName;
+	private String message;
+	private String date;
+	private MessageStatus MessageStatus;
 
 
-// 	public String getReceiverName() {
-// 		return receiverName;
-// 	}
+	public String getSenderName() {
+		return senderName;
+	}
 
-// 	public void setReceiverName(String receiverName) {
-// 		this.receiverName = receiverName;
-// 	}
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
+	}
 
-// 	public String getMessage() {
-// 		return message;
-// 	}
 
-// 	public void setMessage(String message) {
-// 		this.message = message;
-// 	}
+	public String getReceiverName() {
+		return receiverName;
+	}
 
-// 	public String getDate() {
-// 		return date;
-// 	}
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
+	}
 
-// 	public void setDate(String date) {
-// 		this.date = date;
-// 	}
+	public String getMessage() {
+		return message;
+	}
 
-// 	public Status getStatus() {
-// 		return status;
-// 	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
-// 	public void setStatus(Status status) {
-// 		this.status = status;
-// 	}
+	public String getDate() {
+		return date;
+	}
 
-// }
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public MessageStatus getMessageStatus() {
+		return MessageStatus;
+	}
+
+	public void setStatus(MessageStatus MessageStatus) {
+		this.MessageStatus = MessageStatus;
+	}
+
+}

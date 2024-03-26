@@ -1,8 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.service;
-import ch.uzh.ifi.hase.soprafs24.entity.Room;
-// import ch.uzh.ifi.hase.soprafs24.model.Message;
-// import ch.uzh.ifi.hase.soprafs24.model.Status;
-// import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ch.uzh.ifi.hase.soprafs24.model.Message;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import ch.uzh.ifi.hase.soprafs24.constant.MessageStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,32 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SocketService {
 
-    //@Autowired
-    // private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-
-    public SocketService() {
-
-    }
-
-    public void initiateGame(Room roomToInitiate,Long roomId) {
-    }
-
-    public void broadcastGameStart(Long roomID) {
-    }
-
-    public void broadcastGameEnd(Room room,Long roomId) {
-        }
-
-    public void broadcastVoteStart(Long roomId) {
+    public SocketService(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     public void systemReminder(String reminderInfo,Long roomId) {
+        Message reminderMessage = new Message();
+        reminderMessage.setSenderName("system");
+        reminderMessage.setMessage(reminderInfo);
+        reminderMessage.setStatus(MessageStatus.MESSAGE);
+        simpMessagingTemplate.convertAndSend("/chatroom/"+roomId+"/public", reminderMessage);
     }
 
-    public void descriptionBroadcast(String userName, Long roomId) {
-    }
-
-    public void conductTurn(Room roomToConduct, Long roomId){
-    }
 }
