@@ -83,7 +83,7 @@ public class UserService {
     user = checkIfPasswordWrong(user);
     user.setStatus(UserStatus.ONLINE);
     user.setToken(UUID.randomUUID().toString());
-
+    userRepository.save(user);
     return user;
   }
 
