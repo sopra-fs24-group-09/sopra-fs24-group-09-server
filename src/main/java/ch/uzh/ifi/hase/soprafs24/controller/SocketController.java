@@ -10,7 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import ch.uzh.ifi.hase.soprafs24.service.SocketService;
 import ch.uzh.ifi.hase.soprafs24.model.Message;
-import ch.uzh.ifi.hase.soprafs24.constant.MessageType;
+import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
 @Controller
 public class SocketController {
 
@@ -30,7 +30,7 @@ public class SocketController {
         socketService.broadcastReady(roomId, true);
         Message wordMessage = new Message();
         wordMessage.setSenderName("system");
-        wordMessage.setMessageStatus(MessageType.JOIN);
+        wordMessage.setMessageType(MessageOrderType.JOIN);
         simpMessagingTemplate.convertAndSend("/room/"+roomId+"/public",  wordMessage);
         
         return wordMessage;
@@ -44,7 +44,7 @@ public class SocketController {
         socketService.broadcastReady(roomId, false);
         Message wordMessage = new Message();
         wordMessage.setSenderName("system");
-        wordMessage.setMessageStatus(MessageType.LEAVE);
+        wordMessage.setMessageType(MessageOrderType.LEAVE);
         simpMessagingTemplate.convertAndSend("/room/"+roomId+"/public",  wordMessage);
         
         return message;

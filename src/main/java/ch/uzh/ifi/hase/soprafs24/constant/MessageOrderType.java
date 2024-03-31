@@ -1,8 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.constant;
 
-public enum MessageType {
+public enum MessageOrderType {
 	MESSAGE,
 	JOIN,
 	LEAVE,
-	READY
+	READY,
+	UNREADY
 }
