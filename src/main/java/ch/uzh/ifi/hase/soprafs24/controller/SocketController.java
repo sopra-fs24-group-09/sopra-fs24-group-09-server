@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -8,39 +10,46 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import ch.uzh.ifi.hase.soprafs24.service.SocketService;
 import ch.uzh.ifi.hase.soprafs24.model.Message;
-
+import ch.uzh.ifi.hase.soprafs24.constant.MessageType;
 @Controller
 public class SocketController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SocketService socketService;
 
-    public SocketController(SocketService chatService, RoomService roomService, UserService userService, SimpMessagingTemplate simpMessagingTemplate) {
+    public SocketController(SocketService socketService, RoomService roomService, UserService userService, SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.socketService = socketService;
     }
 
-    @MessageMapping("/message/{roomId}")
-    @SendTo("/chatroom/{roomId}/public")
-    public Message receiveMessage() {
-        return null;
+    //set ready
+    @MessageMapping("/message/{userId}/{roomId}/ready")
+    @SendTo("/room/{roomId}/public")
+    public Message receiveReadyMessage(@Payload Message message,@DestinationVariable("userId") Long userId,@DestinationVariable("roomId") Long roomId) {
+        // setready(userid)
+        socketService.broadcastReady(roomId, true);
+        Message wordMessage = new Message();
+        wordMessage.setSenderName("system");
+        wordMessage.setMessageStatus(MessageType.JOIN);
+        simpMessagingTemplate.convertAndSend("/room/"+roomId+"/public",  wordMessage);
+        
+        return wordMessage;
     }
 
-    @MessageMapping("/roomcreat")
-    @SendTo("/room")
-    public Message receiveCreationMessage(@Payload Message message) {
+    //set unready
+    @MessageMapping("/message/{userId}/{roomId}/unready")
+    @SendTo("/room/{roomId}/public")
+    public Message receiveUnreadyMessage(@Payload Message message,@DestinationVariable("userId") Long userId,@DestinationVariable("roomId") Long roomId) {
+        // setUnready(userid)
+        socketService.broadcastReady(roomId, false);
+        Message wordMessage = new Message();
+        wordMessage.setSenderName("system");
+        wordMessage.setMessageStatus(MessageType.LEAVE);
+        simpMessagingTemplate.convertAndSend("/room/"+roomId+"/public",  wordMessage);
+        
         return message;
     }
 
-
-    @MessageMapping("/lobbyupdate")
-    @SendTo("/room")
-    public Message receiveLobbyMessage(@Payload Message message) {
-        simpMessagingTemplate.convertAndSend("/room", message);
-        return message;
-    }
-
-    @MessageMapping( "/gamestart/{roomId}")
-    public void startGame() {
-    }
 
 
 }

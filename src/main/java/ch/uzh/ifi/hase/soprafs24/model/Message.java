@@ -8,7 +8,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-import ch.uzh.ifi.hase.soprafs24.constant.MessageStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.MessageType;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,7 +19,7 @@ public class Message {
     private String receiverName;
     private String message;
     private LocalDateTime timestamp; // Changed from String date to LocalDateTime timestamp
-    private MessageStatus messageStatus; // Changed field name to camelCase
+    private MessageType messageStatus; // Changed field name to camelCase
 
     // Getters and setters
     public String getSenderName() {
@@ -54,11 +54,11 @@ public class Message {
         this.timestamp = timestamp;
     }
 
-    public MessageStatus getMessageStatus() {
+    public MessageType getMessageStatus() {
         return messageStatus;
     }
 
-    public void setMessageStatus(MessageStatus messageStatus) {
+    public void setMessageStatus(MessageType messageStatus) {
         this.messageStatus = messageStatus;
     }
 }

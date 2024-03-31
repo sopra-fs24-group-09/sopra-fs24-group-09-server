@@ -12,7 +12,7 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id // 标记为文档的ID
+    @Id
     private String id;
 
     private String password;
