@@ -20,13 +20,13 @@ public class Room implements Serializable {
 
     private Theme theme;
 
-    private long roomOwnerId;
+    private String roomOwnerId;
 
     private int maxPlayersNum;
 
     private RoomProperty roomProperty;
 
-    private List<Long> roomPlayersList = new ArrayList<>();
+    private List<String> roomPlayersList = new ArrayList<>();
 
     private List<Long> alivePlayersList = new ArrayList<>();
 
@@ -51,11 +51,11 @@ public class Room implements Serializable {
         this.theme = theme;
     }
 
-    public long getRoomOwnerId() {
+    public String getRoomOwnerId() {
         return roomOwnerId;
     }
 
-    public void setRoomOwnerId(long roomOwnerId) {
+    public void setRoomOwnerId(String roomOwnerId) {
         this.roomOwnerId = roomOwnerId;
     }
 
@@ -75,11 +75,11 @@ public class Room implements Serializable {
         this.roomProperty = roomProperty;
     }
 
-    public List<Long> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Long> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 
@@ -113,5 +113,11 @@ public class Room implements Serializable {
 
     public void setVotingResult(Map<Long, Long> votingResult) {
         this.votingResult = votingResult;
+    }
+
+    public void addRoomPlayerList(String id) {
+            if (id!=null) {
+                this.roomPlayersList.add(id);
+            }
     }
 }

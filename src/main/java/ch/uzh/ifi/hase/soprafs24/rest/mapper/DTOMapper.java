@@ -1,9 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -40,4 +39,29 @@ public interface DTOMapper {
   @Mapping(source = "username", target = "username")
   @Mapping(source = "birthday", target = "birthday")
   User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
+
+
+    @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "theme", target = "theme")
+    @Mapping(source = "roomProperty", target = "roomProperty")
+    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
+        //@Mapping(source = "roomPlayers", target = "roomPlayers")
+        //@Mapping(source = "token", target = "token")
+    Room convertRoomPostDTOtoEntity(RoomPostDTO roomPostDTO);
+
+    @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "theme", target = "theme")
+    @Mapping(source = "roomProperty", target = "roomProperty")
+    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
+    @Mapping(source = "roomPlayersList", target = "roomPlayersList")
+        //@Mapping(source = "token", target = "token")
+    RoomGetDTO convertEntityToRoomGetDTO(Room room);
+
+    @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "theme", target = "theme")
+    @Mapping(source = "roomProperty", target = "roomProperty")
+    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
+    @Mapping(source = "roomPlayersList", target = "roomPlayersList")
+        //@Mapping(source = "token", target = "token")
+    Room convertRoomPutDTOtoEntity(RoomPutDTO roomPutDTO);
 }
