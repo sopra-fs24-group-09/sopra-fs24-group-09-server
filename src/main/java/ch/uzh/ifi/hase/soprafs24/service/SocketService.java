@@ -3,8 +3,7 @@ import ch.uzh.ifi.hase.soprafs24.model.Message;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ch.uzh.ifi.hase.soprafs24.constant.MessageType;
-import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,7 @@ public class SocketService {
         Message reminderMessage = new Message();
         reminderMessage.setSenderName("system");
         reminderMessage.setMessage(reminderInfo);
-        reminderMessage.setMessageStatus(MessageType.MESSAGE);
+        reminderMessage.setMessageType(MessageOrderType.MESSAGE);
         simpMessagingTemplate.convertAndSend("/room/"+roomId+"/public", reminderMessage);
     }
     
@@ -33,7 +32,17 @@ public class SocketService {
     public void broadcastReady(Long roomId, boolean isReady) {
         Message readinessMessage = new Message();
         readinessMessage.setTimestamp(LocalDateTime.now());
-        readinessMessage.setMessageStatus(MessageType.READY); 
+        readinessMessage.setMessageType(MessageOrderType.READY); 
+        readinessMessage.setMessage(isReady ? "Ready" : "Not Ready");
+        
+        simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
+    }
+
+    //broadcast unready message
+    public void broadcastUnReady(Long roomId, boolean isReady) {
+        Message readinessMessage = new Message();
+        readinessMessage.setTimestamp(LocalDateTime.now());
+        readinessMessage.setMessageType(MessageOrderType.UNREADY); 
         readinessMessage.setMessage(isReady ? "Ready" : "Not Ready");
         
         simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
