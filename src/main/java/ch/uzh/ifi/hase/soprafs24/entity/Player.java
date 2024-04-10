@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ public class Player extends User {
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = false;
+    private PlayerStatus playerstatus= PlayerStatus.UNREADY;
 
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
 
@@ -47,6 +50,15 @@ public class Player extends User {
         this.audioData = audioData;
     }
 
+
+    public PlayerStatus getPlayerStatus() {
+        return playerstatus;
+    }
+
+    public void setPlayerStatus(PlayerStatus playerStatus) {
+        this.playerstatus = playerStatus;
+    }
+
     public String getWord() {
         return word;
     }
@@ -78,4 +90,5 @@ public class Player extends User {
     public void setIfGuessed(boolean ifGuessed) {
         this.ifGuessed = ifGuessed;
     }
+    
 }
