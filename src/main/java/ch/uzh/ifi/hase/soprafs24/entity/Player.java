@@ -11,6 +11,7 @@ import java.util.Map;
 @Document(collection = "player") 
 public class Player extends User {
 
+    private PlayerStatus playerStatus; 
     private String audioData; 
     private String word;
     private Integer guessScore = 0;
@@ -40,6 +41,15 @@ public class Player extends User {
         detail.put("role", role);
         detail.put("score", score);
         this.scoreDetails.add(detail);
+    }
+
+
+    public PlayerStatus getPlayerStatus() {
+        return playerStatus;
+    }
+
+    public void setPlayerStatus(PlayerStatus playerStatus) {
+        this.playerStatus= playerStatus;
     }
 
     public String getAudioData() {
