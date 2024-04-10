@@ -1,10 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
+import ch.uzh.ifi.hase.soprafs24.entity.Room;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 /**
  * User Controller
@@ -17,45 +20,47 @@ import java.util.List;
 public class RoomController {
 
 
+    private final RoomService roomService;
+
     RoomController(RoomService roomService) {
+        this.roomService = roomService;
     }
 
-    @GetMapping("/games")
+    //This method is used to get all rooms in the lobby
+    @GetMapping("/games/lobby")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<RoomGetDTO> getAllRooms() {
         // fetch all rooms in the internal representation，
+        List<Room> rooms = roomService.getRooms();
         List<RoomGetDTO> roomGetDTOs = new ArrayList<>();
+
+        // convert each user to the API representation
+        for (Room room : rooms) {
+            roomGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRoomGetDTO(room));
+        }
         return roomGetDTOs;
     }
 
-    @PostMapping("/games/room")
+    //This method is used to create a new room
+    @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public RoomGetDTO createRoom(@RequestBody RoomPostDTO roomPostDTO) {
-        // convert API room to internal representation
+        Room roomInput = DTOMapper.INSTANCE.convertRoomPostDTOtoEntity(roomPostDTO);
+        // create room
+        Room createdRoom = roomService.createRoom(roomInput);
         // convert internal representation of room back to API
-        return null;
+        return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
     }
 
-    //Get method for getting one room
-    @GetMapping("/games/{roomId}")
+    @PutMapping("/games{roomId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RoomGetDTO roomInfo (@PathVariable("roomId") Long roomId) {
-        return null;
-    }
-
-
-    @PutMapping("/room/{roomId}/players")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void enterRoom(@PathVariable("roomId") Long roomId, @RequestBody UserPutDTO userPutDTO) {
-    }
-
-    @PutMapping("/room/{roomId}/vote/{voterId}={voteeId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void castVote(@PathVariable Long roomId, @PathVariable Long voterId, @PathVariable Long voteeId) {
+    public void enterRoom(@PathVariable String roomId,@RequestBody UserPutDTO userPutDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+        Room enteredRoom = roomService.findRoomById(roomId);
+        roomService.enterRoom(enteredRoom, userInput);
     }
 
     @PostMapping("/games/guard")

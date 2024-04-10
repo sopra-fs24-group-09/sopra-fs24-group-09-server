@@ -1,8 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.service;
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,21 +25,38 @@ import java.util.*;
 @Transactional
 public class RoomService {
 
-
-    public RoomService() {
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final RoomRepository roomRepository;
+    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
     }
 
-
-    //Here we create a new room and we need to set the room property and theme according to the input from client
-    public Room createRoom() {
-        return null;
+    public List<Room> getRooms() {
+        return this.roomRepository.findAll();
     }
 
-    public Room findRoomById() {
-        return null;
+    //Here we create a new room, and we need to set the room property and theme according to the input from client
+    public Room createRoom(Room newRoom){
+        newRoom.setRoomProperty(RoomProperty.WAITING);
+//        newRoom.setRoomName(newRoom.getRoomName());
+//        newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
+//        newRoom.setTheme(newRoom.getTheme());
+        newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+        newRoom = roomRepository.save(newRoom);
+        roomRepository.save(newRoom);
+        log.debug("Created Information for Room: {}", newRoom);
+        return newRoom;
+    }
+
+    public Room findRoomById(String roomId){
+        return roomRepository.findByRoomId(roomId).get();
     }
 
     public void enterRoom(Room room, User user){
+        if (room.getRoomPlayersList().size()<room.getMaxPlayersNum()){
+            room.addRoomPlayerList(user.getId());
+        }
+        else throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
     }
 
 

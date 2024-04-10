@@ -6,9 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Document(collection = "room") // 指定这是一个MongoDB文档，并可以指定集合名称
 public class Room implements Serializable {
@@ -17,23 +15,19 @@ public class Room implements Serializable {
 
     @Id
     private String roomId;
+    private String roomName;
 
     private Theme theme;
 
-    private long roomOwnerId;
+    private String roomOwnerId;
 
     private int maxPlayersNum;
 
     private RoomProperty roomProperty;
 
-    private List<Long> roomPlayersList = new ArrayList<>();
-
-    private List<Long> alivePlayersList = new ArrayList<>();
+    private List<String> roomPlayersList = new ArrayList<>();
 
     private int currentPlayerIndex = 0; // index inside
-    private Long playToOuted = null;
-
-    private Map<Long, Long> votingResult = new HashMap<>();
 
     public String getRoomId() {
         return roomId;
@@ -41,6 +35,14 @@ public class Room implements Serializable {
 
     public void setRoomId(String roomId) {
         this.roomId = roomId;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public Theme getTheme() {
@@ -51,11 +53,11 @@ public class Room implements Serializable {
         this.theme = theme;
     }
 
-    public long getRoomOwnerId() {
+    public String getRoomOwnerId() {
         return roomOwnerId;
     }
 
-    public void setRoomOwnerId(long roomOwnerId) {
+    public void setRoomOwnerId(String roomOwnerId) {
         this.roomOwnerId = roomOwnerId;
     }
 
@@ -75,20 +77,12 @@ public class Room implements Serializable {
         this.roomProperty = roomProperty;
     }
 
-    public List<Long> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Long> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
-    }
-
-    public List<Long> getAlivePlayersList() {
-        return alivePlayersList;
-    }
-
-    public void setAlivePlayersList(List<Long> alivePlayersList) {
-        this.alivePlayersList = alivePlayersList;
     }
 
     public int getCurrentPlayerIndex() {
@@ -99,19 +93,10 @@ public class Room implements Serializable {
         this.currentPlayerIndex = currentPlayerIndex;
     }
 
-    public Long getPlayToOuted() {
-        return playToOuted;
+    public void addRoomPlayerList(String id) {
+            if (id!=null) {
+                this.roomPlayersList.add(id);
+            }
     }
 
-    public void setPlayToOuted(Long playToOuted) {
-        this.playToOuted = playToOuted;
-    }
-
-    public Map<Long, Long> getVotingResult() {
-        return votingResult;
-    }
-
-    public void setVotingResult(Map<Long, Long> votingResult) {
-        this.votingResult = votingResult;
-    }
 }
