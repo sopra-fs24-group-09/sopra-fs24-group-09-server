@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 
 public class GameService {
@@ -33,6 +34,9 @@ public class GameService {
             playerRepository.save(player);
         });
         optionalPlayer.orElseThrow(() -> new RuntimeException("Player not found with id: " + userId));
+    }
+
+    public void startGame(Room room){
     }
     
 }
