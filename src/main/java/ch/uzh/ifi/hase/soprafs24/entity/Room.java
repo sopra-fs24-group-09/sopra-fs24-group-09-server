@@ -5,6 +5,8 @@ import ch.uzh.ifi.hase.soprafs24.constant.Theme;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "room") // 指定这是一个MongoDB文档，并可以指定集合名称
 public class Room implements Serializable {

@@ -11,13 +11,12 @@ import java.util.Map;
 @Document(collection = "player") 
 public class Player extends User {
 
-    private PlayerStatus playerStatus; 
     private String audioData; 
     private String word;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = false;
-    private PlayerStatus playerstatus= PlayerStatus.UNREADY;
+    private PlayerStatus playerStatus= PlayerStatus.UNREADY;
 
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
 
@@ -43,15 +42,6 @@ public class Player extends User {
         this.scoreDetails.add(detail);
     }
 
-
-    public PlayerStatus getPlayerStatus() {
-        return playerStatus;
-    }
-
-    public void setPlayerStatus(PlayerStatus playerStatus) {
-        this.playerStatus= playerStatus;
-    }
-
     public String getAudioData() {
         return audioData;
     }
@@ -62,11 +52,11 @@ public class Player extends User {
 
 
     public PlayerStatus getPlayerStatus() {
-        return playerstatus;
+        return playerStatus;
     }
 
     public void setPlayerStatus(PlayerStatus playerStatus) {
-        this.playerstatus = playerStatus;
+        this.playerStatus = playerStatus;
     }
 
     public String getWord() {
