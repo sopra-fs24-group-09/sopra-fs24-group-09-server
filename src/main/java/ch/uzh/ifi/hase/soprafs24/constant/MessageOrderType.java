@@ -6,5 +6,6 @@ public enum MessageOrderType {
 	EXITROOM,
 	READY,
 	UNREADY,
-	GAMESTART
+	GAMESTART,
+	ROOMINFO
 }
