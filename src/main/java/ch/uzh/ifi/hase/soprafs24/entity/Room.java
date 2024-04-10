@@ -13,10 +13,19 @@ public class Room implements Serializable {
 
     @Id
     private String roomId;
+    private String roomName;
 
     private Theme theme;
 
-    private User roomOwner;
+    private String roomOwnerId;
+
+    private int maxPlayersNum;
+
+    private RoomProperty roomProperty;
+
+    private List<String> roomPlayersList = new ArrayList<>();
+
+    private int currentPlayerIndex = 0; // index inside
 
     public String getRoomId() {
         return roomId;
@@ -24,6 +33,14 @@ public class Room implements Serializable {
 
     public void setRoomId(String roomId) {
         this.roomId = roomId;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public Theme getTheme() {
@@ -34,13 +51,50 @@ public class Room implements Serializable {
         this.theme = theme;
     }
 
-    public User getRoomOwner() {
-        return roomOwner;
+    public String getRoomOwnerId() {
+        return roomOwnerId;
     }
 
-    public void setRoomOwner(User roomOwner) {
-        this.roomOwner = roomOwner;
+    public void setRoomOwnerId(String roomOwnerId) {
+        this.roomOwnerId = roomOwnerId;
     }
 
+    public int getMaxPlayersNum() {
+        return maxPlayersNum;
+    }
+
+    public void setMaxPlayersNum(int maxPlayersNum) {
+        this.maxPlayersNum = maxPlayersNum;
+    }
+
+    public RoomProperty getRoomProperty() {
+        return roomProperty;
+    }
+
+    public void setRoomProperty(RoomProperty roomProperty) {
+        this.roomProperty = roomProperty;
+    }
+
+    public List<String> getRoomPlayersList() {
+        return roomPlayersList;
+    }
+
+    public void setRoomPlayersList(List<String> roomPlayersList) {
+        this.roomPlayersList = roomPlayersList;
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
+    }
+
+    public void addRoomPlayerList(String id) {
+            if (id!=null) {
+                this.roomPlayersList.add(id);
+            }
+    }
 
 }
