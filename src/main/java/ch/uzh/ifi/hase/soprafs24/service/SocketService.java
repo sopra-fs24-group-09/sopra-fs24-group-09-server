@@ -3,15 +3,18 @@ import ch.uzh.ifi.hase.soprafs24.model.Message;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
+import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Transactional
@@ -20,6 +23,8 @@ public class SocketService {
     @Autowired
     private final SimpMessagingTemplate simpMessagingTemplate;
     private UserRepository userRepository;
+    private ObjectMapper objectMapper;
+    private RoomService roomService;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -101,6 +106,29 @@ public class SocketService {
         readinessMessage.setMessageType(MessageOrderType.GAMESTART); 
         readinessMessage.setMessage("Game Start!");
         simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
+    }
+
+
+    public void broadcastRoominfo(String roomId) {
+        try {
+            Room room= roomService.findRoomById(roomId);
+            HashMap<String, Object> info = new HashMap<>();
+            info.put("roomId", room.getRoomId());
+            info.put("status", room.getRoomProperty());
+            info.put("playerReadyStatus", room.getRoomPlayersList());
+            
+            String jsonMessage = objectMapper.writeValueAsString(info);
+            
+            Message readinessMessage = new Message();
+            readinessMessage.setSenderName("system");
+            readinessMessage.setTimestamp(LocalDateTime.now());
+            readinessMessage.setMessageType(MessageOrderType.ROOMINFO);
+            readinessMessage.setMessage(jsonMessage);
+            
+            simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle serialization errors
+        }
     }
 
 }

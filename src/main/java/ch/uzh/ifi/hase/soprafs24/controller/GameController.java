@@ -69,5 +69,12 @@ public class GameController {
     }
 
 
+    //notifyRoominfo
+    @MessageMapping("/message/{roomId}/roominfo")
+    public void notifyRoominfo(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
+        socketService.broadcastRoominfo(roomId);
+    }
+
+
 
 }
