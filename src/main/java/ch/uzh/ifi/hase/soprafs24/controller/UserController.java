@@ -104,6 +104,4 @@ public class UserController {
       User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
       userService.userEditProfile(userInput);
   }
-
-
 }

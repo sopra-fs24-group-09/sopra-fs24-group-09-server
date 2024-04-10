@@ -17,6 +17,7 @@ public class Room implements Serializable {
 
     @Id
     private String roomId;
+    private String roomName;
 
     private Theme theme;
 
@@ -28,12 +29,7 @@ public class Room implements Serializable {
 
     private List<String> roomPlayersList = new ArrayList<>();
 
-    private List<Long> alivePlayersList = new ArrayList<>();
-
     private int currentPlayerIndex = 0; // index inside
-    private Long playToOuted = null;
-
-    private Map<Long, Long> votingResult = new HashMap<>();
 
     public String getRoomId() {
         return roomId;
@@ -41,6 +37,14 @@ public class Room implements Serializable {
 
     public void setRoomId(String roomId) {
         this.roomId = roomId;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public Theme getTheme() {
@@ -83,14 +87,6 @@ public class Room implements Serializable {
         this.roomPlayersList = roomPlayersList;
     }
 
-    public List<Long> getAlivePlayersList() {
-        return alivePlayersList;
-    }
-
-    public void setAlivePlayersList(List<Long> alivePlayersList) {
-        this.alivePlayersList = alivePlayersList;
-    }
-
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
@@ -99,25 +95,10 @@ public class Room implements Serializable {
         this.currentPlayerIndex = currentPlayerIndex;
     }
 
-    public Long getPlayToOuted() {
-        return playToOuted;
-    }
-
-    public void setPlayToOuted(Long playToOuted) {
-        this.playToOuted = playToOuted;
-    }
-
-    public Map<Long, Long> getVotingResult() {
-        return votingResult;
-    }
-
-    public void setVotingResult(Map<Long, Long> votingResult) {
-        this.votingResult = votingResult;
-    }
-
     public void addRoomPlayerList(String id) {
             if (id!=null) {
                 this.roomPlayersList.add(id);
             }
     }
+
 }

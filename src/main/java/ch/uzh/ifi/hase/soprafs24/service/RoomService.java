@@ -38,6 +38,9 @@ public class RoomService {
     //Here we create a new room, and we need to set the room property and theme according to the input from client
     public Room createRoom(Room newRoom){
         newRoom.setRoomProperty(RoomProperty.WAITING);
+//        newRoom.setRoomName(newRoom.getRoomName());
+//        newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
+//        newRoom.setTheme(newRoom.getTheme());
         newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
         newRoom = roomRepository.save(newRoom);
         roomRepository.save(newRoom);
