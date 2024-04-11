@@ -143,4 +143,8 @@ public class UserService {
 
     userRepository.save(userByUserid);
   }
+
+  public User findUserById(String userId){
+    return userRepository.findById(userId).get();
+}
 }

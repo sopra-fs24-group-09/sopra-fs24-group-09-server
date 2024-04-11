@@ -12,12 +12,12 @@ import java.util.Map;
 public class Player extends User {
 
     private String audioData; 
-    private String word;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = false;
     private PlayerStatus playerStatus= PlayerStatus.UNREADY;
 
+    private List<String> wordsEachRound = new ArrayList<>();
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
 
     public Player(User user) {
@@ -50,7 +50,6 @@ public class Player extends User {
         this.audioData = audioData;
     }
 
-
     public PlayerStatus getPlayerStatus() {
         return playerStatus;
     }
@@ -59,13 +58,18 @@ public class Player extends User {
         this.playerStatus = playerStatus;
     }
 
-    public String getWord() {
-        return word;
+    public List<String> getWordsEachRound() {
+        return wordsEachRound;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setWordsEachRound(List<String> wordsEachRound) {
+        this.wordsEachRound = wordsEachRound;
     }
+
+    public void addWordForRound(String word) {
+        this.wordsEachRound.add(word);
+    }
+
 
     public Integer getGuessScore() {
         return guessScore;

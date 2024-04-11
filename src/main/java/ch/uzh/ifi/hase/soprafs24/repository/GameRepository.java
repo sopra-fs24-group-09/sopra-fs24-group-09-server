@@ -12,8 +12,7 @@ import java.util.Optional;
 
 @Repository("gameRepository")
 public interface GameRepository extends MongoRepository<Game, String> {
-    Optional<Game> findByRoomId(String roomId);
-
+    Optional<Game> findByGameId(String roomId);
     @Override
     List<Game> findAll();
 }

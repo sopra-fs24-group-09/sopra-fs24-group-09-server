@@ -27,6 +27,7 @@ public class RoomService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final RoomRepository roomRepository;
+    private GameService gameService;
     public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
     }
@@ -72,6 +73,11 @@ public class RoomService {
     }
 
 
+    public void startGame(Room room){
+        gameService.startGame(room);
+    }
+
+
     public List<String> getWordsRelatedTo(String query) throws IOException {
 
         return null;
@@ -87,7 +93,7 @@ public class RoomService {
     }
 
 
-    public void leaveRoom(Room room, Long userId){
+    public void exitRoom(Room room, User user){
     }
 
     /**
