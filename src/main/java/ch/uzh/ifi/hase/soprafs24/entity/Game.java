@@ -2,8 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;

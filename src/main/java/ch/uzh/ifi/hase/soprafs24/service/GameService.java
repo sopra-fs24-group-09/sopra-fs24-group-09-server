@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,7 +51,8 @@ public class GameService {
     }
 
     public Player findPlayerInGame(String playerId, String roomId){
-        Game game = gameRepository.findById(roomId).get();
+        Game game = gameRepository.findById(roomId)
+        .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
         List<Player> playerlist = game.getPlayerList();
         Player player = playerService.findPlayerById(playerId);
         boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
@@ -62,4 +65,51 @@ public class GameService {
     
     }
     
+    public void validateAnswer(String answer){
+        
+    }
+
+    public void setPlayerAudio(String roomId, String playerId, String voice){
+        Game game = gameRepository.findById(roomId)
+        .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
+        List<Player> playerlist = game.getPlayerList();
+        Player player = playerService.findPlayerById(playerId);
+        boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
+        if(isPlayerInList){
+            player.setAudioData(voice);
+        }
+        else{
+            throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
+        }
+    }
+
+    public String getPlayerAudio(String roomId, String playerId ){
+        Game game = gameRepository.findById(roomId)
+        .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
+        List<Player> playerlist = game.getPlayerList();
+        Player player = playerService.findPlayerById(playerId);
+        boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
+        if(isPlayerInList){
+            return player.getAudioData();
+        }
+        else{
+            throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
+        }
+    }
+
+    public Map<String, String> getAllPlayerAudio(String roomId) {
+        Game game = gameRepository.findById(roomId)
+            .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
+        List<Player> playerlist = game.getPlayerList();
+        Map<String, String> playerAudioMap = new HashMap<>();
+    
+        // Iterate over each player in the player list and add their ID and audio data to the map
+        for (Player player : playerlist) {
+            if (player.getAudioData() != null && !player.getAudioData().isEmpty()) {
+                playerAudioMap.put(player.getId(), player.getAudioData());
+            }
+        }
+    
+        return playerAudioMap;
+    }
 }
