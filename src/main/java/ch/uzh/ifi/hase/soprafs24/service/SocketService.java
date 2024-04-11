@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
@@ -25,6 +27,8 @@ public class SocketService {
     private UserRepository userRepository;
     private ObjectMapper objectMapper;
     private RoomService roomService;
+    private GameService gameService;
+    private PlayerService playerService;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate) {
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -109,6 +113,7 @@ public class SocketService {
     }
 
 
+    //broadcast room infor message
     public void broadcastRoominfo(String roomId) {
         try {
             Room room= roomService.findRoomById(roomId);
@@ -123,6 +128,53 @@ public class SocketService {
             readinessMessage.setSenderName("system");
             readinessMessage.setTimestamp(LocalDateTime.now());
             readinessMessage.setMessageType(MessageOrderType.ROOMINFO);
+            readinessMessage.setMessage(jsonMessage);
+            
+            simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle serialization errors
+        }
+    }
+
+    //broadcast game infor message
+    public void broadcastGameinfo(String roomId) {
+        try {
+            Game game= gameService.findGameById(roomId);
+            HashMap<String, Object> info = new HashMap<>();
+            info.put("roomId", game.getRoomId());
+            info.put("currentSpeakerID", game.getCurrentSpeaker());
+            info.put("currentAnswer", game.getCurrentAnswer());
+            info.put("roundStatus", game.getRoundStatus());
+            info.put("currentRoundNum", game.getCurrentRoundNum());
+            info.put("playerScores", game.getPlayerScores());
+            String jsonMessage = objectMapper.writeValueAsString(info);
+            
+            Message readinessMessage = new Message();
+            readinessMessage.setSenderName("system");
+            readinessMessage.setTimestamp(LocalDateTime.now());
+            readinessMessage.setMessageType(MessageOrderType.GAMEINFO);
+            readinessMessage.setMessage(jsonMessage);
+            
+            simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle serialization errors
+        }
+    }
+
+    //broadcast player words message
+    public void broadcastPlayerwords(String roomId, String userId) {
+        try {
+            Player player= gameService.findPlayerInGame(userId,roomId);
+            HashMap<String, Object> info = new HashMap<>();
+            info.put("userId", userId);
+            info.put("roomId", roomId);
+            info.put("wordsEachRound", player.getWordsEachRound());
+            String jsonMessage = objectMapper.writeValueAsString(info);
+            
+            Message readinessMessage = new Message();
+            readinessMessage.setSenderName("system");
+            readinessMessage.setTimestamp(LocalDateTime.now());
+            readinessMessage.setMessageType(MessageOrderType.PLAYERWORDS);
             readinessMessage.setMessage(jsonMessage);
             
             simpMessagingTemplate.convertAndSend("/room/" + roomId + "/public", readinessMessage);
