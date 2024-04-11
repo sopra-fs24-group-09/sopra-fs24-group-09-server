@@ -11,7 +11,6 @@ import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 @Document(collection = "game") 
 public class Game extends Room{
 
-    private User currentSpeaker;
     private List<Player> playerList;
     private String currentAnswer;
     private Player currentSpeaker;
