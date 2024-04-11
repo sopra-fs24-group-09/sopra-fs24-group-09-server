@@ -74,8 +74,6 @@ public class UserService {
       });
   }
 
-
-
   public User loginUser(User user) {
     user = checkIfPasswordWrong(user);
     user.setStatus(UserStatus.ONLINE);
@@ -89,7 +87,7 @@ public class UserService {
     User userByUsername = userRepository.findByUsername(userToBeLoggedIn.getUsername()).get();
 
     if (userByUsername == null) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username not exist!");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Username not exist!");
     }
     else if (!userByUsername.getPassword().equals(userToBeLoggedIn.getPassword())) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Password incorrect!");
@@ -100,25 +98,32 @@ public class UserService {
   }
 
   //Define the logout function to set the status to OFFLINE when log out
-  public User logoutUser(User userToBeLoggedOut) {
-    try {
-        User userByUsername = userRepository.findById(userToBeLoggedOut.getId()).get();
-        userByUsername.setStatus(UserStatus.OFFLINE);
-        userRepository.save(userByUsername);
-  
-        return userByUsername;
-    } catch (Exception e) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found or error during logout.", e);
-    }}
+  public User logoutUser(User userTobeLoggedOut) {
+      Optional<User> userOptional = userRepository.findById(userTobeLoggedOut.getId());
+      if (!userOptional.isPresent()) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+      }
+
+      User user = userOptional.get();
+      if (user.getStatus() == UserStatus.OFFLINE) {
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already logged out");
+      }
+
+      try {
+          user.setStatus(UserStatus.OFFLINE);
+          userRepository.save(user);
+          return null;
+      } catch (Exception e) {
+          throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error during logout", e);
+      }
+  }
 
   public User userProfileById(String id) {
     Optional<User> userByUserid = userRepository.findById(id);
     if (userByUserid.isPresent()) {
       return userByUserid.get();
-  }
-  else {
-  throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with this ID:"+id+" not found!");
-  }
+    }
+    else {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with this ID:"+id+" not found!");}
   }
 
   public void userEditProfile(User user) {

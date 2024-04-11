@@ -9,26 +9,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 
 @Document(collection = "game") 
-public class Game {
-    
-    @Id
-    private String roomId;
+public class Game extends Room{
+
+    private User currentSpeaker;
     private List<Player> playerList;
-    private Player currentSpeaker;
     private String currentAnswer;
+    private Player currentSpeaker;
     private RoundStatus roundStatus;
     private int currentRoundNum;
     private Map<String, Integer> playerScores = new HashMap<>();
 
-    public Game() {
-    }
-
-    public String getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
+    public Game(Room room) {
+        this.setRoomId(room.getRoomId());
+        this.setTheme(room.getTheme());
+        this.setRoomPlayersList(room.getRoomPlayersList());
     }
 
     public Player getCurrentSpeaker() {

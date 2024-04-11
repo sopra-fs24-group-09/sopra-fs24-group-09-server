@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository("userRepository")
-public interface UserRepository extends MongoRepository<User, String> { // 注意这里的改变，假设User的ID是String类型
+public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByUsername(String username);
     Optional<User> findById(String userId);
 
