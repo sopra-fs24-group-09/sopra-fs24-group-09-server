@@ -27,6 +27,7 @@ public class RoomService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final RoomRepository roomRepository;
+    private GameService gameService;
     public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
     }
@@ -37,15 +38,20 @@ public class RoomService {
 
     //Here we create a new room, and we need to set the room property and theme according to the input from client
     public Room createRoom(Room newRoom){
-        newRoom.setRoomProperty(RoomProperty.WAITING);
-//        newRoom.setRoomName(newRoom.getRoomName());
-//        newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
-//        newRoom.setTheme(newRoom.getTheme());
-        newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
-        newRoom = roomRepository.save(newRoom);
-        roomRepository.save(newRoom);
-        log.debug("Created Information for Room: {}", newRoom);
-        return newRoom;
+        Optional<Room> existingRoom = roomRepository.findByRoomId(newRoom.getRoomId());
+        if (existingRoom.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Room already exists");
+        }
+
+        try {
+            newRoom.setRoomProperty(RoomProperty.WAITING);
+            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            newRoom = roomRepository.save(newRoom);
+            log.debug("Created Information for Room: {}", newRoom);
+            return newRoom;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something unexpected went wrong when creating a game", e);
+        }
     }
 
     public Room findRoomById(String roomId){
@@ -53,10 +59,22 @@ public class RoomService {
     }
 
     public void enterRoom(Room room, User user){
-        if (room.getRoomPlayersList().size()<room.getMaxPlayersNum()){
-            room.addRoomPlayerList(user.getId());
+        if (room.getRoomPlayersList().contains(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
         }
-        else throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
+
+        // Check full or not
+        if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
+        }
+
+        room.addRoomPlayerList(user.getId());
+        roomRepository.save(room);
+    }
+
+
+    public void startGame(Room room){
+        gameService.startGame(room);
     }
 
 
@@ -75,7 +93,7 @@ public class RoomService {
     }
 
 
-    public void leaveRoom(Room room, Long userId){
+    public void exitRoom(Room room, User user){
     }
 
     /**
