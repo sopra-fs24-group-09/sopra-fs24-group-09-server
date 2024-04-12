@@ -97,7 +97,7 @@ public class GameController {
     }
 
     //notify player words
-    @MessageMapping("/message/{userId}/{roomId}/validate")
+    @MessageMapping("/message/{userId}/{roomId}/playerwords")
     public void notifyPlayerWords(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
         socketService.broadcastPlayerwords(roomId, userId);
     }

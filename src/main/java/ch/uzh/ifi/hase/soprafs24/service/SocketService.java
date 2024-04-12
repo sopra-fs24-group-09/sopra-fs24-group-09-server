@@ -14,6 +14,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ public class SocketService {
     private final RoomService roomService;
     private final GameService gameService;
 
-    public SocketService(SimpMessagingTemplate simpMessagingTemplate, UserRepository userRepository, ObjectMapper objectMapper, RoomService roomService, GameService gameService) {
+    public SocketService(SimpMessagingTemplate simpMessagingTemplate, @Qualifier("userRepository") UserRepository userRepository, ObjectMapper objectMapper, RoomService roomService, GameService gameService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;

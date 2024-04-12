@@ -18,8 +18,10 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -51,7 +53,7 @@ public class GameService {
         }
     }
 
-    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, UserRepository userRepository, GameRepository gameRepository, PlayerService playerService, UserService userService, RoomRepository roomRepository) {
+    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository, PlayerService playerService, UserService userService, @Qualifier("roomRepository") RoomRepository roomRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.playerService = playerService;
@@ -224,7 +226,12 @@ public class GameService {
 
 
     public Game findGameById(String roomId){
-        return gameRepository.findById(roomId).get();
+        if (gameRepository.findById(roomId).isPresent()){
+            return gameRepository.findById(roomId).get();
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
+        }
     }
 
     public Player findPlayerInGame(String playerId, String roomId){

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
@@ -144,7 +145,13 @@ public class UserService {
     userRepository.save(userByUserid);
   }
 
-  public User findUserById(String userId){
-    return userRepository.findById(userId).get();
-}
+
+    public User findUserById(String userId){
+        if (userRepository.findById(userId).isPresent()){
+            return userRepository.findById(userId).get();
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
 }

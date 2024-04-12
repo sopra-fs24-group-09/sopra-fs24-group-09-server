@@ -48,7 +48,5 @@ public class PlayerService {
         else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
         }
-      }
-
-
+    }
 }

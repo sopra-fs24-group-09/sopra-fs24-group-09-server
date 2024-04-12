@@ -55,6 +55,9 @@ public class RoomService {
     }
 
     public Room findRoomById(String roomId){
+        if (!roomRepository.findByRoomId(roomId).isPresent()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
+        }
         return roomRepository.findByRoomId(roomId).get();
     }
 
