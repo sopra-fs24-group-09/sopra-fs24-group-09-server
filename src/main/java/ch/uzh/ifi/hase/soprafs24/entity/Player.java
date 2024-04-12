@@ -15,9 +15,7 @@ public class Player extends User {
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = true;
-    private PlayerStatus playerStatus= PlayerStatus.UNREADY;
-
-    private List<String> wordsEachRound = new ArrayList<>();
+    private String assignedWord;
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
 
     public Player(User user) {
@@ -50,26 +48,13 @@ public class Player extends User {
         this.audioData = audioData;
     }
 
-    public PlayerStatus getPlayerStatus() {
-        return playerStatus;
+    public String getAssignedWord() {
+        return assignedWord;
     }
 
-    public void setPlayerStatus(PlayerStatus playerStatus) {
-        this.playerStatus = playerStatus;
+    public void setAssignedWord(String assignedWord) {
+        this.assignedWord = assignedWord;
     }
-
-    public List<String> getWordsEachRound() {
-        return wordsEachRound;
-    }
-
-    public void setWordsEachRound(List<String> wordsEachRound) {
-        this.wordsEachRound = wordsEachRound;
-    }
-
-    public void addWordForRound(String word) {
-        this.wordsEachRound.add(word);
-    }
-
 
     public Integer getGuessScore() {
         return guessScore;

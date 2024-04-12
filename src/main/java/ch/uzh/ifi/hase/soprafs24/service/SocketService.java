@@ -64,7 +64,7 @@ public class SocketService {
     }
     
     //broadcast ready message
-    public void broadcastReady(Long roomId, boolean isReady) {
+    public void broadcastReady(String roomId, boolean isReady) {
         Message readinessMessage = new Message();
         readinessMessage.setSenderName("system");
         readinessMessage.setSenderName("system");
@@ -165,7 +165,7 @@ public class SocketService {
         HashMap<String, Object> info = new HashMap<>();
         info.put("userId", userId);
         info.put("roomId", roomId);
-        info.put("wordsEachRound", player.getWordsEachRound());
+        info.put("wordsEachRound", player.getAssignedWord());
         
         sendMessage(roomId, info, MessageOrderType.PLAYER_WORDS);
     }

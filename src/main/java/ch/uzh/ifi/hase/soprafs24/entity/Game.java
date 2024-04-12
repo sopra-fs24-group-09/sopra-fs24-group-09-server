@@ -83,4 +83,8 @@ public class Game extends Room{
         return playerList;
     }
 
+    public void setPlayerList(List<Player> playerList) {
+        this.playerList = playerList;
+    }
+
 }

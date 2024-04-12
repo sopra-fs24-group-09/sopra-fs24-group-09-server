@@ -8,6 +8,8 @@ import java.util.concurrent.*;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
@@ -27,6 +29,8 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerService playerService;
     private final UserService userService;
+    private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private CountDownLatch latch;
@@ -34,7 +38,6 @@ public class GameService {
     public void executeWithTimeout(Runnable task, long timeout, TimeUnit unit) {
         Future<?> future = executor.submit(task);
 
-        // 在指定的时间后执行下一步操作
         executor.schedule(() -> {
             if (!future.isDone()) {
                 future.cancel(true);
@@ -48,31 +51,38 @@ public class GameService {
         }
     }
 
-    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, GameRepository gameRepository, PlayerService playerService, UserService userService) {
+    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, UserRepository userRepository, GameRepository gameRepository, PlayerService playerService, UserService userService, RoomRepository roomRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.userService = userService;
+        this.roomRepository = roomRepository;
+        this.userRepository = userRepository;
     }
 
-    public void Ready(Long userId) {
-        Optional<Player> optionalPlayer = playerRepository.findById(userId);
-        
-        optionalPlayer.ifPresent(player -> {
-            player.setPlayerStatus(PlayerStatus.READY);
-            playerRepository.save(player);
-        });
-        optionalPlayer.orElseThrow(() -> new RuntimeException("Player not found with id: " + userId));
+    public void Ready(String userId) {
+        User user = userService.findUserById(userId);
+
+        user.setPlayerStatus(PlayerStatus.READY);
+        userRepository.save(user);
     }
 
-    public void UnReady(Long userId){
-        Optional<Player> optionalPlayer = playerRepository.findById(userId);
-        
-        optionalPlayer.ifPresent(player -> {
-            player.setPlayerStatus(PlayerStatus.UNREADY);
-            playerRepository.save(player);
-        });
-        optionalPlayer.orElseThrow(() -> new RuntimeException("Player not found with id: " + userId));
+    public void UnReady(String userId){
+        User user = userService.findUserById(userId);
+
+        user.setPlayerStatus(PlayerStatus.UNREADY);
+        userRepository.save(user);
+    }
+
+    public void checkIfAllReady(Room room){
+        List<String> playerList = room.getRoomPlayersList();
+        for (String id : playerList){
+            User user = userService.findUserById(id);
+            if (user.getPlayerStatus() != PlayerStatus.READY){
+                // Notify unready players
+            }
+        }
+        startGame(room);
     }
 
     public void startGame(Room room){
@@ -83,6 +93,7 @@ public class GameService {
             User user = userService.findUserById(id);
             Player player = new Player(user);
             game.getPlayerList().add(player);
+            player.setAssignedWord("TestWord"); //TODO: get word from API
             playerRepository.save(player);
             gameRepository.save(game);
         }
@@ -101,7 +112,7 @@ public class GameService {
         executeWithTimeout(speakPhaseTask, 30, TimeUnit.SECONDS);
 
         // Guess - if no audio uploaded, jump to next round
-        if (game.getCurrentSpeaker().getAudioData().equals("") && game.getCurrentSpeaker().getAudioData()!=null){
+        if (!game.getCurrentSpeaker().getAudioData().equals("") && game.getCurrentSpeaker().getAudioData()!=null){
             Runnable guessPhaseTask = () -> guessPhase(game);
             executeWithTimeout(guessPhaseTask, 60, TimeUnit.SECONDS);
         }
@@ -131,6 +142,7 @@ public class GameService {
     public void jumpToNextRound(Game game){
         game.getCurrentSpeaker().setIfGuessed(true);
         playerRepository.save(game.getCurrentSpeaker());
+        // Clear the audio data of all players ??
 
         game.setCurrentRoundNum(game.getCurrentRoundNum()+1);
         game.getAnsweredPlayerList().clear();
@@ -141,7 +153,7 @@ public class GameService {
     public void speakPhase(Game game){
         game.setRoundStatus(RoundStatus.SPEAKING);
         // Give a word with API
-        game.setCurrentAnswer("Test");
+        game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
         gameRepository.save(game);
         // Wait for the player to upload audio -- In playerService
         latch = new CountDownLatch(1);
@@ -170,11 +182,11 @@ public class GameService {
 
     public void endGame(Game game){
         gameRepository.delete(game);
+        roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
     }
 
     public void validateAnswer(Game game, Player player, String answer){
         if (answer.equals(game.getCurrentAnswer())){
-
             // Add score for gussers depending on the answer speed
             int score = game.getPlayerList().size()-game.getAnsweredPlayerList().size();
             player.setGuessScore(player.getGuessScore()+ score);
@@ -195,9 +207,7 @@ public class GameService {
 
     public void displayRoundScores(Game game){
         // Display the scores of all players for this round
-        for (Player player : game.getPlayerList()){
-            player.getScoreDetails();
-        }
+        game.getPlayerScores();
         // 展示回合得分
     }
     public void displayScores(Game game){
@@ -229,7 +239,6 @@ public class GameService {
         else{
             return null;
         }
-    
     }
 
     public void setPlayerAudio(String roomId, String playerId, String voice){
