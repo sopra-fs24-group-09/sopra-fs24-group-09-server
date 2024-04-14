@@ -31,8 +31,15 @@ public class GameController {
     }
 
     //set ready
+    @MessageMapping("/message/{userId}/{roomId}/test")
+    public void Test(@Payload Message message,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
+        socketService.broadcastReady(roomId, true);
+        socketService.broadcastUnReady(roomId, false);
+    }
+
+    //set ready
     @MessageMapping("/message/{userId}/{roomId}/ready")
-    public void receiveReadyMessage(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
+    public void receiveReadyMessage(@Payload Message message,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
         gameService.Ready(userId);
         socketService.broadcastReady(roomId, true);
     }
@@ -41,7 +48,7 @@ public class GameController {
     @MessageMapping("/message/{userId}/{roomId}/unready")
     public void receiveUnreadyMessage(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
         gameService.UnReady(userId);
-        socketService.broadcastReady(roomId, false);
+        socketService.broadcastUnReady(roomId, false);
     }
 
 
@@ -69,7 +76,6 @@ public class GameController {
     public void startGame(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("roomId") String roomId) {
         Game game = gameService.findGameById(roomId);
         gameService.checkIfAllReady(game);
-//        socketService.broadcastGamestart(roomId);
     }
 
 

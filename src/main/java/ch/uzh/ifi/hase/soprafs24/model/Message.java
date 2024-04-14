@@ -54,7 +54,7 @@ public class Message {
         this.timestamp = timestamp;
     }
 
-    public MessageOrderType getMessageStatus() {
+    public MessageOrderType getMessageType() {
         return messageType;
     }
 

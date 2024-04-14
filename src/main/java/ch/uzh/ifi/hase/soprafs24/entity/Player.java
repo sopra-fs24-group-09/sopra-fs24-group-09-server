@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
