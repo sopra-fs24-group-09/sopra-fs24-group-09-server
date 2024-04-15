@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
@@ -14,7 +12,6 @@ public class Game extends Room{
     private Player currentSpeaker;
     private RoundStatus roundStatus;
     private int currentRoundNum = 0;
-    private Map<String, Integer> playerScores = new HashMap<>();
     private List<Player> answeredPlayerList;
 
 
@@ -63,20 +60,6 @@ public class Game extends Room{
 
     public void setCurrentRoundNum(int currentRoundNum) {
         this.currentRoundNum = currentRoundNum;
-    }
-
-
-    public Map<String, Integer> getPlayerScores() {
-        return playerScores;
-    }
-
-    public void setPlayerScores(Map<String, Integer> playerScores) {
-        this.playerScores = playerScores;
-    }
-
-    public void updatePlayerScore(String playerId, int score) {
-        int currentScore = playerScores.getOrDefault(playerId, 0);
-        playerScores.put(playerId, currentScore + score);
     }
 
     public List<Player> getPlayerList() {

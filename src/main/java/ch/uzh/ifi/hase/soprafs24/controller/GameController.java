@@ -35,6 +35,9 @@ public class GameController {
     public void Test(@Payload Message message,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
         socketService.broadcastReady(roomId, true);
         socketService.broadcastUnReady(roomId, false);
+        socketService.broadcastRoominfo(roomId);
+        socketService.broadcastGameinfo(roomId);
+        socketService.broadcastPlayerinfo(roomId, userId);
     }
 
     //set ready
@@ -103,9 +106,9 @@ public class GameController {
     }
 
     //notify player words
-    @MessageMapping("/message/{userId}/{roomId}/playerwords")
+    @MessageMapping("/message/{roomId}/player/{userId}")
     public void notifyPlayerWords(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        socketService.broadcastPlayerwords(roomId, userId);
+        socketService.broadcastPlayerinfo(roomId, userId);
     }
 
     //submitAnswer

@@ -19,7 +19,7 @@ public class Room implements Serializable {
 
     private Theme theme;
 
-    private String roomOwnerId;
+    private User roomOwner;
 
     private int maxPlayersNum;
 
@@ -53,12 +53,12 @@ public class Room implements Serializable {
         this.theme = theme;
     }
 
-    public String getRoomOwnerId() {
-        return roomOwnerId;
+    public User getRoomOwner() {
+        return roomOwner;
     }
 
-    public void setRoomOwnerId(String roomOwnerId) {
-        this.roomOwnerId = roomOwnerId;
+    public void setRoomOwner(User roomOwner) {
+        this.roomOwner = roomOwner;
     }
 
     public int getMaxPlayersNum() {

@@ -17,9 +17,9 @@ import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
 public class Message {
     private String senderName;
     private String receiverName;
+    private LocalDateTime timestamp;
+    private MessageOrderType messageType; 
     private String message;
-    private LocalDateTime timestamp; // Changed from String date to LocalDateTime timestamp
-    private MessageOrderType messageType; // Changed field name to camelCase
 
     // Getters and setters
     public String getSenderName() {

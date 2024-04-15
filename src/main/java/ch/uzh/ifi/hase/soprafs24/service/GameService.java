@@ -137,7 +137,7 @@ public class GameService {
         //Intermediate display
         game.getCurrentSpeaker().addScoreDetail(game.getCurrentAnswer(), 1, game.getCurrentSpeaker().getSpeakScore());
         playerRepository.save(game.getCurrentSpeaker());
-        displayRoundScores(game);
+        // displayRoundScores(game);
 
         // Prepare for Next Round
         jumpToNextRound(game);
@@ -210,11 +210,12 @@ public class GameService {
         else {}//显示回复错误
     }
 
-    public void displayRoundScores(Game game){
+    public void displayRoundScores(Player player){
         // Display the scores of all players for this round
-        game.getPlayerScores();
+        player.getScoreDetails();
         // 展示回合得分
     }
+
     public void displayScores(Game game){
         // Display the scores of all players in the game, data required by Yixuan
     }
@@ -238,7 +239,7 @@ public class GameService {
     }
 
     // May cause loop usage
-    
+
     // public Player findPlayerInGame(String playerId, String roomId){
     //     Game game = gameRepository.findById(roomId)
     //     .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));

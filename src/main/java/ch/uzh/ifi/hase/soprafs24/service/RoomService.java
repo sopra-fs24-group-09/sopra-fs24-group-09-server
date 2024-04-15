@@ -45,7 +45,7 @@ public class RoomService {
 
         try {
             newRoom.setRoomProperty(RoomProperty.WAITING);
-            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            newRoom.addRoomPlayerList(newRoom.getRoomOwner().getId());
             newRoom = roomRepository.save(newRoom);
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
