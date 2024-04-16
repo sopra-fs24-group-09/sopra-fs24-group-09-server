@@ -22,6 +22,10 @@ public class User implements Serializable {
 
     private String token;
 
+    private String avatar;
+
+
+
     private UserStatus status;
     private PlayerStatus playerStatus;
 
@@ -93,5 +97,13 @@ public class User implements Serializable {
 
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

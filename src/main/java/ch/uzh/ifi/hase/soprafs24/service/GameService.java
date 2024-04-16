@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.*;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
@@ -31,6 +30,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerService playerService;
     private final UserService userService;
+    private final SocketService socketService;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
 
@@ -53,11 +53,12 @@ public class GameService {
         }
     }
 
-    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository, PlayerService playerService, UserService userService, @Qualifier("roomRepository") RoomRepository roomRepository) {
+    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository, PlayerService playerService, UserService userService, SocketService socketService, @Qualifier("roomRepository") RoomRepository roomRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.userService = userService;
+        this.socketService=socketService;
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
     }
@@ -90,6 +91,7 @@ public class GameService {
     public void startGame(Room room){
         // Create a new game object and player objects then save them to the database
         Game game = new Game(room);
+        socketService.broadcastGamestart(room.getRoomId());
         gameRepository.save(game);
         for (String id : game.getRoomPlayersList()) {
             User user = userService.findUserById(id);
@@ -135,7 +137,7 @@ public class GameService {
         //Intermediate display
         game.getCurrentSpeaker().addScoreDetail(game.getCurrentAnswer(), 1, game.getCurrentSpeaker().getSpeakScore());
         playerRepository.save(game.getCurrentSpeaker());
-        displayRoundScores(game);
+        // displayRoundScores(game);
 
         // Prepare for Next Round
         jumpToNextRound(game);
@@ -172,6 +174,7 @@ public class GameService {
         game.getCurrentSpeaker().setAudioData(audioData);
         playerRepository.save(game.getCurrentSpeaker());
         //上传成功，发给所有玩家
+        socketService.broadcastSpeakerAudio(game.getRoomId(),game.getCurrentSpeaker().getId(), game.getCurrentSpeaker().getAudioData());
         latch.countDown();
     }
 
@@ -207,11 +210,12 @@ public class GameService {
         else {}//显示回复错误
     }
 
-    public void displayRoundScores(Game game){
+    public void displayRoundScores(Player player){
         // Display the scores of all players for this round
-        game.getPlayerScores();
+        player.getScoreDetails();
         // 展示回合得分
     }
+
     public void displayScores(Game game){
         // Display the scores of all players in the game, data required by Yixuan
     }
@@ -234,19 +238,21 @@ public class GameService {
         }
     }
 
-    public Player findPlayerInGame(String playerId, String roomId){
-        Game game = gameRepository.findById(roomId)
-        .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
-        List<Player> playerlist = game.getPlayerList();
-        Player player = playerService.findPlayerById(playerId);
-        boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
-        if(isPlayerInList){
-            return player;
-        }
-        else{
-            return null;
-        }
-    }
+    // May cause loop usage
+
+    // public Player findPlayerInGame(String playerId, String roomId){
+    //     Game game = gameRepository.findById(roomId)
+    //     .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
+    //     List<Player> playerlist = game.getPlayerList();
+    //     Player player = playerService.findPlayerById(playerId);
+    //     boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
+    //     if(isPlayerInList){
+    //         return player;
+    //     }
+    //     else{
+    //         return null;
+    //     }
+    // }
 
     public void setPlayerAudio(String roomId, String playerId, String voice){
         Game game = gameRepository.findById(roomId)

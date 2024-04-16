@@ -14,15 +14,15 @@ public class RoomPutDTO {
     private RoomProperty roomProperty;
     private int maxPlayersNum;
 
-    private long roomOwnerId;
+    private User roomOwner;
     private List<Long> roomPlayersList;
 
-    public long getRoomOwnerId() {
-        return roomOwnerId;
+    public User getRoomOwner() {
+        return roomOwner;
     }
 
-    public void setRoomOwnerId(long roomOwnerId) {
-        this.roomOwnerId = roomOwnerId;
+    public void setRoomOwner(User roomOwner) {
+        this.roomOwner = roomOwner;
     }
 
     public ArrayList<User> getRoomPlayers() {
