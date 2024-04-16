@@ -4,8 +4,10 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.tomcat.jni.Time;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -34,10 +36,13 @@ public class GameController {
     @MessageMapping("/message/{userId}/{roomId}/test")
     public void Test(@Payload Message message,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
         socketService.broadcastReady(roomId, true);
-        socketService.broadcastUnReady(roomId, false);
         socketService.broadcastRoominfo(roomId);
         socketService.broadcastGameinfo(roomId);
         socketService.broadcastPlayerinfo(roomId, userId);
+        String message_voice = message.getMessage();
+        Map<String, String> voice = new HashMap<>();
+        voice.put(roomId, message_voice);
+        socketService.broadcastAudio(roomId, voice);
     }
 
     //set ready

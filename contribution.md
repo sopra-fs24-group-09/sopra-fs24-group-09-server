@@ -15,8 +15,9 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/93| Imp
 ## WEEK2 2024.4.11-2024.4.17
 |Task Link|Description|Assigned to| Finished? |
 |---|---|---|-----------|
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/39| Implement filter to handle the sequence of answering |[@Zihan Liu](https://github.com/zihanltesla)|           |
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/51| Delete the data in database related to game after game end|[@Zihan Liu](https://github.com/zihanltesla)|           |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/32| Develop an API endpoint service to receive and store the uploaded audio files|[@Zihan Liu](https://github.com/zihanltesla)|           |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/34| Implement functionality to retrieve and serve the uploaded audio files to other players upon request.|[@Zihan Liu](https://github.com/zihanltesla) [@Zehao Zhang](https://github.com/Zehao-Zhang) |           |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/55| Able to return the voice data during the game|[@Zihan Liu](https://github.com/zihanltesla) |           |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/40| Implement scoring structure | [@Zehao Zhang](https://github.com/Zehao-Zhang) |           |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/52| Create Game Entity | [@Zehao Zhang](https://github.com/Zehao-Zhang)   |           |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/82| API to update the room info | [@Zehao Zhang](https://github.com/Zehao-Zhang)   |           |
