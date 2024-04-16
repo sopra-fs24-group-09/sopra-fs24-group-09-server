@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,13 +22,26 @@ public class User implements Serializable {
 
     private String token;
 
+    private String avatar;
+
+
+
     private UserStatus status;
+    private PlayerStatus playerStatus;
 
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date registerDate;
 
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date birthday;
+
+    public PlayerStatus getPlayerStatus() {
+        return playerStatus;
+    }
+
+    public void setPlayerStatus(PlayerStatus playerStatus) {
+        this.playerStatus = playerStatus;
+    }
 
     public String getId() {
         return id;
@@ -83,5 +97,13 @@ public class User implements Serializable {
 
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

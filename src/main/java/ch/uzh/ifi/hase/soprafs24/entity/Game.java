@@ -1,36 +1,41 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
-import org.springframework.data.annotation.Id;
+import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 
 @Document(collection = "game") 
-public class Game {
-    
-    @Id
-    private String roomId;
-    private User currentSpeaker;
+public class Game extends Room{
+
+    private List<Player> playerList;
     private String currentAnswer;
+    private Player currentSpeaker;
     private RoundStatus roundStatus;
-    private int currentRoundNum;
+    private int currentRoundNum = 0;
+    private List<Player> answeredPlayerList;
 
-    public Game() {
+
+    public Game(Room room) {
+        this.setRoomId(room.getRoomId());
+        this.setTheme(room.getTheme());
+        this.setRoomPlayersList(room.getRoomPlayersList());
     }
 
-    public String getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
-    }
-
-    public User getCurrentSpeaker() {
+    public Player getCurrentSpeaker() {
         return currentSpeaker;
     }
 
-    public void setCurrentSpeaker(User currentSpeaker) {
+    public void setCurrentSpeaker(Player currentSpeaker) {
         this.currentSpeaker = currentSpeaker;
+        currentSpeaker.setIfGuessed(false);
+    }
+
+    public List<Player> getAnsweredPlayerList() {
+        return answeredPlayerList;
+    }
+
+    public void setAnsweredPlayerList(List<Player> answeredPlayerList) {
+        this.answeredPlayerList = answeredPlayerList;
     }
 
     public String getCurrentAnswer() {
@@ -55,6 +60,14 @@ public class Game {
 
     public void setCurrentRoundNum(int currentRoundNum) {
         this.currentRoundNum = currentRoundNum;
+    }
+
+    public List<Player> getPlayerList() {
+        return playerList;
+    }
+
+    public void setPlayerList(List<Player> playerList) {
+        this.playerList = playerList;
     }
 
 }

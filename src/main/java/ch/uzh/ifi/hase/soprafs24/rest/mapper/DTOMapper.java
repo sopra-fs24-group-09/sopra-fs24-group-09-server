@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
@@ -44,7 +45,7 @@ public interface DTOMapper {
     @Mapping(source = "roomId", target = "roomId")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
-    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
+    @Mapping(source = "roomOwner", target = "roomOwner")
         //@Mapping(source = "roomPlayers", target = "roomPlayers")
         //@Mapping(source = "token", target = "token")
     Room convertRoomPostDTOtoEntity(RoomPostDTO roomPostDTO);
@@ -52,7 +53,7 @@ public interface DTOMapper {
     @Mapping(source = "roomId", target = "roomId")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
-    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
+    @Mapping(source = "roomOwner", target = "roomOwner")
     @Mapping(source = "roomPlayersList", target = "roomPlayersList")
         //@Mapping(source = "token", target = "token")
     RoomGetDTO convertEntityToRoomGetDTO(Room room);
@@ -60,8 +61,19 @@ public interface DTOMapper {
     @Mapping(source = "roomId", target = "roomId")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
-    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
+    @Mapping(source = "roomOwner", target = "roomOwner")
     @Mapping(source = "roomPlayersList", target = "roomPlayersList")
         //@Mapping(source = "token", target = "token")
     Room convertRoomPutDTOtoEntity(RoomPutDTO roomPutDTO);
+
+
+    // Define a mapping from the Player entity to the PlayerGetDTO
+    @Mapping(source = "id", target = "userID")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "avatar", target = "avatar")
+    @Mapping(source = "ready", target = "ready")
+    @Mapping(source = "ifGuessed", target = "ifGuessed")
+    @Mapping(source = "roundFinished", target = "roundFinished")
+    @Mapping(source = "scoreDetails", target = "score")
+    PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 }

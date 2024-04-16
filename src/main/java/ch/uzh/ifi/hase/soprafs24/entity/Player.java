@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +10,12 @@ import java.util.Map;
 public class Player extends User {
 
     private String audioData; 
-    private String word;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
-    private boolean ifGuessed = false;
-    private PlayerStatus playerStatus= PlayerStatus.UNREADY;
-
+    private boolean ifGuessed = true;
+    private boolean ready = false;
+    private boolean roundFinished = false;
+    private String assignedWord;
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
 
     public Player(User user) {
@@ -26,12 +24,29 @@ public class Player extends User {
         this.setPassword(user.getPassword());
     }
 
-    public List<Map<String, Object>> getScoreDetails() {
-        return scoreDetails;
+
+    public boolean isRoundFinished() {
+        return roundFinished;
+    }
+
+    public void setRoundFinished(boolean roundFinished) {
+        this.roundFinished = roundFinished;
+    }
+
+    public boolean isReady() {
+        return ready;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
     }
 
     public void setScoreDetails(List<Map<String, Object>> scoreDetails) {
         this.scoreDetails = scoreDetails;
+    }
+
+    public List<Map<String, Object>> getScoreDetails() {
+        return scoreDetails;
     }
 
     public void addScoreDetail(String word, Integer role, Integer score) {
@@ -50,21 +65,12 @@ public class Player extends User {
         this.audioData = audioData;
     }
 
-
-    public PlayerStatus getPlayerStatus() {
-        return playerStatus;
+    public String getAssignedWord() {
+        return assignedWord;
     }
 
-    public void setPlayerStatus(PlayerStatus playerStatus) {
-        this.playerStatus = playerStatus;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
+    public void setAssignedWord(String assignedWord) {
+        this.assignedWord = assignedWord;
     }
 
     public Integer getGuessScore() {
