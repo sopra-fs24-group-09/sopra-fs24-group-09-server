@@ -1,14 +1,19 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
 import java.util.concurrent.*;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
@@ -88,26 +93,70 @@ public class GameService {
         startGame(room);
     }
 
-    public void startGame(Room room){
-        // Create a new game object and player objects then save them to the database
+    public void startGame(Room room) {
+        // Initialize a new game object and player objects, then save them to the database
         Game game = new Game(room);
+        List<String> words;
+
+        try {
+            // Attempt to retrieve words related to the game's theme from the API
+            words = getWords(game.getTheme().toString());
+            Collections.shuffle(words);  // Shuffle the words to ensure random assignment
+        } catch (IOException e) {
+            System.err.println("Failed to retrieve words: " + e.getMessage());
+            return;  // Exit the method if words cannot be retrieved
+        }
+
+        // Broadcast the game start event to all players
         socketService.broadcastGamestart(room.getRoomId());
         gameRepository.save(game);
+
         for (String id : game.getRoomPlayersList()) {
             User user = userService.findUserById(id);
             Player player = new Player(user);
             game.getPlayerList().add(player);
-            player.setAssignedWord("TestWord"); //TODO: get word from API
+            // Assign a word to each player according to their index in the player list to avoid the same word being assigned to multiple players, and the shuffle before makes sure it's random every time
+            player.setAssignedWord(words.get(game.getPlayerList().indexOf(player)));
             playerRepository.save(player);
             gameRepository.save(game);
         }
-        while (game.getCurrentRoundNum()<game.getRoomPlayersList().size()){
+
+        // Proceed through each turn of the game until every player has spoken
+        while (game.getCurrentRoundNum() < game.getRoomPlayersList().size()) {
             Player currentSpeaker = game.getPlayerList().get(game.getCurrentRoundNum());
             game.setCurrentSpeaker(currentSpeaker);
             gameRepository.save(game);
             proceedTurn(game);
         }
+
+        // Display scores after every player has spoken
         displayScores(game);
+
+        // Display the leaderboard for 2 minutes, and dismiss the room in advance if all players leave
+        Runnable endGameTask = () -> endGame(game);
+        executeWithTimeout(endGameTask, 120, TimeUnit.SECONDS);
+    }
+
+    public List<String> getWords(String theme) throws IOException {
+        List<String> words = new ArrayList<>();
+        String apiUrl = "https://api.datamuse.com/words?ml=" + theme;
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try (InputStream inputStream = connection.getInputStream()) {
+                JsonNode jsonNode = objectMapper.readTree(inputStream);
+                for (JsonNode wordNode : jsonNode) {
+                    words.add(wordNode.get("word").asText());
+                }
+            } catch (JsonProcessingException e) {
+                throw new IOException("Failed to parse JSON", e);
+            }
+        }
+        return words;
     }
 
     public void proceedTurn(Game game){
@@ -151,7 +200,6 @@ public class GameService {
         game.setCurrentRoundNum(game.getCurrentRoundNum()+1);
         game.getAnsweredPlayerList().clear();
         gameRepository.save(game);
-
     }
 
     public void speakPhase(Game game){
@@ -186,8 +234,12 @@ public class GameService {
     }
 
     public void endGame(Game game){
+        for (Player player : game.getPlayerList()){
+            playerRepository.delete(player);
+        }
         gameRepository.delete(game);
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
+        latch = new CountDownLatch(game.getRoomPlayersList().size());
     }
 
     public void validateAnswer(Game game, Player player, String answer){
@@ -225,7 +277,7 @@ public class GameService {
         game.getPlayerList().remove(player);
         gameRepository.save(game);
         playerRepository.delete(player);
-        if (game.getPlayerList().size() == 0){endGame(game);}
+        latch.countDown();
     }
 
 
