@@ -44,8 +44,14 @@ public class RoomService {
         }
 
         try {
+            newRoom.setRoomName(newRoom.getRoomName());
+            newRoom.setTheme(newRoom.getTheme());
+            newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
+            System.out.println(newRoom.getRoomOwnerId());
+            newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
-            newRoom.addRoomPlayerList(newRoom.getRoomOwner().getId());
+            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
             newRoom = roomRepository.save(newRoom);
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;

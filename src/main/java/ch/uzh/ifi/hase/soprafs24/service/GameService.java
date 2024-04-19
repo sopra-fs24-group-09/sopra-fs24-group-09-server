@@ -193,8 +193,12 @@ public class GameService {
     }
 
     public void jumpToNextRound(Game game){
-        game.getCurrentSpeaker().setIfGuessed(true);
-        playerRepository.save(game.getCurrentSpeaker());
+        for (Player player: game.getPlayerList()){
+            player.setAudioData("");
+            player.setRoundFinished(false);
+            player.setIfGuessed(true);
+            playerRepository.save(player);
+        }
         // Clear the audio data of all players ??
 
         game.setCurrentRoundNum(game.getCurrentRoundNum()+1);
@@ -220,6 +224,7 @@ public class GameService {
     // For speaker to upload audio
     public void speakerUpload(Game game, String audioData){
         game.getCurrentSpeaker().setAudioData(audioData);
+        game.getCurrentSpeaker().setRoundFinished(true);
         playerRepository.save(game.getCurrentSpeaker());
         //上传成功，发给所有玩家
         socketService.broadcastSpeakerAudio(game.getRoomId(),game.getCurrentSpeaker().getId(), game.getCurrentSpeaker().getAudioData());
@@ -248,6 +253,7 @@ public class GameService {
             int score = game.getPlayerList().size()-game.getAnsweredPlayerList().size();
             player.setGuessScore(player.getGuessScore()+ score);
             player.addScoreDetail(answer, 0, score);
+            player.setRoundFinished(true);
 
             // Fixed score for speaker for each correct answer
             game.getCurrentSpeaker().setSpeakScore(game.getCurrentSpeaker().getSpeakScore()+2);

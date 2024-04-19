@@ -16,18 +16,22 @@ public class Room implements Serializable {
     @Id
     private String roomId;
     private String roomName;
-
     private Theme theme;
-
     private User roomOwner;
-
     private int maxPlayersNum;
-
+    private String roomOwnerId;
     private RoomProperty roomProperty;
-
     private List<String> roomPlayersList = new ArrayList<>();
 
-    private int currentPlayerIndex = 0; // index inside
+//    private int currentPlayerIndex = 0; // index inside
+
+    public String getRoomOwnerId() {
+        return roomOwnerId;
+    }
+
+    public void setRoomOwnerId(String roomOwnerId) {
+        this.roomOwnerId = roomOwnerId;
+    }
 
     public String getRoomId() {
         return roomId;
@@ -85,13 +89,13 @@ public class Room implements Serializable {
         this.roomPlayersList = roomPlayersList;
     }
 
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
-    }
-
-    public void setCurrentPlayerIndex(int currentPlayerIndex) {
-        this.currentPlayerIndex = currentPlayerIndex;
-    }
+//    public int getCurrentPlayerIndex() {
+//        return currentPlayerIndex;
+//    }
+//
+//    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+//        this.currentPlayerIndex = currentPlayerIndex;
+//    }
 
     public void addRoomPlayerList(String id) {
             if (id!=null) {
