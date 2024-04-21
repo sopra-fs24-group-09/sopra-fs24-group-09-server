@@ -24,9 +24,8 @@ public class User implements Serializable {
 
     private String avatar;
 
-
-
     private UserStatus status;
+    
     private PlayerStatus playerStatus;
 
     @JsonFormat(pattern="dd-MM-yyyy")

@@ -10,13 +10,16 @@ import java.util.Map;
 public class Player extends User {
 
     private String audioData; 
+    private String assignedWord;
+
+    private Integer totalScore = 0;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
-    private boolean ifGuessed = true;
-    private boolean ready = false;
-    private boolean roundFinished = false;
-    private String assignedWord;
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
+
+    private boolean ready = false;
+    private boolean ifGuessed = true;
+    private boolean roundFinished = false;
 
     public Player(User user) {
         this.setId(user.getId());
@@ -87,6 +90,14 @@ public class Player extends User {
 
     public void setSpeakScore(Integer speakScore) {
         this.speakScore = speakScore;
+    }
+
+    public Integer getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(Integer totalScore) {
+        this.totalScore = totalScore;
     }
 
     public boolean isIfGuessed() {
