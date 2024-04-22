@@ -42,6 +42,7 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     newUser.setRegisterDate(new Date());
+    newUser.setAvatar("grinning-face-with-sweat");
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
@@ -83,7 +84,7 @@ public class UserService {
     return user;
   }
 
-  
+
   User checkIfPasswordWrong(User userToBeLoggedIn) {
 
     User userByUsername = userRepository.findByUsername(userToBeLoggedIn.getUsername()).get();

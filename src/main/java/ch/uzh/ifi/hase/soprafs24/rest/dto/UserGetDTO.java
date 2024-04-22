@@ -14,6 +14,15 @@ public class UserGetDTO {
   private String token;
   @JsonFormat(pattern="dd-MM-yyyy")
   private Date birthday;
+  private String avatar;
+
+  public String getAvatar() {
+    return avatar;
+  }
+
+  public void setAvatar(String avatar) {
+    this.avatar = avatar;
+  }
 
   @JsonFormat(pattern="dd-MM-yyyy")
   private Date registerDate;
