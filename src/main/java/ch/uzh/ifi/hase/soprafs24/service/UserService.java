@@ -64,15 +64,16 @@ public class UserService {
    * @see User
    */
   private void checkIfUserExists(User userToBeCreated) {
-      String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-
-      userRepository.findByUsername(userToBeCreated.getUsername()).ifPresent(userByUsername -> {
-          if (!userToBeCreated.getId().equals(userByUsername.getId())) {
-              throw new ResponseStatusException(HttpStatus.CONFLICT,
-                      String.format(baseErrorMessage, "username and the name", "are"));
-          }
-      });
-  }
+    String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+    userRepository.findByUsername(userToBeCreated.getUsername()).ifPresent(userByUsername -> {
+        String userToBeCreatedId = userToBeCreated.getId();
+        String userByUsernameId = userByUsername.getId();
+        if (userToBeCreatedId != null && !userToBeCreatedId.equals(userByUsernameId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    String.format(baseErrorMessage, "username and the name", "are"));
+        }
+    });
+}
 
   public User loginUser(User user) {
     user = checkIfPasswordWrong(user);
