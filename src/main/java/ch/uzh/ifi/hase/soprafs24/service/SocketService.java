@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
@@ -29,12 +31,15 @@ public class SocketService {
 
     @Autowired
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final RoomRepository roomRepository;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate,
             @Qualifier("userRepository") UserRepository userRepository,
             @Qualifier("playerRepository") PlayerRepository playerRepository,
+            @Qualifier("roomRepository") RoomRepository roomRepository,
             @Qualifier("gameRepository") GameRepository gameRepository, RoomService roomService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.roomRepository = roomRepository;
     }
 
     // helper function for sending message to destination with JSON format
@@ -45,6 +50,7 @@ public class SocketService {
             timestampedMessage.setTimestamp(Instant.now().toEpochMilli()); // Assuming you want current time in UTC
                                                                            // milliseconds
             timestampedMessage.setMessage(info);
+            System.out.println(info);
 
             // The payload to be sent is now the timestampedMessage object
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
@@ -58,27 +64,32 @@ public class SocketService {
         // Optional<Game> optionalGame = gameRepository.findByRoomId(roomId);
         // Game game = optionalGame.orElseThrow(() ->
         // new IllegalStateException("No game found with room ID: " + roomId));
-        Room room = new Room();
-        Game game = new Game(room);
-        User user = new User();
-        Player player = new Player(user);
-
-        game.setRoomId("1");
-        game.setCurrentSpeaker(player);
-        game.setCurrentAnswer("Test_answer");
-        PlayerGetDTO currentSpeakerDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(game.getCurrentSpeaker());
-        UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(game.getRoomOwner());
-
+        Room room = roomRepository.findByRoomId(roomId).get();
+        UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(room.getRoomOwner());
         HashMap<String, Object> info = new HashMap<>();
-        info.put("roomID", game.getRoomId());
-        info.put("theme", game.getTheme());
+        info.put("roomID", room.getRoomId());
+        info.put("theme", room.getTheme());
         info.put("roomOwner", roomOwnerDTO);
-        info.put("currentSpeaker", currentSpeakerDTO);
-        info.put("currentAnswer", game.getCurrentAnswer());
-        info.put("gameStatus", game.getGameStatus());
-        info.put("roundStatus", game.getRoundStatus());
-        info.put("roundDue", game.getRoundDue());
-        info.put("currentRoundNum", game.getCurrentRoundNum());
+        info.put("gameStatus", room.getRoomProperty());
+
+        if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
+            info.put("currentSpeaker", "None");
+            info.put("currentAnswer", "None");
+            info.put("roundStatus", "None");
+            info.put("roundDue", "None");
+            info.put("currentRoundNum", "None");
+        }
+        else{
+            Game game = new Game(room);
+
+            PlayerGetDTO currentSpeakerDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(game.getCurrentSpeaker());
+
+            info.put("currentSpeaker", currentSpeakerDTO);
+            info.put("currentAnswer", game.getCurrentAnswer());
+            info.put("roundStatus", game.getRoundStatus());
+            info.put("roundDue", game.getRoundDue());
+            info.put("currentRoundNum", game.getCurrentRoundNum());
+        }
 
         sendMessage("/games/info", roomId, info, receipId);
     }

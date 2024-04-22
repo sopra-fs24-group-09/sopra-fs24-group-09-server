@@ -3,6 +3,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
+import ch.uzh.ifi.hase.soprafs24.service.SocketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
@@ -21,9 +22,11 @@ public class RoomController {
 
 
     private final RoomService roomService;
+    private final SocketService socketService;
 
-    RoomController(RoomService roomService) {
+    RoomController(RoomService roomService, SocketService socketService) {
         this.roomService = roomService;
+        this.socketService = socketService;
     }
 
     //This method is used to get all rooms in the lobby
@@ -62,6 +65,7 @@ public class RoomController {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         Room enteredRoom = roomService.findRoomById(roomId);
         roomService.enterRoom(enteredRoom, userInput);
+        socketService.broadcastGameinfo(roomId, "enterroom");
     }
 
     @PostMapping("/games/guard")
