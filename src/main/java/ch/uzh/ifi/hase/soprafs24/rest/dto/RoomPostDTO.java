@@ -15,7 +15,10 @@ public class RoomPostDTO {
     private int maxPlayersNum;
 
     private User roomOwner;
-    private List<Player> roomPlayersList;
+
+    private String roomOwnerId;
+    private List<String> roomPlayersList;
+
 
     public User getRoomOwner() {
         return roomOwner;
@@ -34,6 +37,15 @@ public class RoomPostDTO {
     }*/
 
     //private ArrayList<User> roomPlayers;
+
+
+    public String getRoomOwnerId() {
+        return roomOwnerId;
+    }
+
+    public void setRoomOwnerId(String roomOwnerId) {
+        this.roomOwnerId = roomOwnerId;
+    }
 
     public String getRoomId() {
         return roomId;

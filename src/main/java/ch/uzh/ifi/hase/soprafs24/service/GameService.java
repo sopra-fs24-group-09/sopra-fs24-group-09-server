@@ -1,15 +1,21 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
+
 import java.util.concurrent.*;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
@@ -93,38 +99,72 @@ public class GameService {
         startGame(room, "0");
     }
 
-    public void assignWords(String roomId) {
-        Optional<Game> game = gameRepository.findById(roomId);
-        // Assign a word to each player
-        for (Player player : game.get().getPlayerList()) {
-            // Get word from API
-            player.setAssignedWord("TestWord");
-            playerRepository.save(player);
-            // Notify player
-            socketService.broadcastPlayerInfo(roomId, player.getId(), "0");
-        }
-    }
 
-    public void startGame(Room room, String receipId) {
-        // Create a new game object and player objects then save them to the database
+    public void startGame(Room room) {
+        // Initialize a new game object and player objects, then save them to the database
         Game game = new Game(room);
-        socketService.broadcastGameinfo(room.getRoomId(), receipId);
+        List<String> words;
+
+        try {
+            // Attempt to retrieve words related to the game's theme from the API
+            words = getWords(game.getTheme().toString());
+            Collections.shuffle(words);  // Shuffle the words to ensure random assignment
+        } catch (IOException e) {
+            System.err.println("Failed to retrieve words: " + e.getMessage());
+            return;  // Exit the method if words cannot be retrieved
+        }
+
+        // Broadcast the game start event to all players
+        socketService.broadcastGamestart(room.getRoomId());
         gameRepository.save(game);
-        for (Player player : game.getRoomPlayersList()) { // Fix: Iterate over the player objects
-            User user = userService.findUserById(player.getId()); // Fix: Get the user from the player
-            Player newPlayer = new Player(user);
-            game.getPlayerList().add(newPlayer);
-            newPlayer.setAssignedWord("TestWord"); // TODO: get word from API
-            playerRepository.save(newPlayer);
+
+        for (String id : game.getRoomPlayersList()) {
+            User user = userService.findUserById(id);
+            Player player = new Player(user);
+            game.getPlayerList().add(player);
+            // Assign a word to each player according to their index in the player list to avoid the same word being assigned to multiple players, and the shuffle before makes sure it's random every time
+            player.setAssignedWord(words.get(game.getPlayerList().indexOf(player)));
+            playerRepository.save(player);
             gameRepository.save(game);
         }
+
+        // Proceed through each turn of the game until every player has spoken
+
         while (game.getCurrentRoundNum() < game.getRoomPlayersList().size()) {
             Player currentSpeaker = game.getPlayerList().get(game.getCurrentRoundNum());
             game.setCurrentSpeaker(currentSpeaker);
             gameRepository.save(game);
             proceedTurn(game);
         }
+
+        // Display scores after every player has spoken
         displayScores(game);
+
+        // Display the leaderboard for 2 minutes, and dismiss the room in advance if all players leave
+        Runnable endGameTask = () -> endGame(game);
+        executeWithTimeout(endGameTask, 120, TimeUnit.SECONDS);
+    }
+
+    public List<String> getWords(String theme) throws IOException {
+        List<String> words = new ArrayList<>();
+        String apiUrl = "https://api.datamuse.com/words?ml=" + theme;
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try (InputStream inputStream = connection.getInputStream()) {
+                JsonNode jsonNode = objectMapper.readTree(inputStream);
+                for (JsonNode wordNode : jsonNode) {
+                    words.add(wordNode.get("word").asText());
+                }
+            } catch (JsonProcessingException e) {
+                throw new IOException("Failed to parse JSON", e);
+            }
+        }
+        return words;
     }
 
     public void proceedTurn(Game game) {
@@ -159,15 +199,19 @@ public class GameService {
         jumpToNextRound(game);
     }
 
-    public void jumpToNextRound(Game game) {
-        game.getCurrentSpeaker().setIfGuessed(true);
-        playerRepository.save(game.getCurrentSpeaker());
+    public void jumpToNextRound(Game game){
+        for (Player player: game.getPlayerList()){
+            player.setAudioData("");
+            player.setRoundFinished(false);
+            player.setIfGuessed(true);
+            playerRepository.save(player);
+        }
+
         // Clear the audio data of all players ??
 
         game.setCurrentRoundNum(game.getCurrentRoundNum() + 1);
         game.getAnsweredPlayerList().clear();
         gameRepository.save(game);
-
     }
 
     public void speakPhase(Game game) {
@@ -188,6 +232,7 @@ public class GameService {
     // For speaker to upload audio
     public void speakerUpload(Game game, String audioData) {
         game.getCurrentSpeaker().setAudioData(audioData);
+        game.getCurrentSpeaker().setRoundFinished(true);
         playerRepository.save(game.getCurrentSpeaker());
         // 上传成功，发给所有玩家
         socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),
@@ -216,17 +261,25 @@ public class GameService {
         // 上传成功，发给所有玩家
     }
 
-    public void endGame(Game game) {
+    public void endGame(Game game){
+        for (Player player : game.getPlayerList()){
+            playerRepository.delete(player);
+        }
+
         gameRepository.delete(game);
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
+        latch = new CountDownLatch(game.getRoomPlayersList().size());
     }
 
     public void validateAnswer(Game game, Player player, String guess, Long roundNum, String currentSpeakerId) {
         if (guess.equals(game.getCurrentAnswer())) {
             // Add score for gussers depending on the answer speed
-            int score = game.getPlayerList().size() - game.getAnsweredPlayerList().size();
-            player.setGuessScore(player.getGuessScore() + score);
-            player.addScoreDetail(guess, 0, score);
+
+            int score = game.getPlayerList().size()-game.getAnsweredPlayerList().size();
+            player.setGuessScore(player.getGuessScore()+ score);
+            player.addScoreDetail(answer, 0, score);
+            player.setRoundFinished(true);
+
 
             // Fixed score for speaker for each correct answer
             game.getCurrentSpeaker().setSpeakScore(game.getCurrentSpeaker().getSpeakScore() + 2);
@@ -256,9 +309,9 @@ public class GameService {
         game.getPlayerList().remove(player);
         gameRepository.save(game);
         playerRepository.delete(player);
-        if (game.getPlayerList().size() == 0) {
-            endGame(game);
-        }
+
+        latch.countDown();
+
     }
 
     public Game findGameById(String roomId) {
