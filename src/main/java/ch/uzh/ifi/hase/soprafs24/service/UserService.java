@@ -72,6 +72,10 @@ public class UserService {
 }
 
   public User loginUser(User user) {
+    Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
+    if (!existingUser.isPresent()) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with the provided username.");
+    }
     user = checkIfPasswordWrong(user);
     user.setStatus(UserStatus.ONLINE);
     user.setToken(UUID.randomUUID().toString());
@@ -79,6 +83,7 @@ public class UserService {
     return user;
   }
 
+  
   User checkIfPasswordWrong(User userToBeLoggedIn) {
 
     User userByUsername = userRepository.findByUsername(userToBeLoggedIn.getUsername()).get();
