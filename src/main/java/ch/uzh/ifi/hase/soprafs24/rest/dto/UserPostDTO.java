@@ -22,11 +22,7 @@ public class UserPostDTO {
 
     public String getId() {
     return id;
-  }
-
-  public void setID(String id) {
-    this.id = id;
-  }
+  };
 
   public String getPassword() {
     return password;

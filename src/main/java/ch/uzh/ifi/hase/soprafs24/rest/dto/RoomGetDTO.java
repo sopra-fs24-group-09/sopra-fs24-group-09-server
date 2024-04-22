@@ -15,9 +15,18 @@ public class RoomGetDTO {
 
     private User roomOwner;
     private List<String> roomPlayersList;
+    private String roomOwnerId;
 
     public List<String> getRoomPlayersList() {
         return roomPlayersList;
+    }
+
+    public String getRoomOwnerId() {
+        return roomOwnerId;
+    }
+
+    public void setRoomOwnerId(String roomOwnerId) {
+        this.roomOwnerId = roomOwnerId;
     }
 
     public void setRoomPlayersList(List<String> roomPlayersList) {
