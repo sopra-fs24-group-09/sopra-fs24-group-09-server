@@ -49,6 +49,7 @@ public class RoomController {
     public RoomGetDTO createRoom(@RequestBody RoomPostDTO roomPostDTO) {
         Room roomInput = DTOMapper.INSTANCE.convertRoomPostDTOtoEntity(roomPostDTO);
         // create room
+        System.out.println(roomInput.getRoomOwnerId());
         Room createdRoom = roomService.createRoom(roomInput);
         // convert internal representation of room back to API
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);

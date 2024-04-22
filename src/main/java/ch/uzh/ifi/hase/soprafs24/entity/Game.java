@@ -81,6 +81,9 @@ public class Game extends Room{
     public void setPlayerList(List<Player> playerList) {
         this.playerList = playerList;
     }
+    public void addPlayerList(Player player) {
+        this.playerList.add(player);
+    }
 
     public GameStatus getGameStatus() {
         return gameStatus;

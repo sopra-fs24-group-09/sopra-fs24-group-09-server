@@ -38,7 +38,7 @@ public class GameController {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
-        // gameService.Ready(userId);
+        gameService.Ready(userId);
         socketService.broadcastPlayerInfo(roomId, userId,receipId);
     }
 
@@ -147,12 +147,12 @@ public class GameController {
     }
 
     //broadcast other player Audio
-//    @MessageMapping("/message/games/Audio/notifyOther")
-//    public void notifyPlayerAudio(SimpMessageHeaderAccessor headerAccessor) {
-//        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
-//        Map<String, String> voice = gameService.getAllPlayerAudio(roomId);
-//        socketService.broadcastAudio(roomId,voice);
-//    }
+   @MessageMapping("/message/games/Audio/notifyOther")
+   public void notifyPlayerAudio(SimpMessageHeaderAccessor headerAccessor) {
+       String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+       Map<String, String> voice = gameService.getAllPlayerAudio(roomId);
+       socketService.broadcastAudio(roomId,voice);
+   }
 
 
     @MessageMapping("/message/response")

@@ -29,14 +29,12 @@ public class SocketService {
 
     @Autowired
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final PlayerRepository playerRepository;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate,
             @Qualifier("userRepository") UserRepository userRepository,
             @Qualifier("playerRepository") PlayerRepository playerRepository,
             @Qualifier("gameRepository") GameRepository gameRepository, RoomService roomService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.playerRepository = playerRepository;
     }
 
     // helper function for sending message to destination with JSON format
