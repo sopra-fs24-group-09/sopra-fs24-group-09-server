@@ -55,7 +55,7 @@ public class RoomController {
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
     }
 
-    @PutMapping("/games{roomId}")
+    @PutMapping("/games/{roomId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void enterRoom(@PathVariable String roomId,@RequestBody UserPutDTO userPutDTO) {
@@ -68,6 +68,15 @@ public class RoomController {
     @ResponseStatus(HttpStatus.OK)
     public RoomGetDTO playerGuard(@RequestBody UserPostDTO userPostDTO) {
         return null;
+    }
+
+    @PutMapping("/games/{roomId}/exit")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void exitRoom(@PathVariable String roomId,@RequestBody UserPutDTO userPutDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+        Room exitedRoom = roomService.findRoomById(roomId);
+        roomService.exitRoom(exitedRoom, userInput);
     }
 
 

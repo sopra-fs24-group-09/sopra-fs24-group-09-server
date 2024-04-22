@@ -74,7 +74,7 @@ public class RoomService {
         if (room.getRoomPlayersList().contains(user.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
         }
-
+        System.out.println(user.getId());
         // Check full or not
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
@@ -106,6 +106,11 @@ public class RoomService {
 
 
     public void exitRoom(Room room, User user){
+        if (!room.getRoomPlayersList().contains(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
+        }
+        room.getRoomPlayersList().remove(user.getId());
+        roomRepository.save(room);
     }
 
     /**
