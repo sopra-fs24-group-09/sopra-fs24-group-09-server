@@ -30,6 +30,7 @@ public class GameController {
         this.socketService = socketService;
         this.gameService=gameService;
         this.roomService = roomService;
+        this.userService = userService;
     }
 
     //set ready
@@ -66,21 +67,21 @@ public class GameController {
         room.setMaxPlayersNum(4);
         User user = new User();
 
-
         roomService.enterRoom(room, user);
         socketService.broadcastGameinfo(roomId, receipId);
     }
 
     //leaveroom
-    @MessageMapping("/message/games/exitroom")
+    @MessageMapping("/message/games/exitRoom")
     public void exitRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
-        Room room=roomService.findRoomById(roomId);
-        User user=userService.findUserById(userId);
-        roomService.exitRoom(room, user);
+        Room room= roomService.findRoomById(roomId);
+        User user= userService.findUserById(userId);
         socketService.broadcastGameinfo(roomId, receipId);
+        roomService.exitRoom(room, user);
+
     }
 
 

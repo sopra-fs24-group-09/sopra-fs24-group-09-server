@@ -48,7 +48,6 @@ public class RoomService {
             newRoom.setRoomName(newRoom.getRoomName());
             newRoom.setTheme(newRoom.getTheme());
             newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
-            System.out.println(newRoom.getRoomOwnerId());
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
 
@@ -74,7 +73,6 @@ public class RoomService {
         if (room.getRoomPlayersList().contains(user.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
         }
-        System.out.println(user.getId());
         // Check full or not
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
@@ -109,8 +107,16 @@ public class RoomService {
         if (!room.getRoomPlayersList().contains(user.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
         }
-        room.getRoomPlayersList().remove(user.getId());
-        roomRepository.save(room);
+        if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
+            roomRepository.delete(room);
+        }
+        else{
+            if(room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
+                room.setRoomOwnerId(room.getRoomPlayersList().get(1));
+            }
+            room.getRoomPlayersList().remove(user.getId());
+            roomRepository.save(room);
+        }
     }
 
     /**

@@ -52,7 +52,6 @@ public class RoomController {
     public RoomGetDTO createRoom(@RequestBody RoomPostDTO roomPostDTO) {
         Room roomInput = DTOMapper.INSTANCE.convertRoomPostDTOtoEntity(roomPostDTO);
         // create room
-        System.out.println(roomInput.getRoomOwnerId());
         Room createdRoom = roomService.createRoom(roomInput);
         // convert internal representation of room back to API
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
@@ -74,14 +73,6 @@ public class RoomController {
         return null;
     }
 
-    @PutMapping("/games/{roomId}/exit")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void exitRoom(@PathVariable String roomId,@RequestBody UserPutDTO userPutDTO) {
-        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-        Room exitedRoom = roomService.findRoomById(roomId);
-        roomService.exitRoom(exitedRoom, userInput);
-    }
 
 
 }

@@ -50,7 +50,6 @@ public class SocketService {
             timestampedMessage.setTimestamp(Instant.now().toEpochMilli()); // Assuming you want current time in UTC
                                                                            // milliseconds
             timestampedMessage.setMessage(info);
-            System.out.println(info);
 
             // The payload to be sent is now the timestampedMessage object
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
