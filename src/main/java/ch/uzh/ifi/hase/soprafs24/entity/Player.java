@@ -9,7 +9,8 @@ import java.util.Map;
 @Document(collection = "player") 
 public class Player extends User {
 
-    private String audioData; 
+    private String audioData;
+    private Integer totalScore = this.guessScore + this.speakScore;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = true;

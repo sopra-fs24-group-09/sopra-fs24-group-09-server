@@ -115,7 +115,7 @@ public class SocketService {
         HashMap<String, Object> infoMap = new HashMap<>();
         infoMap.put("user", userMap);
         infoMap.put("score", scoreMap);
-        infoMap.put("ready", player.isReady());
+        infoMap.put("ready", true);
         infoMap.put("ifGuess", player.isIfGuessed());
         infoMap.put("roundFinished", player.isRoundFinished());
 

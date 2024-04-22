@@ -105,7 +105,7 @@ public class GameController {
         String currentSpeakerId = payload.getMessage().getCurrentSpeakerId();
         Game game = gameService.findGameById(roomId);
         Player player = playerService.findPlayerById(userId);
-        gameService.validateAnswer(game, player, guess, roundNum, currentSpeakerId);
+        gameService.validateAnswer(game, player, guess);
     }
 
     //submitAudio
@@ -126,11 +126,11 @@ public class GameController {
     }
 
     //notify player words
-    @MessageMapping("/message/games/words")
-    public void notifyPlayerWords(SimpMessageHeaderAccessor headerAccessor) {
-        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
-        gameService.assignWords(roomId);
-    }
+//    @MessageMapping("/message/games/words")
+//    public void notifyPlayerWords(SimpMessageHeaderAccessor headerAccessor) {
+//        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+//        gameService.assignWords(roomId);
+//    }
 
 
     //broadcast Audio
@@ -147,12 +147,12 @@ public class GameController {
     }
 
     //broadcast other player Audio
-    @MessageMapping("/message/games/Audio/notifyOther")
-    public void notifyPlayerAudio(SimpMessageHeaderAccessor headerAccessor) {
-        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
-        Map<String, String> voice = gameService.getAllPlayerAudio(roomId);
-        socketService.broadcastAudio(roomId,voice);
-    }
+//    @MessageMapping("/message/games/Audio/notifyOther")
+//    public void notifyPlayerAudio(SimpMessageHeaderAccessor headerAccessor) {
+//        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+//        Map<String, String> voice = gameService.getAllPlayerAudio(roomId);
+//        socketService.broadcastAudio(roomId,voice);
+//    }
 
 
     @MessageMapping("/message/response")

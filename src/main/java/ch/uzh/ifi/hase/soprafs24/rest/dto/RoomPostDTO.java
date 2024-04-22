@@ -79,11 +79,11 @@ public class RoomPostDTO {
         this.maxPlayersNum = maxPlayersNum;
     }
 
-    public List<Player> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Player> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 }

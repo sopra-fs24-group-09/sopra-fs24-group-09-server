@@ -11,13 +11,22 @@ public class UserGetDTO {
   private String id;
   private String username;
   private UserStatus status;
+  private String token;
   @JsonFormat(pattern="dd-MM-yyyy")
   private Date birthday;
 
   @JsonFormat(pattern="dd-MM-yyyy")
   private Date registerDate;
 
-  public String getId() {
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getId() {
     return id;
   }
 

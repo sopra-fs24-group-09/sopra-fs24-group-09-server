@@ -79,16 +79,14 @@ public class RoomService {
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
-        
-        // transfer user to player
-        Player player = new Player(user);
-        room.addRoomPlayerList(player);
+
+        room.addRoomPlayerList(user.getId());
         roomRepository.save(room);
     }
 
 
     public void startGame(Room room){
-        gameService.startGame(room,"0");
+        gameService.startGame(room);
     }
 
 

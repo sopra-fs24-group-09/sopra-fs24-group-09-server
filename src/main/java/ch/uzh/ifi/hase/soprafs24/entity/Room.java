@@ -82,11 +82,11 @@ public class Room implements Serializable {
         this.roomProperty = roomProperty;
     }
 
-    public List<Player> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Player> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 
@@ -98,10 +98,8 @@ public class Room implements Serializable {
 //        this.currentPlayerIndex = currentPlayerIndex;
 //    }
 
-    public void addRoomPlayerList(Player player) {
-            if (player!=null) {
-                this.roomPlayersList.add(player);
-            }
+    public void addRoomPlayerList(String id) {
+            this.roomPlayersList.add(id);
     }
 
 }

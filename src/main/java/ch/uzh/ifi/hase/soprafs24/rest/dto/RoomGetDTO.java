@@ -14,13 +14,13 @@ public class RoomGetDTO {
     private int maxPlayersNum;
 
     private User roomOwner;
-    private List<Player> roomPlayersList;
+    private List<String> roomPlayersList;
 
-    public List<Player> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Player> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 
