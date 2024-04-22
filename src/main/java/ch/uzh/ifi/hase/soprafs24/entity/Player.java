@@ -81,6 +81,14 @@ public class Player extends User {
         this.speakScore = speakScore;
     }
 
+    public Integer getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(Integer totalScore) {
+        this.totalScore = totalScore;
+    }
+
     public boolean isIfGuessed() {
         return ifGuessed;
     }

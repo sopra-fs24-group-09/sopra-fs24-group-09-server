@@ -1,19 +1,31 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
+import java.sql.Date;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 
 @Document(collection = "game") 
 public class Game extends Room{
 
     private List<Player> playerList;
-    private String currentAnswer;
     private Player currentSpeaker;
+    private String currentAnswer;
+    private GameStatus gameStatus;
     private RoundStatus roundStatus;
     private int currentRoundNum = 0;
     private List<Player> answeredPlayerList;
+    private Date roundDue;
 
+
+    public Date getRoundDue() {
+        return roundDue;
+    }
+
+    public void setRoundDue(Date roundDue) {
+        this.roundDue = roundDue;
+    }
 
     public Game(Room room) {
         this.setRoomId(room.getRoomId());
@@ -68,6 +80,14 @@ public class Game extends Room{
 
     public void setPlayerList(List<Player> playerList) {
         this.playerList = playerList;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
     }
 
 }

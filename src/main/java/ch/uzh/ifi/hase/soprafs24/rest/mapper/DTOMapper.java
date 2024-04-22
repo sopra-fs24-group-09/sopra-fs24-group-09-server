@@ -72,9 +72,5 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "userID")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "avatar", target = "avatar")
-    @Mapping(source = "ready", target = "ready")
-    @Mapping(source = "ifGuessed", target = "ifGuessed")
-    @Mapping(source = "roundFinished", target = "roundFinished")
-    @Mapping(source = "scoreDetails", target = "score")
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 }

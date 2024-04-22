@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.constant.Theme;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 import java.util.ArrayList;
@@ -13,7 +14,15 @@ public class RoomGetDTO {
     private int maxPlayersNum;
 
     private User roomOwner;
-    private List<Long> roomPlayersList;
+    private List<Player> roomPlayersList;
+
+    public List<Player> getRoomPlayersList() {
+        return roomPlayersList;
+    }
+
+    public void setRoomPlayersList(List<Player> roomPlayersList) {
+        this.roomPlayersList = roomPlayersList;
+    }
 
     public User getRoomOwner() {
         return roomOwner;
@@ -56,14 +65,7 @@ public class RoomGetDTO {
     public void setMaxPlayersNum(int maxPlayersNum) {
         this.maxPlayersNum = maxPlayersNum;
     }
-
-    public List<Long> getRoomPlayersList() {
-        return roomPlayersList;
-    }
-
-    public void setRoomPlayersList(List<Long> roomPlayersList) {
-        this.roomPlayersList = roomPlayersList;
-    }
+    
 
     public void setRoomPlayers(ArrayList<User> roomPlayers) {
         this.roomPlayers = roomPlayers;

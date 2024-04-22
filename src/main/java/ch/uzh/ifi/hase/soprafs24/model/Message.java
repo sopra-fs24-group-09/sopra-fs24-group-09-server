@@ -8,7 +8,6 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +17,8 @@ public class Message {
     private String senderName;
     private String receiverName;
     private LocalDateTime timestamp;
-    private MessageOrderType messageType; 
-    private String message;
+    // private MessageOrderType messageType; 
+    private Object message;
 
     // Getters and setters
     public String getSenderName() {
@@ -38,11 +37,11 @@ public class Message {
         this.receiverName = receiverName;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Object message) {
         this.message = message;
     }
 
@@ -52,13 +51,5 @@ public class Message {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public MessageOrderType getMessageType() {
-        return messageType;
-    }
-
-    public void setMessageType(MessageOrderType messageType) {
-        this.messageType = messageType;
     }
 }

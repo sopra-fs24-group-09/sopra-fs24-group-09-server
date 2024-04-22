@@ -23,6 +23,7 @@ public class Room implements Serializable {
     private RoomProperty roomProperty;
     private List<String> roomPlayersList = new ArrayList<>();
 
+
 //    private int currentPlayerIndex = 0; // index inside
 
     public String getRoomOwnerId() {
@@ -81,11 +82,11 @@ public class Room implements Serializable {
         this.roomProperty = roomProperty;
     }
 
-    public List<String> getRoomPlayersList() {
+    public List<Player> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<String> roomPlayersList) {
+    public void setRoomPlayersList(List<Player> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 
@@ -97,9 +98,9 @@ public class Room implements Serializable {
 //        this.currentPlayerIndex = currentPlayerIndex;
 //    }
 
-    public void addRoomPlayerList(String id) {
-            if (id!=null) {
-                this.roomPlayersList.add(id);
+    public void addRoomPlayerList(Player player) {
+            if (player!=null) {
+                this.roomPlayersList.add(player);
             }
     }
 

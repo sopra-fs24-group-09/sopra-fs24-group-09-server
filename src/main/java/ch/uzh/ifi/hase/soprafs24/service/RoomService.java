@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
@@ -50,8 +51,10 @@ public class RoomService {
             System.out.println(newRoom.getRoomOwnerId());
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
+
             newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
             newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
+
             newRoom = roomRepository.save(newRoom);
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
@@ -76,14 +79,16 @@ public class RoomService {
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
-
-        room.addRoomPlayerList(user.getId());
+        
+        // transfer user to player
+        Player player = new Player(user);
+        room.addRoomPlayerList(player);
         roomRepository.save(room);
     }
 
 
     public void startGame(Room room){
-        gameService.startGame(room);
+        gameService.startGame(room,"0");
     }
 
 
