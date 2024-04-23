@@ -102,6 +102,6 @@ public class UserController {
   public void userEditProfile(@PathVariable("userId") String userId, @RequestBody UserPutDTO userPutDTO) {
       // convert API user to internal representation
       User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-      userService.userEditProfile(userInput);
+      userService.userEditProfile(userId,userInput);
   }
 }

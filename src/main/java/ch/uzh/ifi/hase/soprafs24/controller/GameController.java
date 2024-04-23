@@ -39,7 +39,7 @@ public class GameController {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
-        gameService.Ready(userId);
+        // gameService.Ready(userId);
         socketService.broadcastPlayerInfo(roomId, userId,receipId);
     }
 
