@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
@@ -11,9 +12,12 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.JsonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -32,6 +36,7 @@ public class SocketService {
     @Autowired
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate,
             @Qualifier("userRepository") UserRepository userRepository,
@@ -40,6 +45,7 @@ public class SocketService {
             @Qualifier("gameRepository") GameRepository gameRepository, RoomService roomService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.roomRepository = roomRepository;
+        this.userRepository = userRepository;
     }
 
     // helper function for sending message to destination with JSON format
@@ -69,7 +75,8 @@ public class SocketService {
         info.put("roomID", room.getRoomId());
         info.put("theme", room.getTheme());
         info.put("roomOwner", roomOwnerDTO);
-        info.put("gameStatus", room.getRoomProperty());
+//        info.put("gameStatus", room.getRoomProperty());
+        info.put("gameStatus", "ready");
 
         if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
             info.put("currentSpeaker", "None");
@@ -100,34 +107,46 @@ public class SocketService {
         // throw new IllegalStateException("No player with ID: " + userId);
         // }
         // Player player = optionalPlayer.get();
-        User user = new User();
-        Player player = new Player(user);
-        player.setId("1");
-        player.setUsername("1");
-        player.setAvatar("1");
-        // define user information
-        HashMap<String, Object> userMap = new HashMap<>();
-        userMap.put("id", player.getId());
-        userMap.put("name", player.getUsername());
-        userMap.put("avatar", player.getAvatar());
+        Room room = roomRepository.findByRoomId(roomId).get();
+        List<Map<String, Object>> infoMap_total = new ArrayList<>();
+        for (String id : room.getRoomPlayersList()){
+            HashMap<String, Object> userMap = new HashMap<>();
+            HashMap<String, Object> infoMap = new HashMap<>();
+            HashMap<String, Object> scoreMap = new HashMap<>();
+            //user is always the same
+            User user = userRepository.findById(id).get();
+            userMap.put("id", user.getId());
+            userMap.put("name", user.getUsername());
+            userMap.put("avatar", user.getAvatar());
+            // Before game starts
+            if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
+                infoMap.put("user", userMap);
+                infoMap.put("score", null);
+                infoMap.put("ready", user.getPlayerStatus().equals(PlayerStatus.READY));
+                infoMap.put("ifGuess", null);
+                infoMap.put("roundFinished", null);
+            }
+            // After game starts
+            else {
+                Player player = new Player(user);
 
-        List<Map<String, Object>> scoreDetails = player.getScoreDetails();
-        // define score information
-        HashMap<String, Object> scoreMap = new HashMap<>();
-        scoreMap.put("total", player.getTotalScore());
-        scoreMap.put("guess", player.getGuessScore());
-        scoreMap.put("read", player.getSpeakScore());
-        scoreMap.put("details", scoreDetails);
+                List<Map<String, Object>> scoreDetails = player.getScoreDetails();
+                scoreMap.put("total", player.getTotalScore());
+                scoreMap.put("guess", player.getGuessScore());
+                scoreMap.put("read", player.getSpeakScore());
+                scoreMap.put("details", scoreDetails);
 
-        // final structure for playerinfo
-        HashMap<String, Object> infoMap = new HashMap<>();
-        infoMap.put("user", userMap);
-        infoMap.put("score", scoreMap);
-        infoMap.put("ready", true);
-        infoMap.put("ifGuess", player.isIfGuessed());
-        infoMap.put("roundFinished", player.isRoundFinished());
+                infoMap.put("user", userMap);
+                infoMap.put("score", scoreMap);
+                infoMap.put("ready", true);
+                infoMap.put("ifGuess", player.isIfGuessed());
+                infoMap.put("roundFinished", player.isRoundFinished());
+            }
 
-        sendMessage("/plays/info", roomId, infoMap, receipId);
+            infoMap_total.add(infoMap);
+        }
+
+        sendMessage("/plays/info", roomId, infoMap_total, receipId);
     }
 
     public void broadcastSpeakerAudio(String roomId, String userId, String voice) {

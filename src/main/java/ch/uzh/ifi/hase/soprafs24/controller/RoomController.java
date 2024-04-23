@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 /**
@@ -23,6 +27,7 @@ public class RoomController {
 
     private final RoomService roomService;
     private final SocketService socketService;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     RoomController(RoomService roomService, SocketService socketService) {
         this.roomService = roomService;
@@ -60,11 +65,15 @@ public class RoomController {
     @PutMapping("/games/{roomId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void enterRoom(@PathVariable String roomId,@RequestBody UserPutDTO userPutDTO) {
+    public void enterRoom(@PathVariable String roomId, @RequestBody UserPutDTO userPutDTO) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         Room enteredRoom = roomService.findRoomById(roomId);
         roomService.enterRoom(enteredRoom, userInput);
-        socketService.broadcastGameinfo(roomId, "enterroom");
+        // set a timeout for ws connnection
+        scheduler.schedule(() -> {
+            socketService.broadcastGameinfo(roomId, "enterroom");
+            socketService.broadcastPlayerInfo(roomId, userInput.getId(), "enterroom");
+        }, 5, TimeUnit.SECONDS);
     }
 
     @PostMapping("/games/guard")
