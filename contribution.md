@@ -42,8 +42,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/82| API
 |---|---|---|-----------|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/32| Develop an API endpoint service to receive and store the uploaded audio files|[@Zihan Liu](https://github.com/zihanltesla)| |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/55| Able to return the voice data during the game|[@Zihan Liu](https://github.com/zihanltesla) ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/33| Implement logic to validate the timing of the upload, ensuring it falls within the specified time window| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Implement gameservice for managing the game process | [@Zehao Zhang](https://github.com/Zehao-Zhang)   ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/33| Implement logic to validate the timing of the upload, ensuring it falls within the specified time window| [@Zehao Zhang](https://github.com/Zehao-Zhang) |:white_check_mark:|
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Implement gameservice for managing the game process | [@Zehao Zhang](https://github.com/Zehao-Zhang)   |:white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/67|Once new audio is sent from backend, the page should imediatly show or update this audio.| [@Shaochang Tan](https://github.com/petertheprocess) | |
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/66|Volume bar should always stick to the top of the game page, and the tunning result should apply to all audio context.| [@Shaochang Tan](https://github.com/petertheprocess) | |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/65 | A user can click avatar in his/her profile popup to change his/her avatar.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
@@ -55,6 +55,9 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Imp
 ## WEEK4 2024.4.24-2024.5.1
 |Task Link|Description|Assigned to| Finished? |
 |---|---|---|-----------|
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/85| Word distrubution with given constraints| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/86| Random select the speaker in the beginning of a game| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/106| Implement enterroom and exitroom reminder and websocket message | [@Zehao Zhang](https://github.com/Zehao-Zhang)   ||
 
 ## WEEK5 2024.5.1-2024.5.8
 |Task Link|Description|Assigned to| Finished? |
