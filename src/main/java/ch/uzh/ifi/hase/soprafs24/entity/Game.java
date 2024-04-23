@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,13 +10,13 @@ import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 @Document(collection = "game") 
 public class Game extends Room{
 
-    private List<Player> playerList;
+    private List<Player> playerList = new ArrayList<>();
     private Player currentSpeaker;
     private String currentAnswer;
     private GameStatus gameStatus;
     private RoundStatus roundStatus;
     private int currentRoundNum = 0;
-    private List<Player> answeredPlayerList;
+    private List<Player> answeredPlayerList = new ArrayList<>();
     private Date roundDue;
 
 

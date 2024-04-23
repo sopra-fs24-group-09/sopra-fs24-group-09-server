@@ -41,6 +41,7 @@ public class GameController {
         String roomId = payload.getMessage().getRoomID();
         gameService.Ready(userId);
         socketService.broadcastPlayerInfo(roomId, userId,receipId);
+        socketService.broadcastGameinfo(roomId, receipId);
     }
 
     //set unready
@@ -49,8 +50,9 @@ public class GameController {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
-        //gameService.UnReady(userId);
+        gameService.UnReady(userId);
         socketService.broadcastPlayerInfo(roomId, userId,receipId);
+        socketService.broadcastGameinfo(roomId, receipId);
     }
 
     //enterroom
@@ -90,8 +92,10 @@ public class GameController {
     public void startGame(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String roomId = payload.getMessage().getRoomID();
-        Game game = gameService.findGameById(roomId);
-        gameService.checkIfAllReady(game);
+//        Game game = gameService.findGameById(roomId);
+//        gameService.checkIfAllReady(game);
+        Room room = roomService.findRoomById(roomId);
+        gameService.checkIfAllReady(room);
         socketService.broadcastGameinfo(roomId, receipId);
     }
 

@@ -58,8 +58,13 @@ public class RoomController {
         Room roomInput = DTOMapper.INSTANCE.convertRoomPostDTOtoEntity(roomPostDTO);
         // create room
         Room createdRoom = roomService.createRoom(roomInput);
+        scheduler.schedule(() -> {
+            socketService.broadcastGameinfo(roomInput.getRoomId(), "enterroom");
+            socketService.broadcastPlayerInfo(roomInput.getRoomId(), roomInput.getRoomOwnerId(), "enterroom");
+        }, 5, TimeUnit.SECONDS);
         // convert internal representation of room back to API
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
+
     }
 
     @PutMapping("/games/{roomId}")

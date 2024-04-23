@@ -76,7 +76,7 @@ public class SocketService {
         info.put("theme", room.getTheme());
         info.put("roomOwner", roomOwnerDTO);
 //        info.put("gameStatus", room.getRoomProperty());
-        info.put("gameStatus", "ready");
+
 
         if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
             info.put("currentSpeaker", "None");
@@ -84,6 +84,7 @@ public class SocketService {
             info.put("roundStatus", "None");
             info.put("roundDue", "None");
             info.put("currentRoundNum", "None");
+            info.put("gameStatus", "ready");
         }
         else{
             Game game = new Game(room);
@@ -95,6 +96,7 @@ public class SocketService {
             info.put("roundStatus", game.getRoundStatus());
             info.put("roundDue", game.getRoundDue());
             info.put("currentRoundNum", game.getCurrentRoundNum());
+            info.put("gameStatus", "ingame");
         }
 
         sendMessage("/games/info", roomId, info, receipId);
@@ -120,8 +122,13 @@ public class SocketService {
             userMap.put("avatar", user.getAvatar());
             // Before game starts
             if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
+                scoreMap.put("total", 0);
+                scoreMap.put("guess", 0);
+                scoreMap.put("read", 0);
+                scoreMap.put("details", 0);
+
                 infoMap.put("user", userMap);
-                infoMap.put("score", null);
+                infoMap.put("score", scoreMap);
                 infoMap.put("ready", user.getPlayerStatus().equals(PlayerStatus.READY));
                 infoMap.put("ifGuess", null);
                 infoMap.put("roundFinished", null);

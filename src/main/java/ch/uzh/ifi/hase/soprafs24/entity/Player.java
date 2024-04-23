@@ -10,7 +10,7 @@ import java.util.Map;
 public class Player extends User {
 
     private String audioData;
-    private Integer totalScore = this.guessScore + this.speakScore;
+    private Integer totalScore = 0;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = true;
