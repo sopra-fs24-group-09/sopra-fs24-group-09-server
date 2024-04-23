@@ -129,19 +129,19 @@ public class UserService {
     else {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with this ID:"+id+" not found!");}
   }
 
-  public void userEditProfile(User user) {
-    if(!userRepository.existsById(user.getId())) {
+  public void userEditProfile(String id, User user) {
+    if(!userRepository.existsById(id)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user ID was not found");
       }
-    User userByUserid = userRepository.findById(user.getId()).get();
+    User userByUserid = userRepository.findById(id).get();
 
     if(user.getUsername()!=null){
           checkIfUserExists(user);
           userByUserid.setUsername(user.getUsername());
           };
     // set the birthday
-    if(user.getBirthday()!=null){
-          userByUserid.setBirthday(user.getBirthday());
+    if(user.getAvatar()!=null){
+          userByUserid.setAvatar(user.getAvatar());
           };
 
     userRepository.save(userByUserid);
