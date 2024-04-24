@@ -98,8 +98,14 @@ public class Room implements Serializable {
 //        this.currentPlayerIndex = currentPlayerIndex;
 //    }
 
+    
     public void addRoomPlayerList(String id) {
-            this.roomPlayersList.add(id);
-    }
+        if (!roomPlayersList.contains(id)) {
+            roomPlayersList.add(id);
+            System.out.println("➕"+id + " has been added to the room.");
+        } else {
+            System.out.println(id + " is already in the room.");
+        }
+}
 
 }

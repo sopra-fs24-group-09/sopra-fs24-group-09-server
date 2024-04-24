@@ -9,6 +9,10 @@ import java.util.Map;
 @Document(collection = "player") 
 public class Player extends User {
 
+    public Player() {
+        super();
+    }
+
     private String audioData;
     private Integer totalScore = 0;
     private Integer guessScore = 0;

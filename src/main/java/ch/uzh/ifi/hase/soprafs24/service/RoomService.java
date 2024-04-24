@@ -51,7 +51,7 @@ public class RoomService {
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
 
-            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            // newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
             newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
 
             newRoom = roomRepository.save(newRoom);
@@ -70,16 +70,35 @@ public class RoomService {
     }
 
     public void enterRoom(Room room, User user){
-        if (room.getRoomPlayersList().contains(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
-        }
+        // if (room.getRoomPlayersList().contains(user.getId())) {
+        //     throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
+        // }
         // Check full or not
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
 
         room.addRoomPlayerList(user.getId());
+        System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
         roomRepository.save(room);
+    }
+
+
+    public void exitRoom(Room room, User user){
+        if (!room.getRoomPlayersList().contains(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
+        }
+        if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
+            System.out.println("🚮 deleted room!!!!!!");
+            roomRepository.delete(room);
+        }
+        else{
+            if(room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
+                room.setRoomOwnerId(room.getRoomPlayersList().get(1));
+            }
+            room.getRoomPlayersList().remove(user.getId());
+            roomRepository.save(room);
+        }
     }
 
 
@@ -103,21 +122,7 @@ public class RoomService {
     }
 
 
-    public void exitRoom(Room room, User user){
-        if (!room.getRoomPlayersList().contains(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
-        }
-        if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
-            roomRepository.delete(room);
-        }
-        else{
-            if(room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
-                room.setRoomOwnerId(room.getRoomPlayersList().get(1));
-            }
-            room.getRoomPlayersList().remove(user.getId());
-            roomRepository.save(room);
-        }
-    }
+
 
     /**
      * This is a helper method that will check the uniqueness criteria of the

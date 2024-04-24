@@ -39,7 +39,7 @@ public class GameController {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
-        // gameService.Ready(userId);
+        gameService.Ready(userId);
         socketService.broadcastPlayerInfo(roomId, userId,receipId);
         socketService.broadcastGameinfo(roomId, receipId);
     }
@@ -56,33 +56,30 @@ public class GameController {
     }
 
     //enterroom
-    @MessageMapping("/message/games/enterroom")
+    @MessageMapping("/message/users/enterroom")
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
-        String roomId = payload.getMessage().getRoomID();
-        // Room room=roomService.findRoomById(roomId);
-        // User user=userService.findUserById(userId);
-
-        //测使用
-        Room room = new Room();
-        room.setRoomId(roomId);
-        room.setMaxPlayersNum(4);
-        User user = new User();
-
+        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String userId = payload.getMessage().getUserID();
+        Room room=roomService.findRoomById(roomId);
+        User user=userService.findUserById(userId);
         roomService.enterRoom(room, user);
         socketService.broadcastGameinfo(roomId, receipId);
+        socketService.broadcastPlayerInfo(roomId, userId, "enterroom");
     }
 
     //leaveroom
-    @MessageMapping("/message/games/exitRoom")
+    @MessageMapping("/message/users/exitroom")
     public void exitRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
+        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
         String userId = payload.getMessage().getUserID();
-        String roomId = payload.getMessage().getRoomID();
-        Room room= roomService.findRoomById(roomId);
-        User user= userService.findUserById(userId);
-        socketService.broadcastGameinfo(roomId, receipId);
+        Room room=roomService.findRoomById(roomId);
+        User user=userService.findUserById(userId);
+        System.out.println("❌"+user.getUsername()+"要退出房间");
         roomService.exitRoom(room, user);
+        socketService.broadcastGameinfo(roomId, receipId);
+        socketService.broadcastPlayerInfo(roomId, userId, "exitroom");
 
     }
 
@@ -96,7 +93,7 @@ public class GameController {
 //        gameService.checkIfAllReady(game);
         Room room = roomService.findRoomById(roomId);
         gameService.checkIfAllReady(room);
-        socketService.broadcastGameinfo(roomId, receipId);
+        // socketService.broadcastGameinfo(roomId, receipId);
     }
 
     //submitAnswer

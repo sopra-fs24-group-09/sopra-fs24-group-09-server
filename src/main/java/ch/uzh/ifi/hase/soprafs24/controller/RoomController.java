@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
 import ch.uzh.ifi.hase.soprafs24.service.SocketService;
@@ -58,10 +59,11 @@ public class RoomController {
         Room roomInput = DTOMapper.INSTANCE.convertRoomPostDTOtoEntity(roomPostDTO);
         // create room
         Room createdRoom = roomService.createRoom(roomInput);
-        scheduler.schedule(() -> {
-            socketService.broadcastGameinfo(roomInput.getRoomId(), "enterroom");
-            socketService.broadcastPlayerInfo(roomInput.getRoomId(), roomInput.getRoomOwnerId(), "enterroom");
-        }, 5, TimeUnit.SECONDS);
+        // scheduler.schedule(() -> {
+        //     System.out.println();
+        //     socketService.broadcastGameinfo(roomInput.getRoomId(), "enterroom");
+        //     socketService.broadcastPlayerInfo(roomInput.getRoomId(), roomInput.getRoomOwnerId(), "enterroom");
+        // }, 5, TimeUnit.SECONDS);
         // convert internal representation of room back to API
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
 
@@ -73,12 +75,12 @@ public class RoomController {
     public void enterRoom(@PathVariable String roomId, @RequestBody UserPutDTO userPutDTO) {
         User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         Room enteredRoom = roomService.findRoomById(roomId);
-        roomService.enterRoom(enteredRoom, userInput);
-        // set a timeout for ws connnection
-        scheduler.schedule(() -> {
-            socketService.broadcastGameinfo(roomId, "enterroom");
-            socketService.broadcastPlayerInfo(roomId, userInput.getId(), "enterroom");
-        }, 5, TimeUnit.SECONDS);
+        // roomService.enterRoom(enteredRoom, userInput);
+        // // set a timeout for ws connnection
+        // scheduler.schedule(() -> {
+        //     socketService.broadcastGameinfo(roomId, "enterroom");
+        //     socketService.broadcastPlayerInfo(roomId, userInput.getId(), "enterroom");
+        // }, 5, TimeUnit.SECONDS);
     }
 
     @PostMapping("/games/guard")

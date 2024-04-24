@@ -1,7 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 public class PlayerGetDTO {
-    private Long userID;
+    private String userID;
     private String username;
     private String avatar;
 
@@ -11,10 +11,10 @@ public class PlayerGetDTO {
     public void setUsername(String username) {
         this.username= username;
     }
-    public Long getUserID() {
+    public String getUserID() {
         return userID;
     }
-    public void setUserID(Long userID) {
+    public void setUserID(String userID) {
         this.userID = userID;
     }
     public String getAvatar() {

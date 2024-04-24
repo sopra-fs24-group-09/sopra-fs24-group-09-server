@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
@@ -102,6 +103,8 @@ public class GameService {
     public void startGame(Room room) {
         // Initialize a new game object and player objects, then save them to the
         // database
+        room.setRoomProperty(RoomProperty.INGAME);
+        roomRepository.save(room);
         Game game = new Game(room);
         List<String> words;
 
@@ -125,20 +128,28 @@ public class GameService {
             gameRepository.save(game);
         }
 
-        socketService.broadcastGameinfo(game.getRoomId(), "speak");
-        socketService.broadcastPlayerInfo(game.getRoomId(), "123", "speak");
+        // socketService.broadcastGameinfo(game.getRoomId(), "speak");
+        // socketService.broadcastPlayerInfo(game.getRoomId(), "123", "speak");
 
         // Proceed through each turn of the game until every player has spoken
 
         while (game.getCurrentRoundNum() < game.getRoomPlayersList().size()) {
             Player currentSpeaker = game.getPlayerList().get(game.getCurrentRoundNum());
+            System.out.println("当前轮数:"+game.getCurrentRoundNum());
+            System.out.println("playerlist:"+game.getPlayerList());
+            System.out.println("当前说话的人:"+currentSpeaker.getUsername());
+
+            System.out.println("----------------------------------");
+            System.out.println("第"+game.getCurrentRoundNum()+"轮开始😍现在轮到"+currentSpeaker+"说话!");
             game.setCurrentSpeaker(currentSpeaker);
-            System.out.println(game.getCurrentRoundNum());
+            System.out.println("发送gameinfo更新currentSpeaker");
             gameRepository.save(game);
+            socketService.broadcastGameinfo(game.getRoomId(), "speak");
             proceedTurn(game);
         }
 
         // Display scores after every player has spoken
+
         displayScores(game);
 
         // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
@@ -174,9 +185,13 @@ public class GameService {
         System.out.println(game.getCurrentSpeaker());
         Runnable speakPhaseTask = () -> speakPhase(game);
         executeWithTimeout(speakPhaseTask, 20, TimeUnit.SECONDS);
-        System.out.println("说话结束");
-        System.out.println(game.getCurrentSpeaker().getAudioData());
-
+        System.out.println("CurrentSpeaker说话结束");
+        System.out.println("speaker说的是:"+game.getCurrentSpeaker().getAudioData());
+        // Broadcast the audio to all players
+        System.out.println("broadcastaudio广播声音!");
+        socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),
+                game.getCurrentSpeaker().getAudioData());
+        
         // Guess - if no audio uploaded, jump to next round
         if (game.getCurrentSpeaker().getAudioData() != null && !game.getCurrentSpeaker().getAudioData().isEmpty()) {
             System.out.println("猜词");
@@ -185,16 +200,16 @@ public class GameService {
         } else {
             // if the speaker does not upload the audio, he will get -4 points and marked
             // this word as No Speak
-            System.out.println("打分");
+            System.out.println("打分🎯");
             for (Player player : game.getPlayerList()) {
                 if (player != game.getCurrentSpeaker()) {
                     player.addScoreDetail("No Speak", 0, 0);
                     playerRepository.save(player);
-                    System.out.println(player +" 11 "+player.getScoreDetails());
+                    System.out.println(player.getUsername() +" 11 "+player.getScoreDetails());
                 } else {
                     player.setSpeakScore(player.getSpeakScore() - 4);
                     playerRepository.save(player);
-                    System.out.println(player +" 22 "+player.getScoreDetails());
+                    System.out.println(player.getUsername() +" 22 "+player.getScoreDetails());
                 }
             }
         }
@@ -225,8 +240,10 @@ public class GameService {
 
     public void speakPhase(Game game) {
         game.setRoundStatus(RoundStatus.speak);
+        System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
         // Give a word with API
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
+        System.out.println("🌟CurrentAnswer更改?"+game.getCurrentAnswer());
         gameRepository.save(game);
         socketService.broadcastGameinfo(game.getRoomId(), "speak");
         socketService.broadcastPlayerInfo(game.getRoomId(), game.getCurrentSpeaker().getId(), "speak");
@@ -236,6 +253,7 @@ public class GameService {
 
     public void guessPhase(Game game) {
         game.setRoundStatus(RoundStatus.guess);
+        System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
         gameRepository.save(game);
         latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
     }
@@ -274,9 +292,11 @@ public class GameService {
 
     public void endGame(Game game) {
         for (Player player : game.getPlayerList()) {
+
             System.out.println(player.getScoreDetails());
             playerRepository.delete(player);
         }
+        System.out.println("---------------------------");
 
         gameRepository.delete(game);
         System.out.println("Game ended");
@@ -314,6 +334,7 @@ public class GameService {
 
     public void displayScores(Game game) {
         // Display the scores of all players in the game, data required by Yixuan
+        socketService.broadcastGameinfo(game.getRoomId(), "score");
     }
 
     // 从结果展示界面离开房间，删除玩家

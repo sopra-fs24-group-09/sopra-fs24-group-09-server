@@ -37,6 +37,7 @@ public class SocketService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final GameRepository gameRepository;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate,
             @Qualifier("userRepository") UserRepository userRepository,
@@ -46,6 +47,7 @@ public class SocketService {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     // helper function for sending message to destination with JSON format
@@ -56,7 +58,7 @@ public class SocketService {
             timestampedMessage.setTimestamp(Instant.now().toEpochMilli()); // Assuming you want current time in UTC
                                                                            // milliseconds
             timestampedMessage.setMessage(info);
-
+            System.out.println("📪 Sending message to " + destination + " with payload: " + timestampedMessage.getMessage());
             // The payload to be sent is now the timestampedMessage object
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
         } catch (Exception e) {
@@ -70,7 +72,8 @@ public class SocketService {
         // Game game = optionalGame.orElseThrow(() ->
         // new IllegalStateException("No game found with room ID: " + roomId));
         Room room = roomRepository.findByRoomId(roomId).get();
-        UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(room.getRoomOwner());
+        User roomowner = userRepository.findById(room.getRoomOwnerId()).get();
+        UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(roomowner);
         HashMap<String, Object> info = new HashMap<>();
         info.put("roomID", room.getRoomId());
         info.put("theme", room.getTheme());
@@ -79,6 +82,7 @@ public class SocketService {
 
 
         if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
+            System.out.println("错了!");
             info.put("currentSpeaker", "None");
             info.put("currentAnswer", "None");
             info.put("roundStatus", "None");
@@ -87,8 +91,9 @@ public class SocketService {
             info.put("gameStatus", "ready");
         }
         else{
-            Game game = new Game(room);
-
+            System.out.println("对了!");
+            Game game = gameRepository.findByRoomId(roomId).get();
+            System.out.println(game.getCurrentSpeaker());
             PlayerGetDTO currentSpeakerDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(game.getCurrentSpeaker());
 
             info.put("currentSpeaker", currentSpeakerDTO);
@@ -98,8 +103,8 @@ public class SocketService {
             info.put("currentRoundNum", game.getCurrentRoundNum());
             info.put("gameStatus", "ingame");
         }
-
-        sendMessage("/games/info", roomId, info, receipId);
+        System.out.println("📢📢📢调用/games/info/📢📢📢" + roomOwnerDTO);
+        sendMessage( "/games/info/" + roomId, roomId, info, receipId);
     }
 
     // broadcast player info message
@@ -152,16 +157,18 @@ public class SocketService {
 
             infoMap_total.add(infoMap);
         }
-
-        sendMessage("/plays/info", roomId, infoMap_total, receipId);
+        System.out.println("📢📢📢调用/plays/info/📢📢📢" + roomId);
+        sendMessage("/plays/info/"+roomId, roomId, infoMap_total, receipId);
     }
+
+
 
     public void broadcastSpeakerAudio(String roomId, String userId, String voice) {
         HashMap<String, Object> info = new HashMap<>();
         info.put("userId", userId);
         info.put("roomId", roomId);
         info.put("audioData", voice);
-
+        System.out.println("📢📢📢调用/audio/info/📢📢📢" + roomId);
         sendMessage("/plays/audio", roomId, info, null);
     }
 

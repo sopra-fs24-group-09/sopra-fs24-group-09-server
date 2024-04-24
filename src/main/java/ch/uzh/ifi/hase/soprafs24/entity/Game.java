@@ -9,7 +9,10 @@ import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 
 @Document(collection = "game") 
 public class Game extends Room{
-
+    
+    public Game() {
+        super();
+    }
     private List<Player> playerList = new ArrayList<>();
     private Player currentSpeaker;
     private String currentAnswer;
