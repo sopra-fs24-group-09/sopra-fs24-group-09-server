@@ -114,8 +114,10 @@ public class GameController {
     @MessageMapping("/message/games/audio/upload")
     public void uploadAudio(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAudio> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
-        String userId = payload.getMessage().getUserId();
-        String roomId = payload.getMessage().getRoomId();
+        String userId = payload.getMessage().getUserID();
+        System.out.println("userId: "+userId);
+        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        System.out.println("roomId: "+roomId);
         String voice = payload.getMessage().getAudioData();
         gameService.setPlayerAudio(roomId,userId,voice);
     }

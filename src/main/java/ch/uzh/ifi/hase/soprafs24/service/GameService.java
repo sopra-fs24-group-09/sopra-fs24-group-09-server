@@ -168,7 +168,7 @@ public class GameService {
         // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
         // players leave
         Runnable endGameTask = () -> endGame(game);
-        executeWithTimeout(endGameTask, 10, TimeUnit.SECONDS);
+        executeWithTimeout(endGameTask, 20, TimeUnit.SECONDS);
     }
 
     public List<String> getWords(String theme) throws IOException {
@@ -196,6 +196,9 @@ public class GameService {
     public void proceedTurn(Game game) {
         // Speak
         System.out.println(game.getCurrentSpeaker());
+
+        game.setRoundStatus(RoundStatus.speak);
+        gameRepository.save(game);
         Runnable speakPhaseTask = () -> speakPhase(game);
         executeWithTimeout(speakPhaseTask, 20, TimeUnit.SECONDS);
         System.out.println("CurrentSpeaker说话结束");
@@ -204,12 +207,16 @@ public class GameService {
         System.out.println("broadcastaudio广播声音!");
         socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),
                 game.getCurrentSpeaker().getAudioData());
+
         
         // Guess - if no audio uploaded, jump to next round
         if (game.getCurrentSpeaker().getAudioData() != null && !game.getCurrentSpeaker().getAudioData().isEmpty()) {
+
+            game.setRoundStatus(RoundStatus.guess);
+            gameRepository.save(game);
             System.out.println("猜词");
             Runnable guessPhaseTask = () -> guessPhase(game);
-            executeWithTimeout(guessPhaseTask, 10, TimeUnit.SECONDS);
+            executeWithTimeout(guessPhaseTask, 20, TimeUnit.SECONDS);
         } else {
             // if the speaker does not upload the audio, he will get -4 points and marked
             // this word as No Speak
@@ -252,8 +259,8 @@ public class GameService {
     }
 
     public void speakPhase(Game game) {
-        game.setRoundStatus(RoundStatus.speak);
         System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
+        System.out.println("tscccc"+game.getCurrentSpeaker().getId());
         // Give a word with API
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
         game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(20)));
@@ -266,7 +273,6 @@ public class GameService {
     }
 
     public void guessPhase(Game game) {
-        game.setRoundStatus(RoundStatus.guess);
         game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
         System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
         gameRepository.save(game);
@@ -389,13 +395,18 @@ public class GameService {
     // }
 
     public void setPlayerAudio(String roomId, String playerId, String voice) {
-        Game game = gameRepository.findById(roomId)
+        Game game = gameRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
+
         List<Player> playerlist = game.getPlayerList();
-        Player player = playerService.findPlayerById(playerId);
+        Player player = playerRepository.findById(playerId).get();
         boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
         if (isPlayerInList) {
             player.setAudioData(voice);
+            System.out.println(player.getAudioData());
+            System.out.println("tsc"+player.getId());
+            playerRepository.save(player);
+
         } else {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }

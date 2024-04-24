@@ -1,22 +1,22 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
 public class PlayerAudio {
-    private String userId; 
-    private String roomId;
+    private String userID;
+    private String roomID;
     
-    public String getRoomId() {
-        return roomId;
+    public String getRoomID() {
+        return roomID;
     }
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
+    public void setRoomID(String roomID) {
+        this.roomID = roomID;
     }
     private String audioData;
 
-    public String getUserId() {
-        return userId;
+    public String getUserID() {
+        return userID;
     }
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserID(String userId) {
+        this.userID = userId;
     }
     public String getAudioData() {
         return audioData;

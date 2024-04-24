@@ -1,23 +1,23 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
 public class AnswerGuess {
-    private String useId;
-    private String roomId;
+    private String useID;
+    private String roomID;
     private String guess;
     private Long roundNum;
     private String currentSpeakerId;
     
     public String getUseId() {
-        return useId;
+        return useID;
     }
     public void setUseId(String useId) {
-        this.useId = useId;
+        this.useID = useId;
     }
     public String getRoomId() {
-        return roomId;
+        return roomID;
     }
     public void setRoomId(String roomId) {
-        this.roomId = roomId;
+        this.roomID = roomId;
     }
     public String getGuess() {
         return guess;
