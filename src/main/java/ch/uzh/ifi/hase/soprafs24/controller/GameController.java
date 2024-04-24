@@ -76,7 +76,7 @@ public class GameController {
         String userId = payload.getMessage().getUserID();
         Room room=roomService.findRoomById(roomId);
         User user=userService.findUserById(userId);
-        System.out.println("❌"+user.getUsername()+"要退出房间");
+        System.out.println("❌"+user.getUsername()+"will leave the room");
         roomService.exitRoom(room, user);
         socketService.broadcastGameinfo(roomId, receipId);
         socketService.broadcastPlayerInfo(roomId, userId, "exitroom");
@@ -111,7 +111,7 @@ public class GameController {
     }
 
     //submitAudio
-    @MessageMapping("/message/games/Audio/upload")
+    @MessageMapping("/message/games/audio/upload")
     public void uploadAudio(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAudio> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserId();
@@ -136,7 +136,7 @@ public class GameController {
 
 
     //broadcast Audio
-    @MessageMapping("/message/games/Audio/notifySpeaker")
+    @MessageMapping("/message/games/audio/notifySpeaker")
     public void notifySpeakerAudio(SimpMessageHeaderAccessor headerAccessor) {
         //从session中获取roomId
         String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
@@ -149,7 +149,7 @@ public class GameController {
     }
 
     //broadcast other player Audio
-   @MessageMapping("/message/games/Audio/notifyOther")
+   @MessageMapping("/message/games/audio/notifyOther")
    public void notifyPlayerAudio(SimpMessageHeaderAccessor headerAccessor) {
        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
        Map<String, String> voice = gameService.getAllPlayerAudio(roomId);
