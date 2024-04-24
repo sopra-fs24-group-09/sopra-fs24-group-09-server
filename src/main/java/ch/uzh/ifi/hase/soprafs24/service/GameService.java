@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import java.util.concurrent.*;
@@ -254,6 +256,7 @@ public class GameService {
         System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
         // Give a word with API
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(20)));
         System.out.println("🌟CurrentAnswer更改?"+game.getCurrentAnswer());
         gameRepository.save(game);
         // socketService.broadcastGameinfo(game.getRoomId(), "speak");
@@ -264,6 +267,7 @@ public class GameService {
 
     public void guessPhase(Game game) {
         game.setRoundStatus(RoundStatus.guess);
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
         System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
         gameRepository.save(game);
         latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);

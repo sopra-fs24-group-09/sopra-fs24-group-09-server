@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,14 +22,14 @@ public class Game extends Room{
     private RoundStatus roundStatus;
     private int currentRoundNum = 0;
     private List<Player> answeredPlayerList = new ArrayList<>();
-    private Date roundDue;
+    private String roundDue;
 
 
-    public Date getRoundDue() {
+    public String getRoundDue() {
         return roundDue;
     }
 
-    public void setRoundDue(Date roundDue) {
+    public void setRoundDue(String roundDue) {
         this.roundDue = roundDue;
     }
 
