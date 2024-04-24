@@ -31,6 +31,7 @@ public class GameController {
         this.gameService=gameService;
         this.roomService = roomService;
         this.userService = userService;
+        this.playerService = playerService;
     }
 
     //set ready
@@ -40,7 +41,7 @@ public class GameController {
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
         gameService.Ready(userId);
-        socketService.broadcastPlayerInfo(roomId, userId,receipId);
+        socketService.broadcastPlayerInfo(roomId,receipId);
         socketService.broadcastGameinfo(roomId, receipId);
     }
 
@@ -51,7 +52,7 @@ public class GameController {
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
         gameService.UnReady(userId);
-        socketService.broadcastPlayerInfo(roomId, userId,receipId);
+        socketService.broadcastPlayerInfo(roomId, receipId);
         socketService.broadcastGameinfo(roomId, receipId);
     }
 
@@ -65,7 +66,7 @@ public class GameController {
         User user=userService.findUserById(userId);
         roomService.enterRoom(room, user);
         socketService.broadcastGameinfo(roomId, receipId);
-        socketService.broadcastPlayerInfo(roomId, userId, "enterroom");
+        socketService.broadcastPlayerInfo(roomId, "enterroom");
     }
 
     //leaveroom
@@ -79,7 +80,7 @@ public class GameController {
         System.out.println("❌"+user.getUsername()+"will leave the room");
         roomService.exitRoom(room, user);
         socketService.broadcastGameinfo(roomId, receipId);
-        socketService.broadcastPlayerInfo(roomId, userId, "exitroom");
+        socketService.broadcastPlayerInfo(roomId, "exitroom");
 
     }
 
@@ -100,12 +101,14 @@ public class GameController {
     @MessageMapping("/message/games/validate")
     public void submitAnswer(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<AnswerGuess> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
-        String userId = payload.getMessage().getUseId();
+
+        System.out.println(payload.getMessage());
+        String userId = payload.getMessage().getUserId();
         String roomId = payload.getMessage().getRoomId();
         String guess = payload.getMessage().getGuess();
-        Long roundNum = payload.getMessage().getRoundNum();
-        String currentSpeakerId = payload.getMessage().getCurrentSpeakerId();
         Game game = gameService.findGameById(roomId);
+        System.out.println(userId);
+        System.out.println(roomId);
         Player player = playerService.findPlayerById(userId);
         gameService.validateAnswer(game, player, guess);
     }

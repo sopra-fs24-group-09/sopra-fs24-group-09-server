@@ -105,12 +105,7 @@ public class SocketService {
     }
 
     // broadcast player info message
-    public void broadcastPlayerInfo(String roomId, String userId, String receipId) {
-        // Optional<Player> optionalPlayer = playerRepository.findById(userId);
-        // if (!optionalPlayer.isPresent()) {
-        // throw new IllegalStateException("No player with ID: " + userId);
-        // }
-        // Player player = optionalPlayer.get();
+    public void broadcastPlayerInfo(String roomId, String receipId) {
         Room room = roomRepository.findByRoomId(roomId).get();
         List<Map<String, Object>> infoMap_total = new ArrayList<>();
         for (String id : room.getRoomPlayersList()){
@@ -164,6 +159,12 @@ public class SocketService {
         info.put("roomId", roomId);
         info.put("audioData", voice);
         sendMessage("/plays/audio", roomId, info, null);
+        if (voice == null) {
+            System.out.println("📢📢📢调用/audio/info/📢📢📢" + "null");
+        } else {
+            System.out.println("📢📢📢调用/audio/info/📢📢📢" + voice.length());
+        }
+        sendMessage("/plays/audio/"+roomId, roomId, info, null);
     }
 
     public void broadcastAudio(String roomId, Map<String, String> VoiceDict) {

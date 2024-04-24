@@ -144,7 +144,7 @@ public class GameService {
             game.setCurrentSpeaker(currentSpeaker);
             gameRepository.save(game);
             socketService.broadcastGameinfo(game.getRoomId(), "speak");
-            socketService.broadcastPlayerInfo(game.getRoomId(), currentSpeaker.getId(), "speak");
+            socketService.broadcastPlayerInfo(game.getRoomId(), "speak");
             proceedTurn(game);
         }
 
@@ -181,22 +181,22 @@ public class GameService {
     }
 
     public void proceedTurn(Game game) {
-
+        // Speak
         game.setRoundStatus(RoundStatus.speak);
         gameRepository.save(game);
 
         System.out.println("说话："+LocalDateTime.now());
         Runnable speakPhaseTask = () -> speakPhase(game);
         executeWithTimeout(speakPhaseTask, 20, TimeUnit.SECONDS);
-        System.out.println("说话结束："+LocalDateTime.now());
-        // Wait for the player to upload audio from playerRepository
-        String game_audio = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
-        socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),
-                game_audio);
-
+        System.out.println("CurrentSpeaker说话结束");
+        //System.out.println("speaker说的是:"+playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData());
+        // Broadcast the audio to all players
+        System.out.println("broadcastaudio广播声音!");
+        String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
+        socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
+        
         // Guess - if no audio uploaded, jump to next round
-        if (game_audio != null && !game_audio.isEmpty()) {
-
+        if (voice != null && !voice.isEmpty()) {
             game.setRoundStatus(RoundStatus.guess);
             gameRepository.save(game);
 
@@ -247,8 +247,8 @@ public class GameService {
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
         game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(20)));
         gameRepository.save(game);
-        // socketService.broadcastGameinfo(game.getRoomId(), "speak");
-        // socketService.broadcastPlayerInfo(game.getRoomId(), game.getCurrentSpeaker().getId(), "speak");
+        socketService.broadcastGameinfo(game.getRoomId(), "speak");
+        socketService.broadcastPlayerInfo(game.getRoomId(), "speak");
         // Wait for the player to upload audio -- In playerService
 //        CountDownLatch latch = new CountDownLatch(2);
     }
@@ -256,8 +256,9 @@ public class GameService {
     public void guessPhase(Game game) {
         game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
         gameRepository.save(game);
-        //latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
-//        CountDownLatch latch = new CountDownLatch(4);
+        socketService.broadcastGameinfo(game.getRoomId(), "guess");
+        socketService.broadcastPlayerInfo(game.getRoomId(),  "guess");
+        latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
     }
 
     // For speaker to upload audio
@@ -297,9 +298,16 @@ public class GameService {
 
             playerRepository.delete(player);
         }
+        for (Player player  : game.getPlayerList()) {
+            User user = userRepository.findById(player.getId()).get();
+            user.setPlayerStatus(PlayerStatus.UNREADY);
+            userRepository.save(user);
+            System.out.println(user.getPlayerStatus());
+        }
         System.out.println("---------------------------");
 
         gameRepository.delete(game);
+
         System.out.println("Game ended");
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
     }
@@ -312,13 +320,11 @@ public class GameService {
             player.setGuessScore(player.getGuessScore() + score);
             player.addScoreDetail(game.getCurrentAnswer(), 0, score);
             player.setRoundFinished(true);
-
+            playerRepository.save(player);
+            game.getAnsweredPlayerList().add(player);
             // Fixed score for speaker for each correct answer
             game.getCurrentSpeaker().setSpeakScore(game.getCurrentSpeaker().getSpeakScore() + 2);
-
-            game.getAnsweredPlayerList().add(player);
             gameRepository.save(game);
-            playerRepository.save(player);
             playerRepository.save(game.getCurrentSpeaker());
 //            latch.countDown();
             // 显示回复正确加分
@@ -334,8 +340,10 @@ public class GameService {
 
     public void displayScores(Game game) {
         // Display the scores of all players in the game, data required by Yixuan
-        CountDownLatch latch = new CountDownLatch(game.getRoomPlayersList().size());
+        game.setRoundStatus(RoundStatus.reveal);
+        gameRepository.save(game);
         socketService.broadcastGameinfo(game.getRoomId(), "score");
+        socketService.broadcastPlayerInfo(game.getRoomId(), null);
     }
 
     // 从结果展示界面离开房间，删除玩家
