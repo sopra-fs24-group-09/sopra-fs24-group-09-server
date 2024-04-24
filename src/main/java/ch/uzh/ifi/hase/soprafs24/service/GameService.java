@@ -135,6 +135,16 @@ public class GameService {
 
         while (game.getCurrentRoundNum() < game.getRoomPlayersList().size()) {
             Player currentSpeaker = game.getPlayerList().get(game.getCurrentRoundNum());
+            currentSpeaker.setIfGuessed(false);
+            playerRepository.save(currentSpeaker);
+
+            Optional<Player> player = playerRepository.findById(currentSpeaker.getId());
+            if (player.isPresent()) {
+                System.out.println(player.get().getIfGuessed());
+            } else {
+                System.out.println("player is not present");
+            }
+            System.out.println();
             System.out.println("当前轮数:"+game.getCurrentRoundNum());
             System.out.println("playerlist:"+game.getPlayerList());
             System.out.println("当前说话的人:"+currentSpeaker.getUsername());
@@ -145,6 +155,7 @@ public class GameService {
             System.out.println("发送gameinfo更新currentSpeaker");
             gameRepository.save(game);
             socketService.broadcastGameinfo(game.getRoomId(), "speak");
+            socketService.broadcastPlayerInfo(game.getRoomId(), currentSpeaker.getId(), "speak");
             proceedTurn(game);
         }
 
@@ -245,8 +256,8 @@ public class GameService {
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
         System.out.println("🌟CurrentAnswer更改?"+game.getCurrentAnswer());
         gameRepository.save(game);
-        socketService.broadcastGameinfo(game.getRoomId(), "speak");
-        socketService.broadcastPlayerInfo(game.getRoomId(), game.getCurrentSpeaker().getId(), "speak");
+        // socketService.broadcastGameinfo(game.getRoomId(), "speak");
+        // socketService.broadcastPlayerInfo(game.getRoomId(), game.getCurrentSpeaker().getId(), "speak");
         // Wait for the player to upload audio -- In playerService
         latch = new CountDownLatch(1);
     }

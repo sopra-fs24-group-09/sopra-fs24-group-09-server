@@ -94,7 +94,7 @@ public class Player extends User {
         this.totalScore = totalScore;
     }
 
-    public boolean isIfGuessed() {
+    public boolean getIfGuessed() {
         return ifGuessed;
     }
 

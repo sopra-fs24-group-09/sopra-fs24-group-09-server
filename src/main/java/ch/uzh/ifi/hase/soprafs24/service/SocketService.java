@@ -38,6 +38,7 @@ public class SocketService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final PlayerRepository playerRepository;
 
     public SocketService(SimpMessagingTemplate simpMessagingTemplate,
             @Qualifier("userRepository") UserRepository userRepository,
@@ -48,6 +49,7 @@ public class SocketService {
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
+        this.playerRepository = playerRepository;
     }
 
     // helper function for sending message to destination with JSON format
@@ -140,8 +142,7 @@ public class SocketService {
             }
             // After game starts
             else {
-                Player player = new Player(user);
-
+                Player player = playerRepository.findById(id).get();
                 List<Map<String, Object>> scoreDetails = player.getScoreDetails();
                 scoreMap.put("total", player.getTotalScore());
                 scoreMap.put("guess", player.getGuessScore());
@@ -151,7 +152,7 @@ public class SocketService {
                 infoMap.put("user", userMap);
                 infoMap.put("score", scoreMap);
                 infoMap.put("ready", true);
-                infoMap.put("ifGuess", player.isIfGuessed());
+                infoMap.put("ifGuess", player.getIfGuessed());
                 infoMap.put("roundFinished", player.isRoundFinished());
             }
 
