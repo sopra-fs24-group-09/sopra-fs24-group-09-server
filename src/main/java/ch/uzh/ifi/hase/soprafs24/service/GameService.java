@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -44,7 +45,7 @@ public class GameService {
     private final UserRepository userRepository;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-    private CountDownLatch latch = new CountDownLatch(1);
+    private CountDownLatch latch = new CountDownLatch(500000);
 
     public void executeWithTimeout(Runnable task, long timeout, TimeUnit unit) {
         Future<?> future = executor.submit(task);
@@ -140,21 +141,7 @@ public class GameService {
             currentSpeaker.setIfGuessed(false);
             playerRepository.save(currentSpeaker);
 
-            Optional<Player> player = playerRepository.findById(currentSpeaker.getId());
-            if (player.isPresent()) {
-                System.out.println(player.get().getIfGuessed());
-            } else {
-                System.out.println("player is not present");
-            }
-            System.out.println();
-            System.out.println("当前轮数:"+game.getCurrentRoundNum());
-            System.out.println("playerlist:"+game.getPlayerList());
-            System.out.println("当前说话的人:"+currentSpeaker.getUsername());
-
-            System.out.println("----------------------------------");
-            System.out.println("第"+game.getCurrentRoundNum()+"轮开始😍现在轮到"+currentSpeaker+"说话!");
             game.setCurrentSpeaker(currentSpeaker);
-            System.out.println("发送gameinfo更新currentSpeaker");
             gameRepository.save(game);
             socketService.broadcastGameinfo(game.getRoomId(), "speak");
             socketService.broadcastPlayerInfo(game.getRoomId(), currentSpeaker.getId(), "speak");
@@ -162,13 +149,13 @@ public class GameService {
         }
 
         // Display scores after every player has spoken
-
-        displayScores(game);
-
+        System.out.println("展示："+LocalDateTime.now());
+        Runnable displayScoresTask = () -> displayScores(game);
+        executeWithTimeout(displayScoresTask, 50, TimeUnit.SECONDS);
+        System.out.println("结束："+ LocalDateTime.now());
         // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
         // players leave
-        Runnable endGameTask = () -> endGame(game);
-        executeWithTimeout(endGameTask, 20, TimeUnit.SECONDS);
+        endGame(game);
     }
 
     public List<String> getWords(String theme) throws IOException {
@@ -194,42 +181,39 @@ public class GameService {
     }
 
     public void proceedTurn(Game game) {
-        // Speak
-        System.out.println(game.getCurrentSpeaker());
 
         game.setRoundStatus(RoundStatus.speak);
         gameRepository.save(game);
+
+        System.out.println("说话："+LocalDateTime.now());
         Runnable speakPhaseTask = () -> speakPhase(game);
         executeWithTimeout(speakPhaseTask, 20, TimeUnit.SECONDS);
-        System.out.println("CurrentSpeaker说话结束");
-        System.out.println("speaker说的是:"+game.getCurrentSpeaker().getAudioData());
-        // Broadcast the audio to all players
-        System.out.println("broadcastaudio广播声音!");
+        System.out.println("说话结束："+LocalDateTime.now());
+        // Wait for the player to upload audio from playerRepository
+        String game_audio = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
         socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),
-                game.getCurrentSpeaker().getAudioData());
+                game_audio);
 
-        
         // Guess - if no audio uploaded, jump to next round
-        if (game.getCurrentSpeaker().getAudioData() != null && !game.getCurrentSpeaker().getAudioData().isEmpty()) {
+        if (game_audio != null && !game_audio.isEmpty()) {
 
             game.setRoundStatus(RoundStatus.guess);
             gameRepository.save(game);
-            System.out.println("猜词");
+
+            System.out.println("猜："+LocalDateTime.now());
             Runnable guessPhaseTask = () -> guessPhase(game);
-            executeWithTimeout(guessPhaseTask, 20, TimeUnit.SECONDS);
+            executeWithTimeout(guessPhaseTask, 40, TimeUnit.SECONDS);
+            System.out.println("猜结束："+LocalDateTime.now());
         } else {
             // if the speaker does not upload the audio, he will get -4 points and marked
             // this word as No Speak
-            System.out.println("打分🎯");
             for (Player player : game.getPlayerList()) {
                 if (player != game.getCurrentSpeaker()) {
                     player.addScoreDetail("No Speak", 0, 0);
                     playerRepository.save(player);
-                    System.out.println(player.getUsername() +" 11 "+player.getScoreDetails());
                 } else {
                     player.setSpeakScore(player.getSpeakScore() - 4);
                     playerRepository.save(player);
-                    System.out.println(player.getUsername() +" 22 "+player.getScoreDetails());
                 }
             }
         }
@@ -259,24 +243,21 @@ public class GameService {
     }
 
     public void speakPhase(Game game) {
-        System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
-        System.out.println("tscccc"+game.getCurrentSpeaker().getId());
         // Give a word with API
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
         game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(20)));
-        System.out.println("🌟CurrentAnswer更改?"+game.getCurrentAnswer());
         gameRepository.save(game);
         // socketService.broadcastGameinfo(game.getRoomId(), "speak");
         // socketService.broadcastPlayerInfo(game.getRoomId(), game.getCurrentSpeaker().getId(), "speak");
         // Wait for the player to upload audio -- In playerService
-        latch = new CountDownLatch(1);
+//        CountDownLatch latch = new CountDownLatch(2);
     }
 
     public void guessPhase(Game game) {
         game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
-        System.out.println("🌟roundstatus更改?"+game.getRoundStatus());
         gameRepository.save(game);
-        latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
+        //latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
+//        CountDownLatch latch = new CountDownLatch(4);
     }
 
     // For speaker to upload audio
@@ -314,7 +295,6 @@ public class GameService {
     public void endGame(Game game) {
         for (Player player : game.getPlayerList()) {
 
-            System.out.println(player.getScoreDetails());
             playerRepository.delete(player);
         }
         System.out.println("---------------------------");
@@ -322,7 +302,6 @@ public class GameService {
         gameRepository.delete(game);
         System.out.println("Game ended");
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
-        latch = new CountDownLatch(game.getRoomPlayersList().size());
     }
 
     public void validateAnswer(Game game, Player player, String guess) {
@@ -341,7 +320,7 @@ public class GameService {
             gameRepository.save(game);
             playerRepository.save(player);
             playerRepository.save(game.getCurrentSpeaker());
-            latch.countDown();
+//            latch.countDown();
             // 显示回复正确加分
         } else {
         } // 显示回复错误
@@ -355,6 +334,7 @@ public class GameService {
 
     public void displayScores(Game game) {
         // Display the scores of all players in the game, data required by Yixuan
+        CountDownLatch latch = new CountDownLatch(game.getRoomPlayersList().size());
         socketService.broadcastGameinfo(game.getRoomId(), "score");
     }
 
@@ -364,7 +344,7 @@ public class GameService {
         gameRepository.save(game);
         playerRepository.delete(player);
 
-        latch.countDown();
+//        latch.countDown();
 
     }
 
@@ -403,9 +383,8 @@ public class GameService {
         boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
         if (isPlayerInList) {
             player.setAudioData(voice);
-            System.out.println(player.getAudioData());
-            System.out.println("tsc"+player.getId());
             playerRepository.save(player);
+//            latch.countDown();
 
         } else {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);

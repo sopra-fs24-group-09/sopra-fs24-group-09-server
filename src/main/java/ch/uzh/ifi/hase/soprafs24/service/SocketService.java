@@ -60,7 +60,6 @@ public class SocketService {
             timestampedMessage.setTimestamp(Instant.now().toEpochMilli()); // Assuming you want current time in UTC
                                                                            // milliseconds
             timestampedMessage.setMessage(info);
-            System.out.println("📪 Sending message to " + destination + " with payload: " + timestampedMessage.getMessage());
             // The payload to be sent is now the timestampedMessage object
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
         } catch (Exception e) {
@@ -84,7 +83,6 @@ public class SocketService {
 
 
         if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
-            System.out.println("错了!");
             info.put("currentSpeaker", "None");
             info.put("currentAnswer", "None");
             info.put("roundStatus", "None");
@@ -93,9 +91,7 @@ public class SocketService {
             info.put("gameStatus", "ready");
         }
         else{
-            System.out.println("对了!");
             Game game = gameRepository.findByRoomId(roomId).get();
-            System.out.println(game.getCurrentSpeaker());
             PlayerGetDTO currentSpeakerDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(game.getCurrentSpeaker());
 
             info.put("currentSpeaker", currentSpeakerDTO);
@@ -105,7 +101,6 @@ public class SocketService {
             info.put("currentRoundNum", game.getCurrentRoundNum());
             info.put("gameStatus", "ingame");
         }
-        System.out.println("📢📢📢调用/games/info/📢📢📢" + roomOwnerDTO);
         sendMessage( "/games/info/" + roomId, roomId, info, receipId);
     }
 
@@ -158,7 +153,6 @@ public class SocketService {
 
             infoMap_total.add(infoMap);
         }
-        System.out.println("📢📢📢调用/plays/info/📢📢📢" + roomId);
         sendMessage("/plays/info/"+roomId, roomId, infoMap_total, receipId);
     }
 
@@ -169,7 +163,6 @@ public class SocketService {
         info.put("userId", userId);
         info.put("roomId", roomId);
         info.put("audioData", voice);
-        System.out.println("📢📢📢调用/audio/info/📢📢📢" + roomId);
         sendMessage("/plays/audio", roomId, info, null);
     }
 
