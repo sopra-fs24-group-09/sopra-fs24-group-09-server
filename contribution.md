@@ -19,6 +19,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/15 | De
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/1 | A user can see all rooms in Lobby page.             | [@Han Yang](https://github.com/Haaaan1) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/8 | A loggined user will be redirected to Lobby page by default.             | [@Han Yang](https://github.com/Haaaan1) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/40 | Implement Info button in the lobby and room page             | [@Han Yang](https://github.com/Haaaan1) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/52 | Implement player list in the gameroom page showing the current status of the players.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/51 | Implement gameroom page showing the information of the room.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/61 | Implement status container in the game room page showing the current player and other round infomation.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 ## WEEK2 2024.4.11-2024.4.17
 |Task Link|Description|Assigned to| Finished? |
@@ -35,6 +39,11 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/82| API
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/28 | A loggined user can go to profile page by clicking his avatar.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/29 | After login / registration, the player is redirected to Lobby page (design Lobby page).            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/57 | Implement pop-up window to show profiles of user.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/54 | Implement game result interface which shows the game results.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/18 | Design a user interface for showing the users' scores during the game.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/63 | Implement the status-based set of gameroom layouts for different role of players.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/64 | A player can listen to the shared audios from others after they confirm sharing.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 
 ## WEEK3 2024.4.17-2024.4.24
@@ -54,6 +63,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Imp
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/34 | Close the window when users cancel or successfully create a room            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/35 | Implement sending requests to the backend for creating room            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/36 | Implement forms in the Create Room window            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/57 | Implement a button at game result page which direct to the game lobby.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/21 | Ensure that the input form and submit button are accessible and responsive within the specified time for guessing..             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/23 | Create a button or UI element to allow the player to submit their answer for validation.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 ## WEEK4 2024.4.24-2024.5.1
 |Task Link|Description|Assigned to| Finished? |
