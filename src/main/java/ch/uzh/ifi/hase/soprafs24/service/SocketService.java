@@ -133,6 +133,7 @@ public class SocketService {
             // After game starts
             else {
                 Player player = playerRepository.findById(id).get();
+                System.out.println("子涵好帅"+player.getScoreDetails());
                 List<Map<String, Object>> scoreDetails = player.getScoreDetails();
                 scoreMap.put("total", player.getTotalScore());
                 scoreMap.put("guess", player.getGuessScore());

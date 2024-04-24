@@ -110,7 +110,10 @@ public class GameController {
         System.out.println(userId);
         System.out.println(roomId);
         Player player = playerService.findPlayerById(userId);
+        System.out.println("第一个"+player.getScoreDetails());
         gameService.validateAnswer(game, player, guess);
+        Player player1 = playerService.findPlayerById(userId);
+        System.out.println("第二个"+player1.getScoreDetails());
     }
 
     //submitAudio
@@ -141,17 +144,17 @@ public class GameController {
 
 
     //broadcast Audio
-    @MessageMapping("/message/games/audio/notifySpeaker")
-    public void notifySpeakerAudio(SimpMessageHeaderAccessor headerAccessor) {
-        //从session中获取roomId
-        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
-        Player currentSpeaker = gameService.getCurrentSpeaker(roomId);
-        String voice = gameService.getPlayerAudio(roomId,currentSpeaker.getId());
-        // String userId = currentSpeaker.getId();
-
-        String userId = "1";
-        socketService.broadcastSpeakerAudio(userId,roomId,voice);
-    }
+//    @MessageMapping("/message/games/audio/notifySpeaker")
+//    public void notifySpeakerAudio(SimpMessageHeaderAccessor headerAccessor) {
+//        //从session中获取roomId
+//        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+//        Player currentSpeaker = gameService.getCurrentSpeaker(roomId);
+//        String voice = gameService.getPlayerAudio(roomId,currentSpeaker.getId());
+//        // String userId = currentSpeaker.getId();
+//
+//        String userId = "1";
+//        socketService.broadcastSpeakerAudio(userId,roomId,voice);
+//    }
 
     //broadcast other player Audio
    @MessageMapping("/message/games/audio/notifyOther")
