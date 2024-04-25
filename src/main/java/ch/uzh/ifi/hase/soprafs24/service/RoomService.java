@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
@@ -32,8 +33,10 @@ public class RoomService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final GameRepository gameRepository;
     private GameService gameService;
-    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository) {
+    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
     }
@@ -90,19 +93,23 @@ public class RoomService {
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
+        if (room.getRoomProperty() != RoomProperty.WAITING){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not enter a room that is in game");
+        }
 
         room.addRoomPlayerList(user.getId());
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
         roomRepository.save(room);
     }
 
-
     public void exitRoom(Room room, User user){
         if (!room.getRoomPlayersList().contains(user.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
         }
         if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
-            System.out.println("🚮 deleted room!!!!!!");
+            if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){
+                gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
+            }
             roomRepository.delete(room);
         }
         else{
@@ -119,29 +126,6 @@ public class RoomService {
             roomRepository.save(room);
         }
     }
-
-
-    public void startGame(Room room){
-        gameService.startGame(room);
-    }
-
-
-    public List<String> getWordsRelatedTo(String query) throws IOException {
-
-        return null;
-    }
-
-
-    public void checkIfGameEnd(Room roomToDo){
-
-    }
-
-    public String assignWord(String senderName) {
-        return null;
-    }
-
-
-
 
     /**
      * This is a helper method that will check the uniqueness criteria of the

@@ -173,7 +173,9 @@ public class GameService {
         System.out.println("结束："+ LocalDateTime.now());
         // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
         // players leave
-        endGame(game);
+        if (gameRepository.findByRoomId(game.getRoomId()).isPresent()){
+            endGame(game);
+        }
     }
 
     public List<String> getWords(String theme) throws IOException {

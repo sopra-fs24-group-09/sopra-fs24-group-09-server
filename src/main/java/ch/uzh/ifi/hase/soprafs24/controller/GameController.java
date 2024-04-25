@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -24,12 +27,14 @@ public class GameController {
     private RoomService roomService;
     private UserService userService;
     private PlayerService playerService;
+    private GameRepository gameRepository;
 
-    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate) {
+    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository) {
         this.socketService = socketService;
         this.gameService=gameService;
         this.roomService = roomService;
         this.userService = userService;
+        this.gameRepository = gameRepository;
         this.playerService = playerService;
     }
 
@@ -76,10 +81,11 @@ public class GameController {
         String userID = payload.getMessage().getUserID();
         Room room=roomService.findRoomById(roomID);
         User user=userService.findUserById(userID);
-        System.out.println("❌"+user.getUsername()+"will leave the room");
         roomService.exitRoom(room, user);
-        socketService.broadcastGameinfo(roomID, receipID);
-        socketService.broadcastPlayerInfo(roomID, "exitroom");
+        if (gameRepository.findByRoomId(roomID).isPresent()) {
+            socketService.broadcastGameinfo(roomID, receipID);
+            socketService.broadcastPlayerInfo(roomID, "exitroom");
+        }
 
     }
 
