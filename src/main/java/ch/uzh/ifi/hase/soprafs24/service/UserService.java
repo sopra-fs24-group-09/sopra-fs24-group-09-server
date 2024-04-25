@@ -42,6 +42,7 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     newUser.setRegisterDate(new Date());
+    newUser.setAvatar("grinning-face-with-sweat");
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
@@ -64,23 +65,25 @@ public class UserService {
    * @see User
    */
   private void checkIfUserExists(User userToBeCreated) {
-      String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-
-      userRepository.findByUsername(userToBeCreated.getUsername()).ifPresent(userByUsername -> {
-          if (!userToBeCreated.getId().equals(userByUsername.getId())) {
-              throw new ResponseStatusException(HttpStatus.CONFLICT,
-                      String.format(baseErrorMessage, "username and the name", "are"));
-          }
-      });
-  }
+    String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+    if (userRepository.findByUsername(userToBeCreated.getUsername()).isPresent()) {
+      String errorMessage = String.format(baseErrorMessage, "username", "is");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
+    }
+}
 
   public User loginUser(User user) {
+    Optional<User> existingUser = userRepository.findByUsername(user.getUsername());
+    if (!existingUser.isPresent()) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with the provided username.");
+    }
     user = checkIfPasswordWrong(user);
     user.setStatus(UserStatus.ONLINE);
     user.setToken(UUID.randomUUID().toString());
     userRepository.save(user);
     return user;
   }
+
 
   User checkIfPasswordWrong(User userToBeLoggedIn) {
 
@@ -126,19 +129,19 @@ public class UserService {
     else {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with this ID:"+id+" not found!");}
   }
 
-  public void userEditProfile(User user) {
-    if(!userRepository.existsById(user.getId())) {
+  public void userEditProfile(String id, User user) {
+    if(!userRepository.existsById(id)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user ID was not found");
       }
-    User userByUserid = userRepository.findById(user.getId()).get();
+    User userByUserid = userRepository.findById(id).get();
 
     if(user.getUsername()!=null){
           checkIfUserExists(user);
           userByUserid.setUsername(user.getUsername());
           };
     // set the birthday
-    if(user.getBirthday()!=null){
-          userByUserid.setBirthday(user.getBirthday());
+    if(user.getAvatar()!=null){
+          userByUserid.setAvatar(user.getAvatar());
           };
 
     userRepository.save(userByUserid);

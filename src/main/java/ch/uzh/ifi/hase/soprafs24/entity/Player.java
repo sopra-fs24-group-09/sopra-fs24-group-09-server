@@ -9,11 +9,15 @@ import java.util.Map;
 @Document(collection = "player") 
 public class Player extends User {
 
-    private String audioData; 
+    public Player() {
+        super();
+    }
+
+    private String audioData;
+    private Integer totalScore = 0;
     private Integer guessScore = 0;
     private Integer speakScore = 0;
     private boolean ifGuessed = true;
-    private boolean ready = false;
     private boolean roundFinished = false;
     private String assignedWord;
     private List<Map<String, Object>> scoreDetails = new ArrayList<>();
@@ -21,7 +25,8 @@ public class Player extends User {
     public Player(User user) {
         this.setId(user.getId());
         this.setUsername(user.getUsername());
-        this.setPassword(user.getPassword());
+        this.setToken(user.getToken());
+        this.setAvatar(user.getAvatar());
     }
 
 
@@ -31,14 +36,6 @@ public class Player extends User {
 
     public void setRoundFinished(boolean roundFinished) {
         this.roundFinished = roundFinished;
-    }
-
-    public boolean isReady() {
-        return ready;
-    }
-
-    public void setReady(boolean ready) {
-        this.ready = ready;
     }
 
     public void setScoreDetails(List<Map<String, Object>> scoreDetails) {
@@ -89,7 +86,15 @@ public class Player extends User {
         this.speakScore = speakScore;
     }
 
-    public boolean isIfGuessed() {
+    public Integer getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(Integer totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public boolean getIfGuessed() {
         return ifGuessed;
     }
 

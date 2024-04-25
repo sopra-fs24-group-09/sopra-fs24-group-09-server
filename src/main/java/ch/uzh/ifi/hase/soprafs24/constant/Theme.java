@@ -4,5 +4,6 @@ public enum Theme {
     SPORTS, 
     FURNITURE, 
     JOB, 
-    SUPERHERO
+    SUPERHERO,
+    FOOD
 }

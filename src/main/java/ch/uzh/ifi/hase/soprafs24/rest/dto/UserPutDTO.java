@@ -8,6 +8,15 @@ public class UserPutDTO {
     private String id;
     private String username;
     private String token;
+    private String avatar;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date birthday;

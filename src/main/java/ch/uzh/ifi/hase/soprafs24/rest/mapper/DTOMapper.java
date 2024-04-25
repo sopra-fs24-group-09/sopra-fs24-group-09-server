@@ -22,58 +22,55 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface DTOMapper {
 
-  DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
+    DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
-  @Mapping(source = "id", target = "id")
-  @Mapping(source = "username", target = "username")
-  @Mapping(source = "password", target = "password")
-  User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "password", target = "password")
+    @Mapping(source = "token", target = "token")
+    User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
-  @Mapping(source = "id", target = "id")
-  @Mapping(source = "username", target = "username")
-  @Mapping(source = "status", target = "status")
-  @Mapping(source = "birthday", target = "birthday")
-  @Mapping(source = "registerDate", target = "registerDate")
-  UserGetDTO convertEntityToUserGetDTO(User user);
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "birthday", target = "birthday")
+    @Mapping(source = "registerDate", target = "registerDate")
+    @Mapping(source = "avatar", target = "avatar")
+    UserGetDTO convertEntityToUserGetDTO(User user);
 
-  @Mapping(source = "id", target = "id")
-  @Mapping(source = "username", target = "username")
-  @Mapping(source = "birthday", target = "birthday")
-  User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
-
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "avatar", target = "avatar")
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "token", target = "token")
+    User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 
     @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "roomName", target = "roomName")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
-    @Mapping(source = "roomOwner", target = "roomOwner")
-        //@Mapping(source = "roomPlayers", target = "roomPlayers")
-        //@Mapping(source = "token", target = "token")
+    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
     Room convertRoomPostDTOtoEntity(RoomPostDTO roomPostDTO);
 
     @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "roomName", target = "roomName")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
-    @Mapping(source = "roomOwner", target = "roomOwner")
+    @Mapping(source = "roomOwnerId", target = "roomOwnerId")
     @Mapping(source = "roomPlayersList", target = "roomPlayersList")
-        //@Mapping(source = "token", target = "token")
+    // @Mapping(source = "token", target = "token")
     RoomGetDTO convertEntityToRoomGetDTO(Room room);
 
     @Mapping(source = "roomId", target = "roomId")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
-    @Mapping(source = "roomOwner", target = "roomOwner")
+    // @Mapping(source = "roomOwner", target = "roomOwner")
     @Mapping(source = "roomPlayersList", target = "roomPlayersList")
-        //@Mapping(source = "token", target = "token")
+    // @Mapping(source = "token", target = "token")
     Room convertRoomPutDTOtoEntity(RoomPutDTO roomPutDTO);
-
 
     // Define a mapping from the Player entity to the PlayerGetDTO
     @Mapping(source = "id", target = "userID")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "avatar", target = "avatar")
-    @Mapping(source = "ready", target = "ready")
-    @Mapping(source = "ifGuessed", target = "ifGuessed")
-    @Mapping(source = "roundFinished", target = "roundFinished")
-    @Mapping(source = "scoreDetails", target = "score")
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 }
