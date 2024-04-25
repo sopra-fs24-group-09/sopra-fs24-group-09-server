@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,9 +31,11 @@ public class RoomService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
     private GameService gameService;
-    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository) {
+    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository) {
         this.roomRepository = roomRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Room> getRooms() {
@@ -50,11 +55,15 @@ public class RoomService {
             newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
-
             // newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
             newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
 
             newRoom = roomRepository.save(newRoom);
+
+            User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
+            roomOwner.setPlayerStatus(PlayerStatus.READY);
+            userRepository.save(roomOwner);
+
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
         } catch (Exception e) {
@@ -96,6 +105,9 @@ public class RoomService {
             if(room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
                 room.setRoomOwnerId(room.getRoomPlayersList().get(1));
             }
+            user.setPlayerStatus(PlayerStatus.UNREADY);
+            userRepository.save(user);
+
             room.getRoomPlayersList().remove(user.getId());
             roomRepository.save(room);
         }

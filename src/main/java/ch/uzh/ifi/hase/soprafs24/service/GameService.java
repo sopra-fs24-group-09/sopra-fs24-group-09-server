@@ -11,6 +11,7 @@ import java.util.*;
 
 import java.util.concurrent.*;
 
+import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
@@ -109,6 +110,9 @@ public class GameService {
         room.setRoomProperty(RoomProperty.INGAME);
         roomRepository.save(room);
         Game game = new Game(room);
+
+        game.setGameStatus(GameStatus.ingame);
+        gameRepository.save(game);
         List<String> words;
 
         try {
@@ -360,6 +364,7 @@ public class GameService {
     public void displayScores(Game game) {
         // Display the scores of all players in the game, data required by Yixuan
         game.setRoundStatus(RoundStatus.reveal);
+        game.setGameStatus(GameStatus.over);
         gameRepository.save(game);
         socketService.broadcastGameinfo(game.getRoomId(), "score");
         socketService.broadcastPlayerInfo(game.getRoomId(), null);

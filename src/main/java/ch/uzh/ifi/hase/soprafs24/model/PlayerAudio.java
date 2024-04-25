@@ -15,8 +15,8 @@ public class PlayerAudio {
     public String getUserID() {
         return userID;
     }
-    public void setUserID(String userId) {
-        this.userID = userId;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
     public String getAudioData() {
         return audioData;

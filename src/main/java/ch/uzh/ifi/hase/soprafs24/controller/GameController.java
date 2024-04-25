@@ -3,7 +3,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -103,8 +102,8 @@ public class GameController {
         String receipId = (String) headerAccessor.getHeader("receipt");
 
         System.out.println(payload.getMessage());
-        String userId = payload.getMessage().getUserId();
-        String roomId = payload.getMessage().getRoomId();
+        String userId = payload.getMessage().getUserID();
+        String roomId = payload.getMessage().getRoomID();
         String guess = payload.getMessage().getGuess();
         Game game = gameService.findGameById(roomId);
         System.out.println(userId);

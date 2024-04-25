@@ -72,6 +72,7 @@ public class SocketService {
         // Optional<Game> optionalGame = gameRepository.findByRoomId(roomId);
         // Game game = optionalGame.orElseThrow(() ->
         // new IllegalStateException("No game found with room ID: " + roomId));
+        Player player2 = new Player();
         Room room = roomRepository.findByRoomId(roomId).get();
         User roomowner = userRepository.findById(room.getRoomOwnerId()).get();
         UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(roomowner);
@@ -99,7 +100,7 @@ public class SocketService {
             info.put("roundStatus", game.getRoundStatus());
             info.put("roundDue", game.getRoundDue());
             info.put("currentRoundNum", game.getCurrentRoundNum());
-            info.put("gameStatus", "ingame");
+            info.put("gameStatus", game.getGameStatus());
         }
         sendMessage( "/games/info/" + roomId, roomId, info, receipId);
     }

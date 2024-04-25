@@ -1,23 +1,23 @@
 package ch.uzh.ifi.hase.soprafs24.model;
 
 public class AnswerGuess {
-    private String userId;
+    private String userID;
     private String roomID;
     private String guess;
     private Long roundNum;
-    private String currentSpeakerId;
+    private String currentSpeakerID;
     
-    public String getUserId() {
-        return userId;
+    public String getUserID() {
+        return userID;
     }
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
-    public String getRoomId() {
+    public String getRoomID() {
         return roomID;
     }
-    public void setRoomId(String roomId) {
-        this.roomID = roomId;
+    public void setRoomID(String roomID) {
+        this.roomID = roomID;
     }
     public String getGuess() {
         return guess;
@@ -31,11 +31,11 @@ public class AnswerGuess {
     public void setRoundNum(Long roundNum) {
         this.roundNum = roundNum;
     }
-    public String getCurrentSpeakerId() {
-        return currentSpeakerId;
+    public String getCurrentSpeakerID() {
+        return currentSpeakerID;
     }
-    public void setCurrentSpeakerId(String currentSpeakerId) {
-        this.currentSpeakerId = currentSpeakerId;
+    public void setCurrentSpeakerID(String currentSpeakerID) {
+        this.currentSpeakerID = currentSpeakerID;
     }
 
 }
