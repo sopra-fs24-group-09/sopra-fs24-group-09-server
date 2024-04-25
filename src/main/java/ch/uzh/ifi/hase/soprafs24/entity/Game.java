@@ -15,7 +15,7 @@ public class Game extends Room{
     public Game() {
         super();
     }
-    private List<Player> playerList = new ArrayList<>();
+//    private List<Player> playerList = new ArrayList<>();
     private Player currentSpeaker;
     private String currentAnswer;
     private GameStatus gameStatus;
@@ -80,16 +80,16 @@ public class Game extends Room{
         this.currentRoundNum = currentRoundNum;
     }
 
-    public List<Player> getPlayerList() {
-        return playerList;
-    }
-
-    public void setPlayerList(List<Player> playerList) {
-        this.playerList = playerList;
-    }
-    public void addPlayerList(Player player) {
-        this.playerList.add(player);
-    }
+//    public List<Player> getPlayerList() {
+//        return playerList;
+//    }
+//
+//    public void setPlayerList(List<Player> playerList) {
+//        this.playerList = playerList;
+//    }
+//    public void addPlayerList(Player player) {
+//        this.playerList.add(player);
+//    }
 
     public GameStatus getGameStatus() {
         return gameStatus;
