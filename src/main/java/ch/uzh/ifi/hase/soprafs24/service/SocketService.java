@@ -157,8 +157,7 @@ public class SocketService {
 
     public void broadcastSpeakerAudio(String roomId, String userId, String voice) {
         HashMap<String, Object> info = new HashMap<>();
-        info.put("userId", userId);
-        info.put("roomId", roomId);
+        info.put("userID", userId);
         info.put("audioData", voice);
         if (voice == null) {
             System.out.println("📢📢📢调用/audio/info/📢📢📢" + "null");
