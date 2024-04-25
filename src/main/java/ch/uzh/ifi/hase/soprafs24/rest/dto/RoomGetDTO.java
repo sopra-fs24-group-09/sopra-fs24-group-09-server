@@ -18,6 +18,14 @@ public class RoomGetDTO {
     private List<String> roomPlayersList;
     private String roomOwnerId;
 
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
     public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
