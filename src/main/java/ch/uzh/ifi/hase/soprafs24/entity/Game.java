@@ -1,7 +1,4 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;

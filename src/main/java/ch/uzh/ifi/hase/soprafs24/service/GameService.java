@@ -39,7 +39,6 @@ public class GameService {
 
     private final PlayerRepository playerRepository;
     private final GameRepository gameRepository;
-    private final PlayerService playerService;
     private final UserService userService;
     private final SocketService socketService;
     private final RoomRepository roomRepository;
@@ -66,12 +65,11 @@ public class GameService {
 
     public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository,
             @Qualifier("userRepository") UserRepository userRepository,
-            @Qualifier("gameRepository") GameRepository gameRepository, PlayerService playerService,
+            @Qualifier("gameRepository") GameRepository gameRepository,
             UserService userService, SocketService socketService,
             @Qualifier("roomRepository") RoomRepository roomRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
-        this.playerService = playerService;
         this.userService = userService;
         this.socketService = socketService;
         this.roomRepository = roomRepository;
@@ -334,20 +332,6 @@ public class GameService {
         socketService.broadcastPlayerInfo(game.getRoomId(), "null");
     }
 
-//    public Player getCurrentSpeaker(String roomId) {
-//        // Optional<Game> game = gameRepository.findById(roomId);
-//        // if (!game.isPresent()){
-//        // throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
-//        // }
-//        // return game.get().getCurrentSpeaker();
-//        Room room = new Room();
-//        Game game = new Game(room);
-//        User user = new User();
-//        Player player = new Player(user);
-//        game.setCurrentSpeaker(player);
-//        return game.getCurrentSpeaker();
-//    }
-
     public void endGame(Game game) {
         for (String playerId : game.getRoomPlayersList()) {
             Player player = playerRepository.findById(playerId).get();
@@ -359,7 +343,6 @@ public class GameService {
             user.setPlayerStatus(PlayerStatus.UNREADY);
             userRepository.save(user);
         }
-        System.out.println("---------------------------");
 
         gameRepository.delete(game);
 
@@ -408,24 +391,6 @@ public class GameService {
         }
     }
 
-    // May cause loop usage
-
-    // public Player findPlayerInGame(String playerId, String roomId){
-    // Game game = gameRepository.findById(roomId)
-    // .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " +
-    // roomId));
-    // List<Player> playerlist = game.getPlayerList();
-    // Player player = playerService.findPlayerById(playerId);
-    // boolean isPlayerInList = playerlist.stream().anyMatch(p ->
-    // p.getId().equals(player.getId()));
-    // if(isPlayerInList){
-    // return player;
-    // }
-    // else{
-    // return null;
-    // }
-    // }
-
     public void setPlayerAudio(String roomId, String playerId, String voice) {
         Game game = gameRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
@@ -453,59 +418,4 @@ public class GameService {
         socketService.broadcastGameinfo(roomId, "audio");
         socketService.broadcastPlayerInfo(roomId, "audio");
     }
-
-//    public String getPlayerAudio(String roomId, String playerId) {
-//        // Game game = gameRepository.findById(roomId)
-//        // .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " +
-//        // roomId));
-//        Room room = new Room();
-//        Game game = new Game(room);
-//        List<Player> playerlist = game.getPlayerList();
-//        // Player player = playerService.findPlayerById(playerId);
-//        // boolean isPlayerInList = playerlist.stream().anyMatch(p ->
-//        // p.getId().equals(player.getId()));
-//        // if(isPlayerInList){
-//        // return player.getAudioData();
-//        // }
-//        // else{
-//        // throw new IllegalArgumentException("Player not found in the game with ID: " +
-//        // playerId);
-//        // }
-//
-//        return "TestAudio";
-//    }
-
-//    public Map<String, String> getAllPlayerAudio(String roomId) {
-//        User user = new User();
-//        Player player2 = new Player(user);
-//        player2.setId("1");
-//        player2.setAudioData("TestAudio");
-//
-//        User user1 = new User();
-//        Player player1 = new Player(user1);
-//        player1.setId("2");
-//        player1.setAudioData("TestAudio");
-//
-//        Room room = new Room();
-//        Game game = new Game(room);
-//        game.addPlayerList(player2);
-//        game.addPlayerList(player1);
-//        System.out.println(game.getRoomPlayersList());
-//        // Game game = gameRepository.findById(roomId)
-//        // .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " +
-//        // roomId));
-//        // List<Player> playerlist = game.getPlayerList();
-//        Map<String, String> playerAudioMap = new HashMap<>();
-//        List<Player> playerlist = game.getPlayerList();
-//
-//        // Iterate over each player in the player list and add their ID and audio data
-//        // to the map
-//        for (Player player : playerlist) {
-//            if (player.getAudioData() != null && !player.getAudioData().isEmpty()) {
-//                playerAudioMap.put(player.getId(), player.getAudioData());
-//            }
-//        }
-//
-//        return playerAudioMap;
-//    }
 }

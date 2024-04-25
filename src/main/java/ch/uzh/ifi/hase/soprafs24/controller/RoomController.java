@@ -1,17 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
-import ch.uzh.ifi.hase.soprafs24.service.SocketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
@@ -27,12 +21,9 @@ public class RoomController {
 
 
     private final RoomService roomService;
-    private final SocketService socketService;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    RoomController(RoomService roomService, SocketService socketService) {
+    RoomController(RoomService roomService) {
         this.roomService = roomService;
-        this.socketService = socketService;
     }
 
     //This method is used to get all rooms in the lobby
@@ -59,28 +50,9 @@ public class RoomController {
         Room roomInput = DTOMapper.INSTANCE.convertRoomPostDTOtoEntity(roomPostDTO);
         // create room
         Room createdRoom = roomService.createRoom(roomInput);
-        // scheduler.schedule(() -> {
-        //     System.out.println();
-        //     socketService.broadcastGameinfo(roomInput.getRoomId(), "enterroom");
-        //     socketService.broadcastPlayerInfo(roomInput.getRoomId(), roomInput.getRoomOwnerId(), "enterroom");
-        // }, 5, TimeUnit.SECONDS);
         // convert internal representation of room back to API
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
 
-    }
-
-    @PutMapping("/games/{roomId}")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void enterRoom(@PathVariable String roomId, @RequestBody UserPutDTO userPutDTO) {
-        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-        Room enteredRoom = roomService.findRoomById(roomId);
-        // roomService.enterRoom(enteredRoom, userInput);
-        // // set a timeout for ws connnection
-        // scheduler.schedule(() -> {
-        //     socketService.broadcastGameinfo(roomId, "enterroom");
-        //     socketService.broadcastPlayerInfo(roomId, userInput.getId(), "enterroom");
-        // }, 5, TimeUnit.SECONDS);
     }
 
     @PostMapping("/games/guard")

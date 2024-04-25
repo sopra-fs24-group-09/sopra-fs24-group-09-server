@@ -10,20 +10,16 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.JsonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -72,7 +68,6 @@ public class SocketService {
         // Optional<Game> optionalGame = gameRepository.findByRoomId(roomId);
         // Game game = optionalGame.orElseThrow(() ->
         // new IllegalStateException("No game found with room ID: " + roomId));
-        Player player2 = new Player();
         Room room = roomRepository.findByRoomId(roomId).get();
         User roomowner = userRepository.findById(room.getRoomOwnerId()).get();
         UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(roomowner);
@@ -158,11 +153,6 @@ public class SocketService {
         HashMap<String, Object> info = new HashMap<>();
         info.put("userID", userId);
         info.put("audioData", voice);
-        if (voice == null) {
-            System.out.println("📢📢📢调用/audio/info/📢📢📢" + "null");
-        } else {    
-            System.out.println("📢📢📢调用/audio/info/📢📢📢" + voice.length());
-        }
         sendMessage("/plays/audio/"+roomId, roomId, info, null);
     }
 
