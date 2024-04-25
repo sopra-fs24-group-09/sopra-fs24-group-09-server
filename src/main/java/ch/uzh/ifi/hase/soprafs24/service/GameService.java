@@ -215,7 +215,7 @@ public class GameService {
         String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
         
         // Guess - if no audio uploaded, jump to next round
-        if (voice != null && !voice.isEmpty()) {
+        if (voice != null && voice.length()!=0) {
             game.getCurrentSpeaker().setRoundFinished(true);
             playerRepository.save(game.getCurrentSpeaker());
 

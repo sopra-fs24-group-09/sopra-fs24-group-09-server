@@ -110,7 +110,7 @@ public class GameController {
         System.out.println(roomID);
         Player player = playerService.findPlayerById(userID);
         gameService.validateAnswer(game, player, guess);
-        Player player1 = playerService.findPlayerById(userId);
+        Player player1 = playerService.findPlayerById(userID);
         System.out.println("第二个"+player1.getScoreDetails());
     }
 

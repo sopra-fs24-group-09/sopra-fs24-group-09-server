@@ -160,19 +160,18 @@ public class SocketService {
         info.put("userId", userId);
         info.put("roomId", roomId);
         info.put("audioData", voice);
-        sendMessage("/plays/audio", roomId, info, null);
         if (voice == null) {
             System.out.println("📢📢📢调用/audio/info/📢📢📢" + "null");
-        } else {
+        } else {    
             System.out.println("📢📢📢调用/audio/info/📢📢📢" + voice.length());
         }
         sendMessage("/plays/audio/"+roomId, roomId, info, null);
     }
 
-    public void broadcastAudio(String roomId, Map<String, String> VoiceDict) {
-        HashMap<String, Object> info = new HashMap<>();
-        info.put("listOfaudioData", VoiceDict);
-        sendMessage("/plays/audio", roomId, info, null);
-    }
+    // public void broadcastAudio(String roomId, Map<String, String> VoiceDict) {
+    //     HashMap<String, Object> info = new HashMap<>();
+    //     info.put("listOfaudioData", VoiceDict);
+    //     sendMessage("/plays/audio", roomId, info, null);
+    // }
 
 }
