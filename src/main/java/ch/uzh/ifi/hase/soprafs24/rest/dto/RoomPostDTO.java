@@ -8,13 +8,25 @@ import java.util.List;
 
 public class RoomPostDTO {
 
+    private String roomName;
     private String roomId;
     private Theme theme;
     private RoomProperty roomProperty;
     private int maxPlayersNum;
 
     private User roomOwner;
-    private List<Long> roomPlayersList;
+
+    private String roomOwnerId;
+    private List<String> roomPlayersList;
+
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
 
     public User getRoomOwner() {
         return roomOwner;
@@ -33,6 +45,15 @@ public class RoomPostDTO {
     }*/
 
     //private ArrayList<User> roomPlayers;
+
+
+    public String getRoomOwnerId() {
+        return roomOwnerId;
+    }
+
+    public void setRoomOwnerId(String roomOwnerId) {
+        this.roomOwnerId = roomOwnerId;
+    }
 
     public String getRoomId() {
         return roomId;
@@ -66,11 +87,11 @@ public class RoomPostDTO {
         this.maxPlayersNum = maxPlayersNum;
     }
 
-    public List<Long> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Long> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 }

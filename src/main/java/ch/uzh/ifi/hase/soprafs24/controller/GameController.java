@@ -1,149 +1,142 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.tomcat.jni.Time;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import ch.uzh.ifi.hase.soprafs24.model.Message;
-import ch.uzh.ifi.hase.soprafs24.constant.MessageOrderType;
+import ch.uzh.ifi.hase.soprafs24.model.AnswerGuess;
+import ch.uzh.ifi.hase.soprafs24.model.PlayerAndRoom;
+import ch.uzh.ifi.hase.soprafs24.model.PlayerAudio;
+import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+
 @Controller
 public class GameController {
-
+    
     private SocketService socketService;
     private GameService gameService;
     private RoomService roomService;
     private UserService userService;
     private PlayerService playerService;
+    private GameRepository gameRepository;
+    private RoomRepository roomRepository;
 
-    public GameController(SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate) {
+    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("roomRepository") RoomRepository roomRepository){
         this.socketService = socketService;
         this.gameService=gameService;
+        this.roomService = roomService;
+        this.userService = userService;
+        this.gameRepository = gameRepository;
+        this.playerService = playerService;
+        this.roomRepository = roomRepository;
     }
 
     //set ready
-    @MessageMapping("/message/{userId}/{roomId}/test")
-    public void Test(@Payload Message message,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        socketService.broadcastReady(roomId, true);
-        socketService.broadcastRoominfo(roomId);
-        socketService.broadcastGameinfo(roomId);
-        socketService.broadcastPlayerinfo(roomId, userId);
-        String message_voice = message.getMessage();
-        Map<String, String> voice = new HashMap<>();
-        voice.put(roomId, message_voice);
-        socketService.broadcastAudio(roomId, voice);
-    }
-
-    //set ready
-    @MessageMapping("/message/{userId}/{roomId}/ready")
-    public void receiveReadyMessage(@Payload Message message,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
+    @MessageMapping("/message/users/ready")
+    public void ready(SimpMessageHeaderAccessor headerAccessor, @Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receipId = (String) headerAccessor.getHeader("receipt");
+        String userId = payload.getMessage().getUserID();
+        String roomId = payload.getMessage().getRoomID();
         gameService.Ready(userId);
-        socketService.broadcastReady(roomId, true);
+        socketService.broadcastPlayerInfo(roomId,receipId);
+        socketService.broadcastGameinfo(roomId, receipId);
     }
 
     //set unready
-    @MessageMapping("/message/{userId}/{roomId}/unready")
-    public void receiveUnreadyMessage(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        gameService.UnReady(userId);
-        socketService.broadcastUnReady(roomId, false);
+    @MessageMapping("/message/users/unready")
+    public void unready(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receipId = (String) headerAccessor.getHeader("receipt");
+        String userID = payload.getMessage().getUserID();
+        String roomID = payload.getMessage().getRoomID();
+        gameService.UnReady(userID);
+        socketService.broadcastPlayerInfo(roomID, receipId);
+        socketService.broadcastGameinfo(roomID, receipId);
     }
 
-
     //enterroom
-    @MessageMapping("/message/{userId}/{roomId}/enterroom")
-    public void enterRoom(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        Room room=roomService.findRoomById(roomId);
-        User user=userService.findUserById(userId);
+    @MessageMapping("/message/users/enterroom")
+    public void enterRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receipID = (String) headerAccessor.getHeader("receipt");
+        String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String userID = payload.getMessage().getUserID();
+        Room room=roomService.findRoomById(roomID);
+        User user=userService.findUserById(userID);
         roomService.enterRoom(room, user);
-        socketService.broadcastEnterroom(roomId, userId);
+        socketService.broadcastGameinfo(roomID, receipID);
+        socketService.broadcastPlayerInfo(roomID, "enterroom");
     }
 
     //leaveroom
-    @MessageMapping("/message/{userId}/{roomId}/exitroom")
-    public void exitRoom(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        Room room=roomService.findRoomById(roomId);
-        User user=userService.findUserById(userId);
-        roomService.exitRoom(room, user);
-        socketService.broadcastExitroom(roomId, userId);
+    @MessageMapping("/message/users/exitroom")
+    public void exitRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receipID = (String) headerAccessor.getHeader("receipt");
+        String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String userID = payload.getMessage().getUserID();
+
+        User user=userService.findUserById(userID);
+        if(roomRepository.findByRoomId(roomID).isPresent()){
+            Room room=roomService.findRoomById(roomID);
+            roomService.exitRoom(room, user);
+        }
+        
+        if (gameRepository.findByRoomId(roomID).isPresent()) {
+            socketService.broadcastGameinfo(roomID, receipID);
+            socketService.broadcastPlayerInfo(roomID, "exitroom");
+        }
+
     }
 
 
     //startgame
-    @MessageMapping("/message/{roomId}/startgame")
-    public void startGame(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("roomId") String roomId) {
-        Game game = gameService.findGameById(roomId);
-        gameService.checkIfAllReady(game);
-    }
-
-
-    //notifyRoominfo
-    @MessageMapping("/message/{roomId}/roominfo")
-    public void notifyRoominfo(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("roomId") String roomId) {
-        socketService.broadcastRoominfo(roomId);
-    }
-
-    //notifyLobbyinfo
-    @MessageMapping("/message/lobbyinfo")
-    @SendTo("/lobby")
-    public Message notifyLobbyinfo(@Payload Message message,@DestinationVariable("timestamp") String time) {
-        Message lobbymessage = new Message();
-        lobbymessage.setSenderName("system");
-        lobbymessage.setTimestamp(LocalDateTime.now());
-        lobbymessage.setMessageType(MessageOrderType.LOBBY);
-        return lobbymessage;
-    }
-
-    //notify game info
-    @MessageMapping("/message/{roomId}/gameinfo")
-    public void notifyGameinfo(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        socketService.broadcastGameinfo(roomId);
-    }
-
-    //notify player words
-    @MessageMapping("/message/{roomId}/player/{userId}")
-    public void notifyPlayerWords(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        socketService.broadcastPlayerinfo(roomId, userId);
+    @MessageMapping("/message/games/start")
+    public void startGame(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
+        // String receipId = (String) headerAccessor.getHeader("receipt");
+        String roomID = payload.getMessage().getRoomID();
+        Room room = roomService.findRoomById(roomID);
+        gameService.checkIfAllReady(room);
     }
 
     //submitAnswer
-    @MessageMapping("/message/{userId}/{roomId}/validate")
-    public void submitAnswer(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        String answer = message.getMessage();
-        Game game = gameService.findGameById(roomId);
-        Player player = playerService.findPlayerById(userId);
-        gameService.validateAnswer(game, player, answer);
+    @MessageMapping("/message/games/validate")
+    public void submitAnswer(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<AnswerGuess> payload) {
+        // String receipId = (String) headerAccessor.getHeader("receipt");
+        String userID = payload.getMessage().getUserID();
+        String roomID = payload.getMessage().getRoomID();
+        String guess = payload.getMessage().getGuess();
+        Game game = gameService.findGameById(roomID);
+        Player player = playerService.findPlayerById(userID);
+        gameService.validateAnswer(game, player, guess);
     }
 
     //submitAudio
-    @MessageMapping("/message/{userId}/{roomId}/audio/upload")
-    public void uploadAudio(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        String voice = message.getMessage();
-        gameService.setPlayerAudio(roomId,userId,voice);
+    @MessageMapping("/message/games/audio/upload")
+    public void uploadAudio(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAudio> payload) {
+        // String receipId = (String) headerAccessor.getHeader("receipt");
+        String userID = payload.getMessage().getUserID();
+        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String voice = payload.getMessage().getAudioData();
+        gameService.setPlayerAudio(roomId,userID,voice);
     }
+    
+    // @MessageMapping("/message/response")
+    // public void response(@Payload String payload) {
+    //     System.out.println(payload);
+    // }
 
-    //broadcast Audio
-    @MessageMapping("/message/{roomId}/audio/download/{userId}")
-    public void notifySpeakerAudio(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        String voice = gameService.getPlayerAudio(roomId,userId);
-        socketService.broadcastSpeakerAudio(roomId,userId,voice);
-    }
-
-    //broadcast other player Audio
-    @MessageMapping("/message/{roomId}/audio/download/all")
-    public void notifyPlayerAudio(@Payload Message message,@DestinationVariable("timestamp") String time,@DestinationVariable("userId") String userId,@DestinationVariable("roomId") String roomId) {
-        Map<String, String> voice = gameService.getAllPlayerAudio(roomId);
-        socketService.broadcastAudio(roomId,voice);
-    }
+    //notifyLobbyinfo
+    // @MessageMapping("/message/lobby/info")
+    // public void notifyLobbyinfo(@Payload Timestamped<RoomInfo> payload) {
+    //     Message lobbymessage = new Message();
+    //     lobbymessage.setSenderName("system");
+    //     lobbymessage.setTimestamp(LocalDateTime.now());
+    //     // lobbymessage.setMessageType(MessageOrderType.LOBBY);
+    // }
 
 }

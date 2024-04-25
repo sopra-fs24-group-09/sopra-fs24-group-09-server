@@ -1,8 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.service;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -27,13 +29,20 @@ public class RoomService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final RoomRepository roomRepository;
-    private GameService gameService;
-    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository) {
+    private final UserRepository userRepository;
+    private final GameRepository gameRepository;
+    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Room> getRooms() {
         return this.roomRepository.findAll();
+    }
+
+    public boolean checkRoomExists(String roomId){
+        return roomRepository.findByRoomId(roomId).isPresent();
     }
 
     //Here we create a new room, and we need to set the room property and theme according to the input from client
@@ -44,9 +53,20 @@ public class RoomService {
         }
 
         try {
+            newRoom.setRoomName(newRoom.getRoomName());
+            newRoom.setTheme(newRoom.getTheme());
+            newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
+            newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
-            newRoom.addRoomPlayerList(newRoom.getRoomOwner().getId());
+            // newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
+
             newRoom = roomRepository.save(newRoom);
+
+            User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
+            roomOwner.setPlayerStatus(PlayerStatus.READY);
+            userRepository.save(roomOwner);
+
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
         } catch (Exception e) {
@@ -62,41 +82,45 @@ public class RoomService {
     }
 
     public void enterRoom(Room room, User user){
-        if (room.getRoomPlayersList().contains(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
-        }
-
+        // if (room.getRoomPlayersList().contains(user.getId())) {
+        //     throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
+        // }
         // Check full or not
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
+        if (room.getRoomProperty() != RoomProperty.WAITING){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not enter a room that is in game");
+        }
 
         room.addRoomPlayerList(user.getId());
+        System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
         roomRepository.save(room);
     }
 
-
-    public void startGame(Room room){
-        gameService.startGame(room);
-    }
-
-
-    public List<String> getWordsRelatedTo(String query) throws IOException {
-
-        return null;
-    }
-
-
-    public void checkIfGameEnd(Room roomToDo){
-
-    }
-
-    public String assignWord(String senderName) {
-        return null;
-    }
-
-
     public void exitRoom(Room room, User user){
+        if (!room.getRoomPlayersList().contains(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
+        }
+        if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
+            if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){
+                gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
+            }
+            roomRepository.delete(room);
+        }
+        else{
+            if(room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
+                room.setRoomOwnerId(room.getRoomPlayersList().get(1));
+                User newOwner = userRepository.findById(room.getRoomPlayersList().get(1)).get();
+                newOwner.setPlayerStatus(PlayerStatus.READY);
+                userRepository.save(newOwner);
+            }
+            user.setPlayerStatus(PlayerStatus.UNREADY);
+            userRepository.save(user);
+
+            room.getRoomPlayersList().remove(user.getId());
+            roomRepository.save(room);
+        }
     }
 
     /**

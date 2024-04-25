@@ -7,13 +7,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomGetDTO {
+    private String roomName;
     private String roomId;
     private Theme theme;
     private RoomProperty roomProperty;
     private int maxPlayersNum;
 
     private User roomOwner;
-    private List<Long> roomPlayersList;
+    private List<String> roomPlayersList;
+    private String roomOwnerId;
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public List<String> getRoomPlayersList() {
+        return roomPlayersList;
+    }
+
+    public String getRoomOwnerId() {
+        return roomOwnerId;
+    }
+
+    public void setRoomOwnerId(String roomOwnerId) {
+        this.roomOwnerId = roomOwnerId;
+    }
+
+    public void setRoomPlayersList(List<String> roomPlayersList) {
+        this.roomPlayersList = roomPlayersList;
+    }
 
     public User getRoomOwner() {
         return roomOwner;
@@ -56,14 +82,7 @@ public class RoomGetDTO {
     public void setMaxPlayersNum(int maxPlayersNum) {
         this.maxPlayersNum = maxPlayersNum;
     }
-
-    public List<Long> getRoomPlayersList() {
-        return roomPlayersList;
-    }
-
-    public void setRoomPlayersList(List<Long> roomPlayersList) {
-        this.roomPlayersList = roomPlayersList;
-    }
+    
 
     public void setRoomPlayers(ArrayList<User> roomPlayers) {
         this.roomPlayers = roomPlayers;

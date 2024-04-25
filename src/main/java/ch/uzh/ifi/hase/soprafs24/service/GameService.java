@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
+
 import java.util.concurrent.*;
 
+import ch.uzh.ifi.hase.soprafs24.constant.GameStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
@@ -17,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
@@ -33,14 +39,13 @@ public class GameService {
 
     private final PlayerRepository playerRepository;
     private final GameRepository gameRepository;
-    private final PlayerService playerService;
     private final UserService userService;
     private final SocketService socketService;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-    private CountDownLatch latch;
+    private CountDownLatch latch = new CountDownLatch(500000);
 
     public void executeWithTimeout(Runnable task, long timeout, TimeUnit unit) {
         Future<?> future = executor.submit(task);
@@ -52,18 +57,21 @@ public class GameService {
         }, timeout, unit);
 
         try {
-            latch.await(timeout, unit);
+            this.latch.await(timeout, unit);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository, PlayerService playerService, UserService userService, SocketService socketService, @Qualifier("roomRepository") RoomRepository roomRepository) {
+    public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository,
+            @Qualifier("userRepository") UserRepository userRepository,
+            @Qualifier("gameRepository") GameRepository gameRepository,
+            UserService userService, SocketService socketService,
+            @Qualifier("roomRepository") RoomRepository roomRepository) {
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
-        this.playerService = playerService;
         this.userService = userService;
-        this.socketService=socketService;
+        this.socketService = socketService;
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
     }
@@ -75,18 +83,22 @@ public class GameService {
         userRepository.save(user);
     }
 
-    public void UnReady(String userId){
+    public void UnReady(String userId) {
         User user = userService.findUserById(userId);
 
         user.setPlayerStatus(PlayerStatus.UNREADY);
         userRepository.save(user);
     }
 
-    public void checkIfAllReady(Room room){
+    public void checkIfAllReady(Room room) {
+        if (room.getRoomPlayersList().size() < 2) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "2 or more players are required to start the game");
+        }
         List<String> playerList = room.getRoomPlayersList();
-        for (String id : playerList){
-            User user = userService.findUserById(id);
-            if (user.getPlayerStatus() != PlayerStatus.READY){
+        for (String id : playerList) { // Fix: Iterate over the playerList
+            User user = userService.findUserById(id); // Fix: Get the user from the player
+            if (user.getPlayerStatus() != PlayerStatus.READY) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not all players are ready");
                 // Notify unready players
             }
         }
@@ -94,47 +106,74 @@ public class GameService {
     }
 
     public void startGame(Room room) {
-        // Initialize a new game object and player objects, then save them to the database
+        // Initialize a new game object and player objects, then save them to the
+        // database
+        room.setRoomProperty(RoomProperty.INGAME);
+        roomRepository.save(room);
         Game game = new Game(room);
+
+        game.setGameStatus(GameStatus.ingame);
+        gameRepository.save(game);
         List<String> words;
 
         try {
             // Attempt to retrieve words related to the game's theme from the API
             words = getWords(game.getTheme().toString());
-            Collections.shuffle(words);  // Shuffle the words to ensure random assignment
+            Collections.shuffle(words); // Shuffle the words to ensure random assignment
         } catch (IOException e) {
             System.err.println("Failed to retrieve words: " + e.getMessage());
-            return;  // Exit the method if words cannot be retrieved
+            return; // Exit the method if words cannot be retrieved
         }
-
-        // Broadcast the game start event to all players
-        socketService.broadcastGamestart(room.getRoomId());
-        gameRepository.save(game);
 
         for (String id : game.getRoomPlayersList()) {
             User user = userService.findUserById(id);
             Player player = new Player(user);
-            game.getPlayerList().add(player);
-            // Assign a word to each player according to their index in the player list to avoid the same word being assigned to multiple players, and the shuffle before makes sure it's random every time
-            player.setAssignedWord(words.get(game.getPlayerList().indexOf(player)));
+//            game.addPlayerList(player);
+            // Assign a word to each player according to their index in the player list to
+            // avoid the same word being assigned to multiple players, and the shuffle
+            // before makes sure it's random every time
+            player.setAssignedWord(words.get(game.getRoomPlayersList().indexOf(player.getId())));
             playerRepository.save(player);
             gameRepository.save(game);
         }
 
+        // socketService.broadcastGameinfo(game.getRoomId(), "speak");
+        // socketService.broadcastPlayerInfo(game.getRoomId(), "123", "speak");
+
         // Proceed through each turn of the game until every player has spoken
+
         while (game.getCurrentRoundNum() < game.getRoomPlayersList().size()) {
-            Player currentSpeaker = game.getPlayerList().get(game.getCurrentRoundNum());
+            String currentId = game.getRoomPlayersList().get(game.getCurrentRoundNum());
+            Player currentSpeaker = playerRepository.findById(currentId).get();
+            currentSpeaker.setIfGuessed(false);
+            playerRepository.save(currentSpeaker);
+
             game.setCurrentSpeaker(currentSpeaker);
             gameRepository.save(game);
+
+            socketService.broadcastGameinfo(game.getRoomId(), "speak");
+            socketService.broadcastPlayerInfo(game.getRoomId(), "speak");
             proceedTurn(game);
+            jumpToNextRound(game);
         }
 
         // Display scores after every player has spoken
+        System.out.println("展示："+LocalDateTime.now());
+//        Runnable displayScoresTask = () -> displayScores(game);
+//        executeWithTimeout(displayScoresTask, 50, TimeUnit.SECONDS);
         displayScores(game);
-
-        // Display the leaderboard for 2 minutes, and dismiss the room in advance if all players leave
-        Runnable endGameTask = () -> endGame(game);
-        executeWithTimeout(endGameTask, 120, TimeUnit.SECONDS);
+        try {
+            Thread.sleep(30000);//20000
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+        System.out.println("结束："+ LocalDateTime.now());
+        // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
+        // players leave
+        if (gameRepository.findByRoomId(game.getRoomId()).isPresent()){
+            endGame(game);
+        }
     }
 
     public List<String> getWords(String theme) throws IOException {
@@ -159,194 +198,224 @@ public class GameService {
         return words;
     }
 
-    public void proceedTurn(Game game){
+    public void proceedTurn(Game game) {
         // Speak
-        Runnable speakPhaseTask = () -> speakPhase(game);
-        executeWithTimeout(speakPhaseTask, 30, TimeUnit.SECONDS);
+        game.setRoundStatus(RoundStatus.speak);
+        gameRepository.save(game);
 
-        // Guess - if no audio uploaded, jump to next round
-        if (!game.getCurrentSpeaker().getAudioData().equals("") && game.getCurrentSpeaker().getAudioData()!=null){
-            Runnable guessPhaseTask = () -> guessPhase(game);
-            executeWithTimeout(guessPhaseTask, 60, TimeUnit.SECONDS);
+        System.out.println("说话："+LocalDateTime.now());
+//        Runnable speakPhaseTask = () -> speakPhase(game);
+//        executeWithTimeout(speakPhaseTask, 20, TimeUnit.SECONDS);
+        speakPhase(game);
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         }
-        else {
+        System.out.println("说话结束"+ LocalDateTime.now());
+        // Broadcast the audio to all players
+        String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
+        
+        // Guess - if no audio uploaded, jump to next round
+        if (voice != null &&  voice.length() != 0) {
+            game.getCurrentSpeaker().setRoundFinished(true);
+            playerRepository.save(game.getCurrentSpeaker());
+
+            socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
+            game.setRoundStatus(RoundStatus.guess);
+            gameRepository.save(game);
+
+            System.out.println("猜："+LocalDateTime.now());
+//            Runnable guessPhaseTask = () -> guessPhase(game);
+//            executeWithTimeout(guessPhaseTask, 30, TimeUnit.SECONDS);
+
+            guessPhase(game);
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
+            System.out.println("猜结束："+LocalDateTime.now());
+
+        } else {
             // if the speaker does not upload the audio, he will get -4 points and marked this word as No Speak
-            for (Player player : game.getPlayerList()) {
-                if (player != game.getCurrentSpeaker()) {
-                    player.addScoreDetail("No Speak", 0, 0);
+            Player speaker = playerRepository.findById(game.getCurrentSpeaker().getId()).get();
+            speaker.setSpeakScore(speaker.getSpeakScore() - 4);
+            playerRepository.save(speaker);
+        }
+
+        calculateScore(game);
+
+        revealPhase(game);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void calculateScore(Game game) {
+        for (String playerId : game.getRoomPlayersList()) {
+            Player player = playerRepository.findById(playerId).get();
+            // Speaker or Guesser
+            if (!player.getId().equals(game.getCurrentSpeaker().getId())) {
+                // Did not guess or wrong answer
+                if (!player.isRoundFinished()) {
+                    player.addScoreDetail(game.getCurrentAnswer(), 0, 0);
                     playerRepository.save(player);
                 }
+                // Correct answer
                 else {
-                    player.setSpeakScore(player.getSpeakScore()-4);
+                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player);
+                    player.setGuessScore(player.getGuessScore() + score);
+                    player.addScoreDetail(game.getCurrentAnswer(), 0, score);
                     playerRepository.save(player);
                 }
             }
+            else {
+                // Speaker gets 2 points for each guesser
+                Integer scoreList = gameRepository.findByRoomId(game.getRoomId()).get().getAnsweredPlayerList().size();
+                Integer score = 2*scoreList;
+
+                player.setSpeakScore(player.getSpeakScore() + score);
+                player.addScoreDetail(game.getCurrentAnswer(), 1, player.getSpeakScore());
+                playerRepository.save(player);
+            }
+            player.setTotalScore(player.getSpeakScore() + player.getGuessScore());
+            playerRepository.save(player);
         }
-
-        //Intermediate display
-        game.getCurrentSpeaker().addScoreDetail(game.getCurrentAnswer(), 1, game.getCurrentSpeaker().getSpeakScore());
-        playerRepository.save(game.getCurrentSpeaker());
-        // displayRoundScores(game);
-
-        // Prepare for Next Round
-        jumpToNextRound(game);
     }
 
-    public void jumpToNextRound(Game game){
-        game.getCurrentSpeaker().setIfGuessed(true);
-        playerRepository.save(game.getCurrentSpeaker());
+    public void jumpToNextRound(Game game) {
+        for (String playerId : game.getRoomPlayersList()) {
+            Player player = playerRepository.findById(playerId).get();
+            player.setAudioData("");
+            player.setRoundFinished(false);
+            player.setIfGuessed(true);
+            playerRepository.save(player);
+        }
+
         // Clear the audio data of all players ??
 
-        game.setCurrentRoundNum(game.getCurrentRoundNum()+1);
+        game.setCurrentRoundNum(game.getCurrentRoundNum() + 1);
         game.getAnsweredPlayerList().clear();
         gameRepository.save(game);
     }
 
-    public void speakPhase(Game game){
-        game.setRoundStatus(RoundStatus.SPEAKING);
+    public void speakPhase(Game game) {
         // Give a word with API
         game.setCurrentAnswer(game.getCurrentSpeaker().getAssignedWord());
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(20)));
         gameRepository.save(game);
+        socketService.broadcastGameinfo(game.getRoomId(), "speak");
+        socketService.broadcastPlayerInfo(game.getRoomId(), "speak");
         // Wait for the player to upload audio -- In playerService
-        latch = new CountDownLatch(1);
+//        CountDownLatch latch = new CountDownLatch(2);
     }
 
-    public void guessPhase(Game game){
-        game.setRoundStatus(RoundStatus.GUESSING);
+    public void guessPhase(Game game) {
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(30)));
         gameRepository.save(game);
-        latch = new CountDownLatch(game.getRoomPlayersList().size()-1);
+        socketService.broadcastGameinfo(game.getRoomId(), "guess");
+        socketService.broadcastPlayerInfo(game.getRoomId(),  "guess");
+//        latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
     }
 
-    // For speaker to upload audio
-    public void speakerUpload(Game game, String audioData){
-        game.getCurrentSpeaker().setAudioData(audioData);
-        playerRepository.save(game.getCurrentSpeaker());
-        //上传成功，发给所有玩家
-        socketService.broadcastSpeakerAudio(game.getRoomId(),game.getCurrentSpeaker().getId(), game.getCurrentSpeaker().getAudioData());
-        latch.countDown();
+    public void revealPhase(Game game) {
+        game.setRoundStatus(RoundStatus.reveal);
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
+        gameRepository.save(game);
+        socketService.broadcastGameinfo(game.getRoomId(), "reveal");
+        socketService.broadcastPlayerInfo(game.getRoomId(), "null");
     }
 
-    // For guesser to upload audio to share
-    public void gusserUpload(Player player, String audioData){
-        player.setAudioData(audioData);
-        playerRepository.save(player);
-        //上传成功，发给所有玩家
-    }
+    public void endGame(Game game) {
+        for (String playerId : game.getRoomPlayersList()) {
+            Player player = playerRepository.findById(playerId).get();
 
-    public void endGame(Game game){
-        for (Player player : game.getPlayerList()){
             playerRepository.delete(player);
         }
+        for (String userId : game.getRoomPlayersList()) {
+            User user = userRepository.findById(userId).get();
+            user.setPlayerStatus(PlayerStatus.UNREADY);
+            userRepository.save(user);
+        }
+
         gameRepository.delete(game);
+
+        System.out.println("Game ended");
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
-        latch = new CountDownLatch(game.getRoomPlayersList().size());
     }
 
-    public void validateAnswer(Game game, Player player, String answer){
-        if (answer.equals(game.getCurrentAnswer())){
-            // Add score for gussers depending on the answer speed
-            int score = game.getPlayerList().size()-game.getAnsweredPlayerList().size();
-            player.setGuessScore(player.getGuessScore()+ score);
-            player.addScoreDetail(answer, 0, score);
+    public void validateAnswer(Game game, Player player, String guess) {
+        if (guess.equals(game.getCurrentAnswer())) {
 
-            // Fixed score for speaker for each correct answer
-            game.getCurrentSpeaker().setSpeakScore(game.getCurrentSpeaker().getSpeakScore()+2);
+            player.setRoundFinished(true);
+            playerRepository.save(player);
 
             game.getAnsweredPlayerList().add(player);
             gameRepository.save(game);
-            playerRepository.save(player);
-            playerRepository.save(game.getCurrentSpeaker());
-            latch.countDown();
-            //显示回复正确加分
-        }
-        else {}//显示回复错误
+
+            socketService.broadcastGameinfo(game.getRoomId(), "score");
+            socketService.broadcastPlayerInfo(game.getRoomId(), "null");
+//            latch.countDown();
+            // 显示回复正确加分
+        } else {
+            System.out.println("回答错误");
+        } //显示回答错误
     }
 
-    public void displayRoundScores(Player player){
+    public void displayRoundScores(Player player) {
         // Display the scores of all players for this round
         player.getScoreDetails();
         // 展示回合得分
     }
 
-    public void displayScores(Game game){
+    public void displayScores(Game game) {
         // Display the scores of all players in the game, data required by Yixuan
-    }
-
-    // 从结果展示界面离开房间，删除玩家
-    public void leaveRoom(Game game, Player player){
-        game.getPlayerList().remove(player);
+        game.setRoundStatus(RoundStatus.reveal);
+        game.setGameStatus(GameStatus.over);
         gameRepository.save(game);
-        playerRepository.delete(player);
-        latch.countDown();
+        socketService.broadcastGameinfo(game.getRoomId(), "score");
+        socketService.broadcastPlayerInfo(game.getRoomId(), null);
     }
 
-
-    public Game findGameById(String roomId){
-        if (gameRepository.findById(roomId).isPresent()){
+    public Game findGameById(String roomId) {
+        if (gameRepository.findById(roomId).isPresent()) {
             return gameRepository.findById(roomId).get();
-        }
-        else{
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
         }
     }
 
-    // May cause loop usage
+    public void setPlayerAudio(String roomId, String playerId, String voice) {
+        Game game = gameRepository.findByRoomId(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
 
-    // public Player findPlayerInGame(String playerId, String roomId){
-    //     Game game = gameRepository.findById(roomId)
-    //     .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
-    //     List<Player> playerlist = game.getPlayerList();
-    //     Player player = playerService.findPlayerById(playerId);
-    //     boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
-    //     if(isPlayerInList){
-    //         return player;
-    //     }
-    //     else{
-    //         return null;
-    //     }
-    // }
-
-    public void setPlayerAudio(String roomId, String playerId, String voice){
-        Game game = gameRepository.findById(roomId)
-        .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
-        List<Player> playerlist = game.getPlayerList();
-        Player player = playerService.findPlayerById(playerId);
+        List<Player> playerlist = new ArrayList<>();
+        for (String id : game.getRoomPlayersList()) {
+            Player player = playerRepository.findById(id).get();
+            playerlist.add(player);
+        }
+        Player player = playerRepository.findById(playerId).get();
         boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
-        if(isPlayerInList){
+        if (isPlayerInList) {
             player.setAudioData(voice);
-        }
-        else{
-            throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
-        }
-    }
+            playerRepository.save(player);
+//            latch.countDown();
 
-    public String getPlayerAudio(String roomId, String playerId ){
-        Game game = gameRepository.findById(roomId)
-        .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
-        List<Player> playerlist = game.getPlayerList();
-        Player player = playerService.findPlayerById(playerId);
-        boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
-        if(isPlayerInList){
-            return player.getAudioData();
-        }
-        else{
-            throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
-        }
-    }
-
-    public Map<String, String> getAllPlayerAudio(String roomId) {
-        Game game = gameRepository.findById(roomId)
-            .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + roomId));
-        List<Player> playerlist = game.getPlayerList();
-        Map<String, String> playerAudioMap = new HashMap<>();
-    
-        // Iterate over each player in the player list and add their ID and audio data to the map
-        for (Player player : playerlist) {
-            if (player.getAudioData() != null && !player.getAudioData().isEmpty()) {
-                playerAudioMap.put(player.getId(), player.getAudioData());
+            //如果实在猜的阶段，广播声音直接给所有人
+            if (game.getRoundStatus() == RoundStatus.guess) {
+                socketService.broadcastSpeakerAudio(game.getRoomId(), player.getId(), voice);
             }
+
+        } else {
+            throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }
-    
-        return playerAudioMap;
+        socketService.broadcastGameinfo(roomId, "audio");
+        socketService.broadcastPlayerInfo(roomId, "audio");
     }
 }

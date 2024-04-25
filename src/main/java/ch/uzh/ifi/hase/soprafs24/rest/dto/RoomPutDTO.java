@@ -15,7 +15,7 @@ public class RoomPutDTO {
     private int maxPlayersNum;
 
     private User roomOwner;
-    private List<Long> roomPlayersList;
+    private List<String> roomPlayersList;
 
     public User getRoomOwner() {
         return roomOwner;
@@ -67,11 +67,11 @@ public class RoomPutDTO {
         this.maxPlayersNum = maxPlayersNum;
     }
 
-    public List<Long> getRoomPlayersList() {
+    public List<String> getRoomPlayersList() {
         return roomPlayersList;
     }
 
-    public void setRoomPlayersList(List<Long> roomPlayersList) {
+    public void setRoomPlayersList(List<String> roomPlayersList) {
         this.roomPlayersList = roomPlayersList;
     }
 }

@@ -1,12 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 /**
@@ -52,15 +52,7 @@ public class RoomController {
         Room createdRoom = roomService.createRoom(roomInput);
         // convert internal representation of room back to API
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
-    }
 
-    @PutMapping("/games{roomId}")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void enterRoom(@PathVariable String roomId,@RequestBody UserPutDTO userPutDTO) {
-        User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-        Room enteredRoom = roomService.findRoomById(roomId);
-        roomService.enterRoom(enteredRoom, userInput);
     }
 
     @PostMapping("/games/guard")
@@ -68,6 +60,7 @@ public class RoomController {
     public RoomGetDTO playerGuard(@RequestBody UserPostDTO userPostDTO) {
         return null;
     }
+
 
 
 }
