@@ -247,6 +247,14 @@ public class GameService {
         }
 
         calculateScore(game);
+
+        revealPhase(game);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
     }
 
     public void calculateScore(Game game) {
@@ -279,8 +287,6 @@ public class GameService {
             player.setTotalScore(player.getSpeakScore() + player.getGuessScore());
             playerRepository.save(player);
         }
-        socketService.broadcastGameinfo(game.getRoomId(), "score");
-        socketService.broadcastPlayerInfo(game.getRoomId(), "null");
     }
 
     public void jumpToNextRound(Game game) {
@@ -311,11 +317,19 @@ public class GameService {
     }
 
     public void guessPhase(Game game) {
-        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(30)));
         gameRepository.save(game);
         socketService.broadcastGameinfo(game.getRoomId(), "guess");
         socketService.broadcastPlayerInfo(game.getRoomId(),  "guess");
 //        latch = new CountDownLatch(game.getRoomPlayersList().size() - 1);
+    }
+
+    public void revealPhase(Game game) {
+        game.setRoundStatus(RoundStatus.reveal);
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(10)));
+        gameRepository.save(game);
+        socketService.broadcastGameinfo(game.getRoomId(), "reveal");
+        socketService.broadcastPlayerInfo(game.getRoomId(), "null");
     }
 
 //    public Player getCurrentSpeaker(String roomId) {
@@ -434,6 +448,8 @@ public class GameService {
         } else {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }
+        socketService.broadcastGameinfo(roomId, "audio");
+        socketService.broadcastPlayerInfo(roomId, "audio");
     }
 
 //    public String getPlayerAudio(String roomId, String playerId) {
