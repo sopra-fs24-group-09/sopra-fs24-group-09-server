@@ -418,6 +418,11 @@ public class GameService {
             playerRepository.save(player);
 //            latch.countDown();
 
+            //如果实在猜的阶段，广播声音直接给所有人
+            if (game.getRoundStatus() == RoundStatus.guess) {
+                socketService.broadcastSpeakerAudio(game.getRoomId(), player.getId(), voice);
+            }
+
         } else {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }

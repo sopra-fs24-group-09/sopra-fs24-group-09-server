@@ -42,6 +42,10 @@ public class RoomService {
         return this.roomRepository.findAll();
     }
 
+    public boolean checkRoomExists(String roomId){
+        return roomRepository.findByRoomId(roomId).isPresent();
+    }
+
     //Here we create a new room, and we need to set the room property and theme according to the input from client
     public Room createRoom(Room newRoom){
         Optional<Room> existingRoom = roomRepository.findByRoomId(newRoom.getRoomId());
