@@ -42,6 +42,7 @@ public interface DTOMapper {
 
 
     @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "roomName", target = "roomName")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
 //    @Mapping(source = "roomOwner", target = "roomOwner")
@@ -51,6 +52,7 @@ public interface DTOMapper {
     Room convertRoomPostDTOtoEntity(RoomPostDTO roomPostDTO);
 
     @Mapping(source = "roomId", target = "roomId")
+    @Mapping(source = "roomName", target = "roomName")
     @Mapping(source = "theme", target = "theme")
     @Mapping(source = "roomProperty", target = "roomProperty")
     @Mapping(source = "roomOwnerId", target = "roomOwnerId")

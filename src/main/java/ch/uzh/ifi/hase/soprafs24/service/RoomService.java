@@ -104,6 +104,9 @@ public class RoomService {
         else{
             if(room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
                 room.setRoomOwnerId(room.getRoomPlayersList().get(1));
+                User newOwner = userRepository.findById(room.getRoomPlayersList().get(1)).get();
+                newOwner.setPlayerStatus(PlayerStatus.READY);
+                userRepository.save(newOwner);
             }
             user.setPlayerStatus(PlayerStatus.UNREADY);
             userRepository.save(user);

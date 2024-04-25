@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomGetDTO {
+    private String roomName;
     private String roomId;
     private Theme theme;
     private RoomProperty roomProperty;

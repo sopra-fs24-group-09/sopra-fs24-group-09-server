@@ -9,6 +9,7 @@ import java.util.List;
 
 public class RoomPostDTO {
 
+    private String roomName;
     private String roomId;
     private Theme theme;
     private RoomProperty roomProperty;
