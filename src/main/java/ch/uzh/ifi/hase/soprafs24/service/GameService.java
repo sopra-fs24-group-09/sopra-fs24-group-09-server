@@ -270,7 +270,7 @@ public class GameService {
                 }
                 // Correct answer
                 else {
-                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player.getId()+1);
+                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player.getId());
                     player.setGuessScore(player.getGuessScore() + score);
                     player.addScoreDetail(game.getCurrentAnswer(), 0, score);
                     playerRepository.save(player);
