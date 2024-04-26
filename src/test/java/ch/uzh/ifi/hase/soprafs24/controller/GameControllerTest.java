@@ -118,7 +118,7 @@ class GameControllerTest {
         }});
         when(payload.getMessage()).thenReturn(playerAndRoom); // Ensure getMessage() does not return null
         when(playerAndRoom.getUserID()).thenReturn(userId); // Set up getPlayerID() to return a specific user ID
-        when(roomService.findRoomById(roomId)).thenReturn(room);
+        when(roomService.findRoomById(userId,roomId)).thenReturn(room);
         when(userService.findUserById(userId)).thenReturn(user);
     
         gameController.enterRoom(headerAccessor, payload);
@@ -145,7 +145,7 @@ class GameControllerTest {
         when(headerAccessor.getSessionAttributes()).thenReturn(new HashMap<String, Object>() {{ put("roomId", roomId); }});
         when(payload.getMessage()).thenReturn(playerAndRoom);
         when(playerAndRoom.getUserID()).thenReturn(userId);
-        when(roomService.findRoomById(roomId)).thenReturn(room);
+        when(roomService.findRoomById(userId,roomId)).thenReturn(room);
         when(userService.findUserById(userId)).thenReturn(user);
 
         // Additional setup for gameRepository
@@ -171,19 +171,21 @@ class GameControllerTest {
         // Test data
         String receiptId = "receiptId";
         String roomId = "roomID";
+        String userId = "userID";
         Room room = mock(Room.class);
 
         // Setting up the mocks
         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
         when(payload.getMessage()).thenReturn(playerAndRoom);
         when(playerAndRoom.getRoomID()).thenReturn(roomId);
-        when(roomService.findRoomById(roomId)).thenReturn(room);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(roomService.findRoomById(userId,roomId)).thenReturn(room);
 
         // Calling the method under test
         gameController.startGame(headerAccessor, payload);
 
         // Verifying that the correct services were called
-        verify(roomService).findRoomById(roomId);
+        verify(roomService).findRoomById(userId,roomId);
         verify(gameService).checkIfAllReady(room);
         
         // Verifying no more interactions

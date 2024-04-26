@@ -5,7 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.RoomGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.RoomPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
 import ch.uzh.ifi.hase.soprafs24.service.SocketService;
 

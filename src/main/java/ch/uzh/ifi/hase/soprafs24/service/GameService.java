@@ -112,6 +112,11 @@ public class GameService {
         roomRepository.save(room);
         Game game = new Game(room);
 
+        if (game.getTheme() == null) {
+            throw new IllegalStateException("Game theme is not set");
+            // or handle this case in a way that makes sense for your application
+        }
+        
         game.setGameStatus(GameStatus.ingame);
         gameRepository.save(game);
         List<String> words;
@@ -417,5 +422,10 @@ public class GameService {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }
         socketService.broadcastPlayerInfo(roomId, "audio");
+    }
+
+    public void setURL(URL mockUrl) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setURL'");
     }
 }
