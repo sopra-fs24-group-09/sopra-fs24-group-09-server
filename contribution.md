@@ -74,8 +74,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Imp
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/85| Word distrubution with given constraints| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/86| Random select the speaker in the beginning of a game| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/106| Implement enterroom and exitroom reminder and websocket message | [@Zehao Zhang](https://github.com/Zehao-Zhang)   ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/37| Store the reverse audio files in a database or file system for easy retrieval.| [@Zihan Liu][(https://github.com/](https://github.com/zihanltesla)) ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zihan Liu][(https://github.com/](https://github.com/zihanltesla)) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/37| Store the reverse audio files in a database or file system for easy retrieval.| [@Zihan Liu](https://github.com/zihanltesla) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zihan Liu](https://github.com/zihanltesla) ||
 
 ## WEEK5 2024.5.1-2024.5.8
 |Task Link|Description|Assigned to| Finished? |
