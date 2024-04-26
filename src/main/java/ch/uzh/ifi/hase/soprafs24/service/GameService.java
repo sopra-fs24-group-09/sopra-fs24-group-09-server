@@ -415,7 +415,6 @@ public class GameService {
         } else {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }
-        socketService.broadcastGameinfo(roomId, "audio");
         socketService.broadcastPlayerInfo(roomId, "audio");
     }
 }
