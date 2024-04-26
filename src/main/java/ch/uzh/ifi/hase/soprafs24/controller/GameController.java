@@ -66,7 +66,7 @@ public class GameController {
         String receipID = (String) headerAccessor.getHeader("receipt");
         String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
         String userID = payload.getMessage().getUserID();
-        Room room=roomService.findRoomById(roomID);
+        Room room=roomService.findRoomById(userID,roomID);
         User user=userService.findUserById(userID);
         roomService.enterRoom(room, user);
         socketService.broadcastGameinfo(roomID, receipID);
@@ -82,7 +82,7 @@ public class GameController {
 
         User user=userService.findUserById(userID);
         if(roomRepository.findByRoomId(roomID).isPresent()){
-            Room room=roomService.findRoomById(roomID);
+            Room room=roomService.findRoomById(userID,roomID);
             roomService.exitRoom(room, user);
         }
         
@@ -99,7 +99,8 @@ public class GameController {
     public void startGame(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
         String roomID = payload.getMessage().getRoomID();
-        Room room = roomService.findRoomById(roomID);
+        String userID = payload.getMessage().getUserID();
+        Room room = roomService.findRoomById(userID,roomID);
         gameService.checkIfAllReady(room);
     }
 

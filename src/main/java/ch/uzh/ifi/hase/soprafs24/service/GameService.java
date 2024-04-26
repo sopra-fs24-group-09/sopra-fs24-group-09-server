@@ -112,6 +112,11 @@ public class GameService {
         roomRepository.save(room);
         Game game = new Game(room);
 
+        if (game.getTheme() == null) {
+            throw new IllegalStateException("Game theme is not set");
+            // or handle this case in a way that makes sense for your application
+        }
+        
         game.setGameStatus(GameStatus.ingame);
         gameRepository.save(game);
         List<String> words;
@@ -257,7 +262,8 @@ public class GameService {
         }
     }
 
-    public void calculateScore(Game game) {
+    public void calculateScore(Game game_old) {
+        Game game = gameRepository.findByRoomId(game_old.getRoomId()).get();
         for (String playerId : game.getRoomPlayersList()) {
             Player player = playerRepository.findById(playerId).get();
             // Speaker or Guesser
@@ -269,7 +275,7 @@ public class GameService {
                 }
                 // Correct answer
                 else {
-                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player);
+                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player.getId());
                     player.setGuessScore(player.getGuessScore() + score);
                     player.addScoreDetail(game.getCurrentAnswer(), 0, score);
                     playerRepository.save(player);
@@ -356,7 +362,7 @@ public class GameService {
             player.setRoundFinished(true);
             playerRepository.save(player);
 
-            game.getAnsweredPlayerList().add(player);
+            game.getAnsweredPlayerList().add(player.getId());
             gameRepository.save(game);
 
             socketService.broadcastGameinfo(game.getRoomId(), "score");
@@ -415,7 +421,11 @@ public class GameService {
         } else {
             throw new IllegalArgumentException("Player not found in the game with ID: " + playerId);
         }
-        socketService.broadcastGameinfo(roomId, "audio");
         socketService.broadcastPlayerInfo(roomId, "audio");
+    }
+
+    public void setURL(URL mockUrl) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setURL'");
     }
 }

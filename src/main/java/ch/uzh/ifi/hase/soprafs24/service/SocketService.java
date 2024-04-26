@@ -49,7 +49,7 @@ public class SocketService {
     }
 
     // helper function for sending message to destination with JSON format
-    private <T> void sendMessage(String destination, String roomId, T info, String receiptId) {
+    public <T> void sendMessage(String destination, String roomId, T info, String receiptId) {
         try {
             // Wrapping the info object within Timestamped
             TimestampedRequest<T> timestampedMessage = new TimestampedRequest<>();
