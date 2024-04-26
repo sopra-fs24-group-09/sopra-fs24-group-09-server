@@ -3,17 +3,21 @@ import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -31,6 +35,10 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+
+    @Autowired
+    private SimpMessagingTemplate template;
+
     public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository) {
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
@@ -74,19 +82,23 @@ public class RoomService {
         }
     }
 
-    public Room findRoomById(String roomId){
+    public Room findRoomById(String userId, String roomId){
         if (!roomRepository.findByRoomId(roomId).isPresent()){
+            String jsonMessage = "{\"message\":\"Room not found!\"}"; 
+            template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
         return roomRepository.findByRoomId(roomId).get();
     }
 
-    public void enterRoom(Room room, User user){
+    public <T> void enterRoom(Room room, User user){
         // if (room.getRoomPlayersList().contains(user.getId())) {
         //     throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already in game");
         // }
         // Check full or not
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
+            String jsonMessage = "{\"message\":\"This room is full!\"}"; 
+            template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
         if (room.getRoomProperty() != RoomProperty.WAITING){

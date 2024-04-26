@@ -18,7 +18,7 @@ public class Game extends Room{
     private GameStatus gameStatus;
     private RoundStatus roundStatus;
     private int currentRoundNum = 0;
-    private List<Player> answeredPlayerList = new ArrayList<>();
+    private List<String> answeredPlayerList = new ArrayList<>();
     private String roundDue;
 
 
@@ -45,11 +45,11 @@ public class Game extends Room{
         currentSpeaker.setIfGuessed(false);
     }
 
-    public List<Player> getAnsweredPlayerList() {
+    public List<String> getAnsweredPlayerList() {
         return answeredPlayerList;
     }
 
-    public void setAnsweredPlayerList(List<Player> answeredPlayerList) {
+    public void setAnsweredPlayerList(List<String> answeredPlayerList) {
         this.answeredPlayerList = answeredPlayerList;
     }
 
