@@ -257,7 +257,8 @@ public class GameService {
         }
     }
 
-    public void calculateScore(Game game) {
+    public void calculateScore(Game game_old) {
+        Game game = gameRepository.findByRoomId(game_old.getRoomId()).get();
         for (String playerId : game.getRoomPlayersList()) {
             Player player = playerRepository.findById(playerId).get();
             // Speaker or Guesser
@@ -269,7 +270,7 @@ public class GameService {
                 }
                 // Correct answer
                 else {
-                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player);
+                    Integer score = game.getRoomPlayersList().size() - game.getAnsweredPlayerList().indexOf(player.getId()+1);
                     player.setGuessScore(player.getGuessScore() + score);
                     player.addScoreDetail(game.getCurrentAnswer(), 0, score);
                     playerRepository.save(player);
@@ -356,7 +357,7 @@ public class GameService {
             player.setRoundFinished(true);
             playerRepository.save(player);
 
-            game.getAnsweredPlayerList().add(player);
+            game.getAnsweredPlayerList().add(player.getId());
             gameRepository.save(game);
 
             socketService.broadcastGameinfo(game.getRoomId(), "score");

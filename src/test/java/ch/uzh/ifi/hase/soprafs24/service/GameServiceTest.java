@@ -89,7 +89,7 @@ public class GameServiceTest {
 
         // Verify
         assertTrue(player.isRoundFinished());
-        assertTrue(game.getAnsweredPlayerList().contains(player));
+        assertTrue(game.getAnsweredPlayerList().contains(player.getId()));
         verify(gameRepository).save(game);
         verify(socketService).broadcastGameinfo(game.getRoomId(), "score");
         verify(socketService).broadcastPlayerInfo(game.getRoomId(), "null");
