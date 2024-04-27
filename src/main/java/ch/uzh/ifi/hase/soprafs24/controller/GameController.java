@@ -79,7 +79,8 @@ public class GameController {
     @MessageMapping("/message/users/exitroom")
     public void exitRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipID = (String) headerAccessor.getHeader("receipt");
-        String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        // String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String roomID = payload.getMessage().getRoomID();
         String userID = payload.getMessage().getUserID();
 
         User user=userService.findUserById(userID);
@@ -123,7 +124,8 @@ public class GameController {
     public void uploadAudio(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAudio> payload) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
         String userID = payload.getMessage().getUserID();
-        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        // String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String roomId = payload.getMessage().getRoomID();
         String voice = payload.getMessage().getAudioData();
         gameService.setPlayerAudio(roomId,userID,voice);
     }
