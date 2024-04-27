@@ -44,7 +44,7 @@ public class GameController {
     public void ready(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
-        String roomId = payload.getMessage().getRoomID();
+        // String roomId = payload.getMessage().getRoomID();
         gameService.Ready(userId);
         socketService.broadcastPlayerInfo(roomId,receipId);
         socketService.broadcastGameinfo(roomId, receipId);
@@ -55,10 +55,10 @@ public class GameController {
     public void unready(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userID = payload.getMessage().getUserID();
-        String roomID = payload.getMessage().getRoomID();
+        // String roomID = payload.getMessage().getRoomID();
         gameService.UnReady(userID);
-        socketService.broadcastPlayerInfo(roomID, receipId);
-        socketService.broadcastGameinfo(roomID, receipId);
+        socketService.broadcastPlayerInfo(roomId, receipId);
+        socketService.broadcastGameinfo(roomId, receipId);
     }
 
     //enterroom
@@ -66,14 +66,14 @@ public class GameController {
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipID = (String) headerAccessor.getHeader("receipt");
         // String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
-        String roomID = payload.getMessage().getRoomID();
-        System.out.println("[enterRoom msg received]roomID: "+roomID);
+        // String roomID = payload.getMessage().getRoomID();
+        System.out.println("[enterRoom msg received]roomID: "+roomId);
         String userID = payload.getMessage().getUserID();
-        Room room=roomService.findRoomById(userID,roomID);
+        Room room=roomService.findRoomById(userID,roomId);
         User user=userService.findUserById(userID);
         roomService.enterRoom(room, user);
-        socketService.broadcastGameinfo(roomID, receipID);
-        socketService.broadcastPlayerInfo(roomID, "enterroom");
+        socketService.broadcastGameinfo(roomId, receipID);
+        socketService.broadcastPlayerInfo(roomId, "enterroom");
     }
 
     //leaveroom
