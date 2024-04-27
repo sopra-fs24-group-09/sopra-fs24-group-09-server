@@ -64,7 +64,9 @@ public class GameController {
     @MessageMapping("/message/users/enterroom")
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipID = (String) headerAccessor.getHeader("receipt");
-        String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        // String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String roomID = payload.getMessage().getRoomID();
+        System.out.println("[enterRoom msg received]roomID: "+roomID);
         String userID = payload.getMessage().getUserID();
         Room room=roomService.findRoomById(userID,roomID);
         User user=userService.findUserById(userID);
