@@ -40,8 +40,8 @@ public class GameController {
     }
 
     //set ready
-    @MessageMapping("/message/users/ready")
-    public void ready(SimpMessageHeaderAccessor headerAccessor, @Payload TimestampedRequest<PlayerAndRoom> payload) {
+    @MessageMapping("/message/users/ready/{roomId}")
+    public void ready(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userId = payload.getMessage().getUserID();
         String roomId = payload.getMessage().getRoomID();
@@ -51,8 +51,8 @@ public class GameController {
     }
 
     //set unready
-    @MessageMapping("/message/users/unready")
-    public void unready(SimpMessageHeaderAccessor headerAccessor,@Payload TimestampedRequest<PlayerAndRoom> payload) {
+    @MessageMapping("/message/users/unready/{roomId}")
+    public void unready(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipId = (String) headerAccessor.getHeader("receipt");
         String userID = payload.getMessage().getUserID();
         String roomID = payload.getMessage().getRoomID();
@@ -65,7 +65,9 @@ public class GameController {
     @MessageMapping("/message/users/enterroom/{roomId}")
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipID = (String) headerAccessor.getHeader("receipt");
-        String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        // String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String roomID = payload.getMessage().getRoomID();
+        System.out.println("[enterRoom msg received]roomID: "+roomID);
         String userID = payload.getMessage().getUserID();
         Room room=roomService.findRoomById(userID,roomID);
         User user=userService.findUserById(userID);

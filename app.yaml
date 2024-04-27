@@ -4,6 +4,12 @@
 runtime: java
 env: flex
 
+handlers:
+- url: /.*
+  script: auto
+
+instance_class: F2
+
 automatic_scaling:
   max_num_instances: 1
 
