@@ -133,12 +133,10 @@ public class GameController {
     // }
 
     //notifyLobbyinfo
-    // @MessageMapping("/message/lobby/info")
-    // public void notifyLobbyinfo(@Payload Timestamped<RoomInfo> payload) {
-    //     Message lobbymessage = new Message();
-    //     lobbymessage.setSenderName("system");
-    //     lobbymessage.setTimestamp(LocalDateTime.now());
-    //     // lobbymessage.setMessageType(MessageOrderType.LOBBY);
-    // }
+    @MessageMapping("/message/lobby/info")
+    public void notifyLobbyInfo(SimpMessageHeaderAccessor headerAccessor) {
+        // String receipId = (String) headerAccessor.getHeader("receipt");
+        socketService.broadcastLobbyInfo();
+    }
 
 }
