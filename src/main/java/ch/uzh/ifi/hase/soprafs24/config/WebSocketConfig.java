@@ -12,10 +12,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/{roomId}")
+        registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
-                .withSockJS()
-                .setInterceptors(new RoomIdInterceptor());
+                .withSockJS();
+                // .setInterceptors(new RoomIdInterceptor());
     }
 
 
