@@ -57,6 +57,7 @@ public class SocketService {
                                                                            // milliseconds
             timestampedMessage.setMessage(info);
             // The payload to be sent is now the timestampedMessage object
+            System.out.println(destination );
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,10 +157,32 @@ public class SocketService {
         sendMessage("/plays/audio/"+roomId, roomId, info, null);
     }
 
-    // public void broadcastAudio(String roomId, Map<String, String> VoiceDict) {
-    //     HashMap<String, Object> info = new HashMap<>();
-    //     info.put("listOfaudioData", VoiceDict);
-    //     sendMessage("/plays/audio", roomId, info, null);
-    // }
+    public void broadcastLobbyInfo() {
+        List<Room> rooms = roomRepository.findAll(); // Fetch all rooms
+        List<Map<String, Object>> lobbyInfo = new ArrayList<>();
+        for (Room room : rooms) {
+            Map<String, Object> roomInfo = new HashMap<>();
+            List<Map<String, Object>> playersInfo = new ArrayList<>();
+    
+            for (String playerId : room.getRoomPlayersList()) {
+                User user = userRepository.findById(playerId).get();
+                Map<String, Object> playerInfo = new HashMap<>();
+                playerInfo.put("userId", user.getId());
+                playerInfo.put("userName", user.getUsername());
+                playerInfo.put("avatar", user.getAvatar());
+                playersInfo.add(playerInfo); 
+            }
 
+            roomInfo.put("roomId", room.getRoomId());
+            roomInfo.put("roomOwnerId", room.getRoomOwnerId());
+            roomInfo.put("roomName", room.getRoomName());
+            roomInfo.put("roomMaxNum", room.getMaxPlayersNum());
+            roomInfo.put("theme", room.getTheme());
+            roomInfo.put("status", room.getRoomProperty());
+            roomInfo.put("roomPlayersList", playersInfo);
+    
+            lobbyInfo.add(roomInfo);
+        }
+        sendMessage("/lobby/info", null, lobbyInfo, null);
+    }
 }

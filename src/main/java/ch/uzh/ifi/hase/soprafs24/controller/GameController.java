@@ -127,18 +127,17 @@ public class GameController {
         gameService.setPlayerAudio(roomId,userID,voice);
     }
     
-    // @MessageMapping("/message/response")
-    // public void response(@Payload String payload) {
-    //     System.out.println(payload);
-    // }
+    @MessageMapping("/message/response")
+    public void response(@Payload String payload) {
+        System.out.println(payload);
+    }
 
     //notifyLobbyinfo
-    // @MessageMapping("/message/lobby/info")
-    // public void notifyLobbyinfo(@Payload Timestamped<RoomInfo> payload) {
-    //     Message lobbymessage = new Message();
-    //     lobbymessage.setSenderName("system");
-    //     lobbymessage.setTimestamp(LocalDateTime.now());
-    //     // lobbymessage.setMessageType(MessageOrderType.LOBBY);
-    // }
+    @MessageMapping("/message/lobby/info")
+    public void notifyLobbyInfo(SimpMessageHeaderAccessor headerAccessor) {
+        // String receipId = (String) headerAccessor.getHeader("receipt");
+        System.out.println("receive the lobby request!");
+        socketService.broadcastLobbyInfo();
+    }
 
 }
