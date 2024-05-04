@@ -102,6 +102,8 @@ public class RoomService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
         }
         if (room.getRoomProperty() != RoomProperty.WAITING){
+            String jsonMessage = "{\"message\":\"You can not enter a room that is in game!\"}"; 
+            template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not enter a room that is in game");
         }
 
@@ -109,6 +111,7 @@ public class RoomService {
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
         roomRepository.save(room);
     }
+
 
     public void exitRoom(Room room, User user){
         if (!room.getRoomPlayersList().contains(user.getId())) {

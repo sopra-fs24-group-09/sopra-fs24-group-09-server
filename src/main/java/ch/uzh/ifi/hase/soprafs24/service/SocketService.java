@@ -57,6 +57,7 @@ public class SocketService {
                                                                            // milliseconds
             timestampedMessage.setMessage(info);
             // The payload to be sent is now the timestampedMessage object
+            System.out.println(destination );
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
         } catch (Exception e) {
             e.printStackTrace();
