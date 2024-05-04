@@ -209,4 +209,11 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
     }
+
+    public boolean findByToken(String token){
+        if(userRepository.findByToken(token)==null){
+            return false;
+        }
+        return true;
+    }
 }
