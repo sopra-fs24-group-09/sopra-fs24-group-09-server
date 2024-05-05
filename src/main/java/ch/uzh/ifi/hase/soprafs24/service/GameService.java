@@ -94,6 +94,12 @@ public class GameService {
         if (room.getRoomPlayersList().size() < 2) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "2 or more players are required to start the game");
         }
+
+        //check if the game is start already
+        if (room.getRoomProperty() == RoomProperty.INGAME) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The game has already been started for this room");
+        }
+        
         List<String> playerList = room.getRoomPlayersList();
         for (String id : playerList) { // Fix: Iterate over the playerList
             User user = userService.findUserById(id); // Fix: Get the user from the player

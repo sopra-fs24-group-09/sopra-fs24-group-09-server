@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
@@ -108,7 +109,9 @@ public class RoomService {
         }
 
         room.addRoomPlayerList(user.getId());
+        user.setPlayerStatus(PlayerStatus.UNREADY);
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
+        userRepository.save(user);
         roomRepository.save(room);
     }
 
