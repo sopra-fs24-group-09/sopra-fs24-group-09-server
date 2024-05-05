@@ -75,7 +75,6 @@ public class RoomService {
             User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
             roomOwner.setPlayerStatus(PlayerStatus.READY);
             userRepository.save(roomOwner);
-
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
         } catch (Exception e) {
