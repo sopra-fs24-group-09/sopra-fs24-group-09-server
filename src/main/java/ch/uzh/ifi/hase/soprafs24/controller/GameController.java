@@ -78,22 +78,26 @@ public class GameController {
         String userID = payload.getMessage().getUserID();
         Room room=roomService.findRoomById(userID,roomId);
         User user=userService.findUserById(userID);
-        if (room.getRoomPlayersList().contains(user.getId())){
-            if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
-                Game game = gameRepository.findByRoomId(room.getRoomId()).get();
-                if (game.getRoundStatus().equals(RoundStatus.guess)){
-                    String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
-                    socketService.broadcastGameinfo(roomId, receipID);
-                    socketService.broadcastPlayerInfo(roomId, "enterroom");
-                    socketService.broadcastLobbyInfo();
-                    socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
+        if (room != null) {
+            if (room.getRoomPlayersList().contains(user.getId())) {
+                if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
+                    Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+                    if (game.getRoundStatus().equals(RoundStatus.guess)) {
+                        String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
+                        socketService.broadcastGameinfo(roomId, receipID);
+                        socketService.broadcastPlayerInfo(roomId, "enterroom");
+                        socketService.broadcastLobbyInfo();
+                        socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
+                    }
                 }
             }
+            else {
+                roomService.enterRoom(room, user);
+            }
+            socketService.broadcastGameinfo(roomId, receipID);
+            socketService.broadcastPlayerInfo(roomId, "enterroom");
+            socketService.broadcastLobbyInfo();
         }
-        else {roomService.enterRoom(room, user);}
-        socketService.broadcastGameinfo(roomId, receipID);
-        socketService.broadcastPlayerInfo(roomId, "enterroom");
-        socketService.broadcastLobbyInfo();
     }
 
     //leaveroom
