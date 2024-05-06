@@ -90,6 +90,7 @@ public class GameController {
             Room room=roomService.findRoomById(userID,roomId);
             roomService.exitRoom(room, user);
             socketService.broadcastLobbyInfo();
+            socketService.broadcastPlayerInfo(roomId, "exitroom");
         }
         
         if (gameRepository.findByRoomId(roomId).isPresent()) {

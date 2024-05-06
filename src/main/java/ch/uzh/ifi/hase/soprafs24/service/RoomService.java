@@ -106,9 +106,13 @@ public class RoomService {
             template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not enter a room that is in game");
         }
-
+        boolean id_equal = (user.getId()).equals(room.getRoomOwnerId());
+        
+        //if the user is not room owner then set the status to unready
+        if (!id_equal){
+            user.setPlayerStatus(PlayerStatus.UNREADY);
+        }
         room.addRoomPlayerList(user.getId());
-        user.setPlayerStatus(PlayerStatus.UNREADY);
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
         userRepository.save(user);
         roomRepository.save(room);

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -103,48 +105,52 @@ public class SocketService {
 
     // broadcast player info message
     public void broadcastPlayerInfo(String roomId, String receipId) {
-        Room room = roomRepository.findByRoomId(roomId).get();
+        Optional<Room> roomOptional = roomRepository.findByRoomId(roomId);
         List<Map<String, Object>> infoMap_total = new ArrayList<>();
-        for (String id : room.getRoomPlayersList()){
-            HashMap<String, Object> userMap = new HashMap<>();
-            HashMap<String, Object> infoMap = new HashMap<>();
-            HashMap<String, Object> scoreMap = new HashMap<>();
-            //user is always the same
-            User user = userRepository.findById(id).get();
-            userMap.put("id", user.getId());
-            userMap.put("name", user.getUsername());
-            userMap.put("avatar", user.getAvatar());
-            // Before game starts
-            if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
-                scoreMap.put("total", 0);
-                scoreMap.put("guess", 0);
-                scoreMap.put("read", 0);
-                scoreMap.put("details", 0);
-
-                infoMap.put("user", userMap);
-                infoMap.put("score", scoreMap);
-                infoMap.put("ready", user.getPlayerStatus().equals(PlayerStatus.READY));
-                infoMap.put("ifGuess", null);
-                infoMap.put("roundFinished", null);
+        if (roomOptional.isPresent()) {
+            Room room = roomOptional.get();
+            for (String id : room.getRoomPlayersList()){
+                HashMap<String, Object> userMap = new HashMap<>();
+                HashMap<String, Object> infoMap = new HashMap<>();
+                HashMap<String, Object> scoreMap = new HashMap<>();
+                //user is always the same
+                User user = userRepository.findById(id).get();
+                userMap.put("id", user.getId());
+                userMap.put("name", user.getUsername());
+                userMap.put("avatar", user.getAvatar());
+                // Before game starts
+                if (room.getRoomProperty().equals(RoomProperty.WAITING)) {
+                    scoreMap.put("total", 0);
+                    scoreMap.put("guess", 0);
+                    scoreMap.put("read", 0);
+                    scoreMap.put("details", 0);
+    
+                    infoMap.put("user", userMap);
+                    infoMap.put("score", scoreMap);
+                    infoMap.put("ready", user.getPlayerStatus().equals(PlayerStatus.READY));
+                    infoMap.put("ifGuess", null);
+                    infoMap.put("roundFinished", null);
+                }
+                // After game starts
+                else {
+                    Player player = playerRepository.findById(id).get();
+                    List<Map<String, Object>> scoreDetails = player.getScoreDetails();
+                    scoreMap.put("total", player.getTotalScore());
+                    scoreMap.put("guess", player.getGuessScore());
+                    scoreMap.put("read", player.getSpeakScore());
+                    scoreMap.put("details", scoreDetails);
+    
+                    infoMap.put("user", userMap);
+                    infoMap.put("score", scoreMap);
+                    infoMap.put("ready", true);
+                    infoMap.put("ifGuess", player.getIfGuessed());
+                    infoMap.put("roundFinished", player.isRoundFinished());
+                }
+    
+                infoMap_total.add(infoMap);
             }
-            // After game starts
-            else {
-                Player player = playerRepository.findById(id).get();
-                List<Map<String, Object>> scoreDetails = player.getScoreDetails();
-                scoreMap.put("total", player.getTotalScore());
-                scoreMap.put("guess", player.getGuessScore());
-                scoreMap.put("read", player.getSpeakScore());
-                scoreMap.put("details", scoreDetails);
-
-                infoMap.put("user", userMap);
-                infoMap.put("score", scoreMap);
-                infoMap.put("ready", true);
-                infoMap.put("ifGuess", player.getIfGuessed());
-                infoMap.put("roundFinished", player.isRoundFinished());
-            }
-
-            infoMap_total.add(infoMap);
         }
+        
         sendMessage("/plays/info/"+roomId, roomId, infoMap_total, receipId);
     }
 
