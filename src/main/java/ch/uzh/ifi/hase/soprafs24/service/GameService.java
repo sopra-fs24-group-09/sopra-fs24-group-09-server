@@ -230,9 +230,9 @@ public class GameService {
         
         // Guess - if no audio uploaded, jump to next round
         if (voice != null &&  voice.length() != 0) {
-            game.getCurrentSpeaker().setRoundFinished(true);
-            playerRepository.save(game.getCurrentSpeaker());
-
+            Player currentSpeaker = playerRepository.findById(game.getCurrentSpeaker().getId()).get();
+            currentSpeaker.setRoundFinished(true);
+            playerRepository.save(currentSpeaker);
             socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
             game.setRoundStatus(RoundStatus.guess);
             gameRepository.save(game);
@@ -242,6 +242,7 @@ public class GameService {
 //            executeWithTimeout(guessPhaseTask, 30, TimeUnit.SECONDS);
 
             guessPhase(game);
+
             try {
                 Thread.sleep(30000);
             } catch (InterruptedException e) {
@@ -258,7 +259,6 @@ public class GameService {
         }
 
         calculateScore(game);
-
         revealPhase(game);
         try {
             Thread.sleep(10000);

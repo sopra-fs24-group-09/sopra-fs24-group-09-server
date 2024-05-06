@@ -1,7 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,8 +31,9 @@ public class GameController {
     private PlayerService playerService;
     private GameRepository gameRepository;
     private RoomRepository roomRepository;
+    private PlayerRepository playerRepository;
 
-    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("roomRepository") RoomRepository roomRepository){
+    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("playerRepository") PlayerRepository playerRepository){
         this.socketService = socketService;
         this.gameService=gameService;
         this.roomService = roomService;
@@ -37,6 +41,7 @@ public class GameController {
         this.gameRepository = gameRepository;
         this.playerService = playerService;
         this.roomRepository = roomRepository;
+        this.playerRepository = playerRepository;
     }
 
     //set ready
@@ -73,7 +78,19 @@ public class GameController {
         String userID = payload.getMessage().getUserID();
         Room room=roomService.findRoomById(userID,roomId);
         User user=userService.findUserById(userID);
-        roomService.enterRoom(room, user);
+        if (room.getRoomPlayersList().contains(user.getId())){
+            if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
+                Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+                if (game.getRoundStatus().equals(RoundStatus.guess)){
+                    String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
+                    socketService.broadcastGameinfo(roomId, receipID);
+                    socketService.broadcastPlayerInfo(roomId, "enterroom");
+                    socketService.broadcastLobbyInfo();
+                    socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
+                }
+            }
+        }
+        else {roomService.enterRoom(room, user);}
         socketService.broadcastGameinfo(roomId, receipID);
         socketService.broadcastPlayerInfo(roomId, "enterroom");
         socketService.broadcastLobbyInfo();

@@ -97,7 +97,7 @@ public class SocketService {
             info.put("currentAnswer", game.getCurrentAnswer());
             info.put("roundStatus", game.getRoundStatus());
             info.put("roundDue", game.getRoundDue());
-            info.put("currentRoundNum", game.getCurrentRoundNum());
+            info.put("currentRoundNum", game.getCurrentRoundNum()+1);
             info.put("gameStatus", game.getGameStatus());
         }
         sendMessage( "/games/info/" + roomId, roomId, info, receipId);
