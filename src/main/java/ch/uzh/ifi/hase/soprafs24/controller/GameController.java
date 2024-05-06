@@ -89,6 +89,7 @@ public class GameController {
         if(roomRepository.findByRoomId(roomId).isPresent()){
             Room room=roomService.findRoomById(userID,roomId);
             roomService.exitRoom(room, user);
+            socketService.broadcastLobbyInfo();
         }
         
         if (gameRepository.findByRoomId(roomId).isPresent()) {
