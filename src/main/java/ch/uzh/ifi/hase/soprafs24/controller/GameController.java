@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
@@ -20,6 +23,8 @@ import ch.uzh.ifi.hase.soprafs24.model.PlayerAudio;
 import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import java.util.Map;
+import java.util.List;
 
 @Controller
 public class GameController {
@@ -42,61 +47,122 @@ public class GameController {
         this.playerService = playerService;
         this.roomRepository = roomRepository;
         this.playerRepository = playerRepository;
+        this.playerRepository = playerRepository;
     }
 
     //set ready
     @MessageMapping("/message/users/ready/{roomId}")
-    public void ready(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receipId = (String) headerAccessor.getHeader("receipt");
+    public void ready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receiptId = null; // 初始化receiptId
         String userId = payload.getMessage().getUserID();
-        // String roomId = payload.getMessage().getRoomID();
-        gameService.Ready(userId);
-        socketService.broadcastPlayerInfo(roomId,receipId);
-        socketService.broadcastGameinfo(roomId, receipId);
-        socketService.broadcastLobbyInfo();
+
+        // 尝试从nativeHeaders中获取receiptId
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptId = nativeHeaders.get("receiptId").get(0);
+            System.out.println("Receipt ID found for roomId: " + roomId);
+        } else {
+            System.out.println("Receipt ID not found " + roomId);
+        }
+
+        try {
+            gameService.Ready(userId, roomId);
+            socketService.broadcastResponse(userId, roomId, true,"ready " + userId, receiptId);
+            socketService.broadcastPlayerInfo(roomId, receiptId);
+            socketService.broadcastGameinfo(roomId, receiptId);
+            socketService.broadcastLobbyInfo();
+        } catch (Exception e) {
+            socketService.broadcastResponse(userId, roomId,false, "ready" + userId, receiptId);
+        }
     }
 
     //set unready
     @MessageMapping("/message/users/unready/{roomId}")
-    public void unready(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receipId = (String) headerAccessor.getHeader("receipt");
-        String userID = payload.getMessage().getUserID();
-        // String roomID = payload.getMessage().getRoomID();
-        gameService.UnReady(userID);
-        socketService.broadcastPlayerInfo(roomId, receipId);
-        socketService.broadcastGameinfo(roomId, receipId);
-        socketService.broadcastLobbyInfo();
+    public void unready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receiptId = null; // Initialize receiptId
+        String userId = payload.getMessage().getUserID();
+    
+        // Try to extract receiptId from nativeHeaders
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptId = nativeHeaders.get("receiptId").get(0);
+            System.out.println("Receipt ID found for roomId: " + roomId);
+        } else {
+            System.out.println("Receipt ID not found for roomId: " + roomId);
+        }
+    
+        try {
+            gameService.UnReady(userId);
+            socketService.broadcastResponse(userId, roomId, true, "unready " + userId, receiptId);
+            socketService.broadcastPlayerInfo(roomId, receiptId);
+            socketService.broadcastGameinfo(roomId, receiptId);
+            socketService.broadcastLobbyInfo();
+        } catch (Exception e) {
+            socketService.broadcastResponse(userId, roomId,false, "ready" + userId, receiptId);
+        }
     }
+
 
     //enterroom
     @MessageMapping("/message/users/enterroom/{roomId}")
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receipID = (String) headerAccessor.getHeader("receipt");
-        // String roomID = (String) headerAccessor.getSessionAttributes().get("roomId");
-        // String roomID = payload.getMessage().getRoomID();
-        System.out.println("[enterRoom msg received]roomID: "+roomId);
+        String receiptID = null; // Initialize receiptId
         String userID = payload.getMessage().getUserID();
-        Room room=roomService.findRoomById(userID,roomId);
-        User user=userService.findUserById(userID);
-        if (room != null) {
-            if (room.getRoomPlayersList().contains(user.getId())) {
-                if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
-                    Game game = gameRepository.findByRoomId(room.getRoomId()).get();
-                    if (game.getRoundStatus().equals(RoundStatus.guess)) {
-                        String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
-                        socketService.broadcastGameinfo(roomId, receipID);
-                        socketService.broadcastPlayerInfo(roomId, "enterroom");
-                        socketService.broadcastLobbyInfo();
-                        socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
+
+        // Try to extract receiptId from nativeHeaders
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptID = nativeHeaders.get("receiptId").get(0);
+            System.out.println("Receipt ID found for roomId: " + roomId);
+        } else {
+            System.out.println("Receipt ID not found for roomId: " + roomId);
+        }
+
+        System.out.println("[enterRoom msg received] RoomID: " + roomId + ", UserID: " + userID);
+
+        try {
+            Room room=roomService.findRoomById(userID,roomId);
+            User user = userService.findUserById(userID);
+            if (room != null) {
+                    //if the user is already in the room
+                    if (room.getRoomPlayersList().contains(user.getId())) {
+                        //if the game is started and the user is entering the room
+                        if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
+                            Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+                            if (game.getRoundStatus().equals(RoundStatus.guess)) {
+                                String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
+                                socketService.broadcastGameinfo(roomId, receiptID);
+                                socketService.broadcastPlayerInfo(roomId, "enterroom");
+                                socketService.broadcastLobbyInfo();
+                                socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
+                            }
+                        }
+                        //if the game is not started and the user is entering the room
+                        else {
+                            socketService.broadcastGameinfo(roomId, receiptID);
+                            socketService.broadcastPlayerInfo(roomId, "enterroom");
+                            socketService.broadcastLobbyInfo();
+                            socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
+                        }
                     }
-                }
-            }
-            else {
-                roomService.enterRoom(room, user);
-            }
-            socketService.broadcastGameinfo(roomId, receipID);
-            socketService.broadcastPlayerInfo(roomId, "enterroom");
-            socketService.broadcastLobbyInfo();
+                    //if the user is not in the room
+                    else {
+                        System.out.println("User " + user.getUsername() + " is entering room " + room.getRoomId());
+                        roomService.enterRoom(room, user);
+                        socketService.broadcastGameinfo(roomId, receiptID);
+                        socketService.broadcastPlayerInfo(roomId, "enterRoom");
+                        socketService.broadcastLobbyInfo();
+                        socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
+                    }
+                }   
+
+        } catch (Exception e) {
+            // Log error or handle exception
+            System.out.println("Error entering room: " + e.getMessage());
+            socketService.broadcastResponse(userID, roomId, false, e.getMessage(), receiptID);
         }
     }
 

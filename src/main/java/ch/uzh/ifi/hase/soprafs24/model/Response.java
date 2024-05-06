@@ -2,15 +2,15 @@ package ch.uzh.ifi.hase.soprafs24.model;
 
 public class Response {
     private boolean success;
-    private String receipt;
+    private String receiptId;
     private String message;
 
-    public String getReceipt() {
-        return receipt;
+    public String getreceiptId() {
+        return receiptId;
     }
 
-    public void setReceipt(String receipt) {
-        this.receipt = receipt;
+    public void setreceiptId(String receiptId) {
+        this.receiptId = receiptId;
     }
     
     public boolean isSuccess() {

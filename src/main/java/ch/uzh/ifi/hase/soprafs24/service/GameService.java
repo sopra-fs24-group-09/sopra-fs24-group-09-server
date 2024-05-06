@@ -76,9 +76,10 @@ public class GameService {
         this.userRepository = userRepository;
     }
 
-    public void Ready(String userId) {
+    public void Ready(String userId, String roomId) {
         User user = userService.findUserById(userId);
-
+        // String jsonMessage = "{\"message\":\"This room is full!\"}"; 
+        // template.convertAndSendToUser(user.getId(), "/response/"+ roomId, jsonMessage);
         user.setPlayerStatus(PlayerStatus.READY);
         userRepository.save(user);
     }
