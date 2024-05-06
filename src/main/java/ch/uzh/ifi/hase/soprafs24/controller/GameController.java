@@ -157,6 +157,7 @@ public class GameController {
             // Log error or handle exception
             System.out.println("Error entering room: " + e.getMessage());
             socketService.broadcastResponse(userID, roomId, false, e.getMessage(), receiptID);
+            socketService.broadcastLobbyInfo();
         }
     }
 
@@ -194,6 +195,7 @@ public class GameController {
         } catch (Exception e) {
             // Log error or handle exception
             System.out.println("Error exiting room: " + e.getMessage());
+            socketService.broadcastLobbyInfo();
             socketService.broadcastResponse(userID, roomID, false, "Failed to exit room: " + e.getMessage(), receiptID);
         }
     }

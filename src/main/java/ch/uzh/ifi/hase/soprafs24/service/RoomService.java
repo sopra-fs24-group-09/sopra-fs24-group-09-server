@@ -116,6 +116,9 @@ public class RoomService {
         }
         if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
             if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){
+                System.out.println("进来了");
+                System.out.println(room.getRoomId());
+                System.out.println(gameRepository.findByRoomId(room.getRoomId()).isPresent());
                 gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
             }
             roomRepository.delete(room);
