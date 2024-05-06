@@ -128,8 +128,8 @@ public class SocketService {
                     infoMap.put("user", userMap);
                     infoMap.put("score", scoreMap);
                     infoMap.put("ready", user.getPlayerStatus().equals(PlayerStatus.READY));
-                    infoMap.put("ifGuess", null);
-                    infoMap.put("roundFinished", null);
+                    infoMap.put("ifGuess", "");
+                    infoMap.put("roundFinished", "");
                 }
                 // After game starts
                 else {
