@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.model.Response;
 import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
@@ -26,10 +27,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 @Transactional
 public class SocketService {
+
+    @Autowired
+    private SimpMessagingTemplate template;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private final SimpMessagingTemplate simpMessagingTemplate;
@@ -97,7 +107,7 @@ public class SocketService {
             info.put("currentAnswer", game.getCurrentAnswer());
             info.put("roundStatus", game.getRoundStatus());
             info.put("roundDue", game.getRoundDue());
-            info.put("currentRoundNum", game.getCurrentRoundNum());
+            info.put("currentRoundNum", game.getCurrentRoundNum()+1);
             info.put("gameStatus", game.getGameStatus());
         }
         sendMessage( "/games/info/" + roomId, roomId, info, receipId);
@@ -128,8 +138,8 @@ public class SocketService {
                     infoMap.put("user", userMap);
                     infoMap.put("score", scoreMap);
                     infoMap.put("ready", user.getPlayerStatus().equals(PlayerStatus.READY));
-                    infoMap.put("ifGuess", null);
-                    infoMap.put("roundFinished", null);
+                    infoMap.put("ifGuess", "");
+                    infoMap.put("roundFinished", "");
                 }
                 // After game starts
                 else {
@@ -191,4 +201,21 @@ public class SocketService {
         }
         sendMessage("/lobby/info", null, lobbyInfo, null);
     }
+
+    public void broadcastResponse(String userId, String roomId,boolean isSuccess, String response, String receiptId) {
+        Response responseObj = new Response();
+        responseObj.setSuccess(isSuccess);
+        responseObj.setreceiptId(receiptId);
+        responseObj.setMessage(response);
+        System.out.println(receiptId);
+        String jsonMessage = "";
+        try {
+            jsonMessage = objectMapper.writeValueAsString(responseObj);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            responseObj.setSuccess(false);
+        }
+        template.convertAndSendToUser(userId, "/response/" + roomId, jsonMessage);
+    }
+
 }
