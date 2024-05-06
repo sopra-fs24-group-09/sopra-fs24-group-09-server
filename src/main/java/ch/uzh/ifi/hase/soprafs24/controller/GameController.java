@@ -48,6 +48,7 @@ public class GameController {
         gameService.Ready(userId);
         socketService.broadcastPlayerInfo(roomId,receipId);
         socketService.broadcastGameinfo(roomId, receipId);
+        socketService.broadcastLobbyInfo();
     }
 
     //set unready
@@ -59,6 +60,7 @@ public class GameController {
         gameService.UnReady(userID);
         socketService.broadcastPlayerInfo(roomId, receipId);
         socketService.broadcastGameinfo(roomId, receipId);
+        socketService.broadcastLobbyInfo();
     }
 
     //enterroom
@@ -74,6 +76,7 @@ public class GameController {
         roomService.enterRoom(room, user);
         socketService.broadcastGameinfo(roomId, receipID);
         socketService.broadcastPlayerInfo(roomId, "enterroom");
+        socketService.broadcastLobbyInfo();
     }
 
     //leaveroom
@@ -86,11 +89,13 @@ public class GameController {
         if(roomRepository.findByRoomId(roomId).isPresent()){
             Room room=roomService.findRoomById(userID,roomId);
             roomService.exitRoom(room, user);
+            socketService.broadcastLobbyInfo();
         }
         
         if (gameRepository.findByRoomId(roomId).isPresent()) {
             socketService.broadcastGameinfo(roomId, receipID);
             socketService.broadcastPlayerInfo(roomId, "exitroom");
+            socketService.broadcastLobbyInfo();
         }
 
     }
@@ -104,6 +109,7 @@ public class GameController {
         String userID = payload.getMessage().getUserID();
         Room room = roomService.findRoomById(userID,roomId);
         gameService.checkIfAllReady(room);
+        socketService.broadcastLobbyInfo();
     }
 
     //submitAnswer
