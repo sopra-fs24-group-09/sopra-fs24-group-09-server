@@ -8,10 +8,8 @@ import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,9 +30,6 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-
-    @Autowired
-    private SimpMessagingTemplate template;
 
     public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository) {
         this.gameRepository = gameRepository;
@@ -117,7 +112,7 @@ public class RoomService {
 
     public void exitRoom(Room room, User user){
         if (!room.getRoomPlayersList().contains(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
+            throw new RuntimeException( "User is not in game");
         }
         if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
             if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){

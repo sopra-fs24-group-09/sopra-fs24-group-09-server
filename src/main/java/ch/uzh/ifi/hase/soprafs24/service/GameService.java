@@ -93,23 +93,23 @@ public class GameService {
 
     public void checkIfAllReady(Room room) {
         if (room.getRoomPlayersList().size() < 2) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "2 or more players are required to start the game");
+            throw new RuntimeException( "2 or more players are required to start the game");
         }
 
         //check if the game is start already
         if (room.getRoomProperty() == RoomProperty.INGAME) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The game has already been started for this room");
+            throw new RuntimeException("The game has already been started for this room");
         }
         
         List<String> playerList = room.getRoomPlayersList();
         for (String id : playerList) { // Fix: Iterate over the playerList
             User user = userService.findUserById(id); // Fix: Get the user from the player
             if (user.getPlayerStatus() != PlayerStatus.READY) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not all players are ready");
+                throw new RuntimeException("Not all players are ready");
                 // Notify unready players
             }
         }
-        startGame(room);
+        // startGame(room);
     }
 
     public void startGame(Room room) {
@@ -117,6 +117,7 @@ public class GameService {
         // database
         room.setRoomProperty(RoomProperty.INGAME);
         roomRepository.save(room);
+        socketService.broadcastLobbyInfo();
         Game game = new Game(room);
 
         if (game.getTheme() == null) {
@@ -360,6 +361,7 @@ public class GameService {
         gameRepository.delete(game);
 
         System.out.println("Game ended");
+        socketService.broadcastLobbyInfo();
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
     }
 

@@ -1,14 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
-import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -35,17 +31,15 @@ public class GameController {
     private UserService userService;
     private PlayerService playerService;
     private GameRepository gameRepository;
-    private RoomRepository roomRepository;
     private PlayerRepository playerRepository;
 
-    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("playerRepository") PlayerRepository playerRepository){
+    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("playerRepository") PlayerRepository playerRepository){
         this.socketService = socketService;
         this.gameService=gameService;
         this.roomService = roomService;
         this.userService = userService;
         this.gameRepository = gameRepository;
         this.playerService = playerService;
-        this.roomRepository = roomRepository;
         this.playerRepository = playerRepository;
         this.playerRepository = playerRepository;
     }
@@ -53,10 +47,10 @@ public class GameController {
     //set ready
     @MessageMapping("/message/users/ready/{roomId}")
     public void ready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receiptId = null; // 初始化receiptId
+        String receiptId = null; // Initialize receiptId
         String userId = payload.getMessage().getUserID();
 
-        // 尝试从nativeHeaders中获取receiptId
+        // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
         if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
@@ -71,7 +65,7 @@ public class GameController {
             socketService.broadcastResponse(userId, roomId, true,"ready " + userId, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
-            socketService.broadcastLobbyInfo();
+            // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
             socketService.broadcastResponse(userId, roomId,false, "ready" + userId, receiptId);
         }
@@ -98,7 +92,7 @@ public class GameController {
             socketService.broadcastResponse(userId, roomId, true, "unready " + userId, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
-            socketService.broadcastLobbyInfo();
+            // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
             socketService.broadcastResponse(userId, roomId,false, "ready" + userId, receiptId);
         }
@@ -166,59 +160,117 @@ public class GameController {
         }
     }
 
-    //leaveroom
+
     @MessageMapping("/message/users/exitroom/{roomId}")
-    public void exitRoom(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receipID = (String) headerAccessor.getHeader("receipt");
+    public void exitRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomID, @Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receiptID = null; // Initialize receiptId
         String userID = payload.getMessage().getUserID();
 
-        User user=userService.findUserById(userID);
-        if(roomRepository.findByRoomId(roomId).isPresent()){
-            Room room=roomService.findRoomById(userID,roomId);
-            roomService.exitRoom(room, user);
-            socketService.broadcastLobbyInfo();
-            socketService.broadcastPlayerInfo(roomId, "exitroom");
-        }
-        
-        if (gameRepository.findByRoomId(roomId).isPresent()) {
-            socketService.broadcastGameinfo(roomId, receipID);
-            socketService.broadcastPlayerInfo(roomId, "exitroom");
-            socketService.broadcastLobbyInfo();
+        // Try to extract receiptId from nativeHeaders
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptID = nativeHeaders.get("receiptId").get(0);
+            System.out.println("Receipt ID found for roomId: " + roomID);
+        } else {
+            System.out.println("Receipt ID not found for roomId: " + roomID);
         }
 
+        System.out.println("[exitRoom msg received] RoomID: " + roomID + ", UserID: " + userID);
+
+        try {
+            Room room=roomService.findRoomById(userID,roomID); // Assumes findRoomById only needs roomId
+            User user = userService.findUserById(userID);
+
+            if (room != null && room.getRoomPlayersList().contains(user.getId())) {
+                roomService.exitRoom(room, user);
+                socketService.broadcastGameinfo(roomID, receiptID);
+                socketService.broadcastPlayerInfo(roomID, "exitroom");
+                socketService.broadcastLobbyInfo();
+                socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
+            } else {
+                socketService.broadcastResponse(userID, roomID, false, "Failed to exit room", receiptID);
+            }
+        } catch (Exception e) {
+            // Log error or handle exception
+            System.out.println("Error exiting room: " + e.getMessage());
+            socketService.broadcastResponse(userID, roomID, false, "Failed to exit room: " + e.getMessage(), receiptID);
+        }
     }
 
 
-    //startgame
+    // Method for starting the game
     @MessageMapping("/message/games/start/{roomId}")
-    public void startGame(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        // String receipId = (String) headerAccessor.getHeader("receipt");
-        // String roomID = payload.getMessage().getRoomID();
+    public void startGame(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomID, @Payload TimestampedRequest<PlayerAndRoom> payload) {
+        String receiptID = null; // Initialize receiptId
         String userID = payload.getMessage().getUserID();
-        Room room = roomService.findRoomById(userID,roomId);
-        gameService.checkIfAllReady(room);
-        socketService.broadcastLobbyInfo();
-    }
 
+        // Try to extract receiptId from nativeHeaders
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptID = nativeHeaders.get("receiptId").get(0);
+            System.out.println("Receipt ID found for roomId: " + roomID);
+        } else {
+            System.out.println("Receipt ID not found for roomId: " + roomID);
+        }
+
+        try {
+            Room room=roomService.findRoomById(userID,roomID);  // Adjusted to use roomId directly if applicable
+            gameService.checkIfAllReady(room);  // Checks if all players in the room are ready
+            socketService.broadcastResponse(userID, roomID, true, "Game started successfully", receiptID);
+            gameService.startGame(room);  // Starts the game
+            // Send success response back to user
+        } catch (Exception e) {
+            // Handle errors during game start, such as not all players being ready
+            System.out.println("Error starting game: " + e.getMessage());
+            socketService.broadcastResponse(userID, roomID, false, "Failed to start game: " + e.getMessage(), receiptID);
+        }
+    }
     //submitAnswer
     @MessageMapping("/message/games/validate/{roomId}")
-    public void submitAnswer(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<AnswerGuess> payload) {
-        // String receipId = (String) headerAccessor.getHeader("receipt");
+    public void submitAnswer(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomID, @Payload TimestampedRequest<AnswerGuess> payload) {
+        String receiptID = null;
         String userID = payload.getMessage().getUserID();
-        // String roomID = payload.getMessage().getRoomID();
         String guess = payload.getMessage().getGuess();
-        Game game = gameService.findGameById(roomId);
-        Player player = playerService.findPlayerById(userID);
-        gameService.validateAnswer(game, player, guess);
+    
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptID = nativeHeaders.get("receiptId").get(0);
+        }
+    
+        try {
+            Game game = gameService.findGameById(roomID);
+            Player player = playerService.findPlayerById(userID);
+            gameService.validateAnswer(game, player, guess);
+            socketService.broadcastResponse(userID, roomID, true, "Answer submitted successfully", receiptID);
+        } catch (Exception e) {
+            System.out.println("Error submitting answer: " + e.getMessage());
+            socketService.broadcastResponse(userID, roomID, false, "Failed to submit answer: " + e.getMessage(), receiptID);
+        }
     }
 
     //submitAudio
     @MessageMapping("/message/games/audio/upload/{roomId}")
-    public void uploadAudio(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAudio> payload) {
-        // String receipId = (String) headerAccessor.getHeader("receipt");
-        String userID = payload.getMessage().getUserID();
+    public void uploadAudio(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAudio> payload) {
+        String receiptId = null;
+        String userId = payload.getMessage().getUserID();
         String voice = payload.getMessage().getAudioData();
-        gameService.setPlayerAudio(roomId,userID,voice);
+
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
+            receiptId = nativeHeaders.get("receiptId").get(0);
+        }
+
+        try {
+            gameService.setPlayerAudio(roomId, userId, voice);
+            socketService.broadcastResponse(userId, roomId, true, "Audio uploaded successfully", receiptId);
+        } catch (Exception e) {
+            System.out.println("Error uploading audio: " + e.getMessage());
+            socketService.broadcastResponse(userId, roomId, false, "Failed to upload audio: " + e.getMessage(), receiptId);
+        }
     }
     
     @MessageMapping("/message/response")
