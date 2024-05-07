@@ -125,40 +125,40 @@ public class GameController {
         System.out.println("[enterRoom msg received] RoomID: " + roomId + ", UserID: " + userID);
 
         try {
-            Room room=roomRepository.findByRoomId(roomId).get();
-            User user = userService.findUserById(userID);
-            if (room != null) {
+            if (roomRepository.findByRoomId(roomId).isPresent()) {
                     //if the user is already in the room
-                    if (room.getRoomPlayersList().contains(user.getId())) {
-                        //if the game is started and the user is entering the room
-                        if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
-                            Game game = gameRepository.findByRoomId(room.getRoomId()).get();
-                            if (game.getRoundStatus().equals(RoundStatus.guess)) {
-                                String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
-                                socketService.broadcastGameinfo(roomId, receiptID);
-                                socketService.broadcastPlayerInfo(roomId, "enterroom");
-                                socketService.broadcastLobbyInfo();
-                                socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
-                            }
-                        }
-                        //if the game is not started and the user is entering the room
-                        else {
+                Room room=roomRepository.findByRoomId(roomId).get();
+                User user = userService.findUserById(userID);
+                if (room.getRoomPlayersList().contains(user.getId())) {
+                    //if the game is started and the user is entering the room
+                    if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
+                        Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+                        if (game.getRoundStatus().equals(RoundStatus.guess)) {
+                            String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
                             socketService.broadcastGameinfo(roomId, receiptID);
                             socketService.broadcastPlayerInfo(roomId, "enterroom");
                             socketService.broadcastLobbyInfo();
-                            socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
+                            socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
                         }
                     }
-                    //if the user is not in the room
+                    //if the game is not started and the user is entering the room
                     else {
-                        System.out.println("User " + user.getUsername() + " is entering room " + room.getRoomId());
-                        roomService.enterRoom(room, user);
                         socketService.broadcastGameinfo(roomId, receiptID);
-                        socketService.broadcastPlayerInfo(roomId, "enterRoom");
+                        socketService.broadcastPlayerInfo(roomId, "enterroom");
                         socketService.broadcastLobbyInfo();
                         socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
                     }
-                }   
+                }
+                //if the user is not in the room
+                else {
+                    System.out.println("User " + user.getUsername() + " is entering room " + room.getRoomId());
+                    roomService.enterRoom(room, user);
+                    socketService.broadcastGameinfo(roomId, receiptID);
+                    socketService.broadcastPlayerInfo(roomId, "enterRoom");
+                    socketService.broadcastLobbyInfo();
+                    socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
+                }
+            }
 
         } catch (Exception e) {
             // Log error or handle exception

@@ -175,6 +175,8 @@ public class GameService {
 //        Runnable displayScoresTask = () -> displayScores(game);
 //        executeWithTimeout(displayScoresTask, 50, TimeUnit.SECONDS);
         displayScores(game);
+        room.setRoomProperty(RoomProperty.GAMEOVER);
+        roomRepository.save(room);
         try {
             Thread.sleep(30000);//20000
         } catch (InterruptedException e) {
@@ -347,6 +349,7 @@ public class GameService {
     }
 
     public void endGame(Game game) {
+
         for (String playerId : game.getRoomPlayersList()) {
             Player player = playerRepository.findById(playerId).get();
             playerRepository.delete(player);
