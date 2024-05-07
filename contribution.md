@@ -74,8 +74,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Imp
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/85| Word distrubution with given constraints| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/86| Random select the speaker in the beginning of a game| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/106| Implement enterroom and exitroom reminder and websocket message | [@Zehao Zhang](https://github.com/Zehao-Zhang)   | :white_check_mark: |
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/37| Store the reverse audio files in a database or file system for easy retrieval.| [@Zihan Liu](https://github.com/zihanltesla) ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zihan Liu](https://github.com/zihanltesla) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/37| Store the reverse audio files in a database or file system for easy retrieval.| [@Zihan Liu](https://github.com/zihanltesla) |:white_check_mark:|
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zihan Liu](https://github.com/zihanltesla) |:white_check_mark:|
 
 ## WEEK5 2024.5.1-2024.5.8
 |Task Link|Description|Assigned to| Finished? |
@@ -83,9 +83,16 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Bro
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/48| Implement comparison logic to verify whether the submitted answer matches the correct answer| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/49| Implement API endpoints or backend functions to receive and validate the player's submitted answers| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/50| Ensure that the game will end correctly | [@Zehao Zhang](https://github.com/Zehao-Zhang)   | :white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/115| Implement receipt in stomp protocol |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/143| Add websocket response for ready and unready request |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/142| Add websocket response for enter room request |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/105| Implement return lobby information by websocket |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
+
 
 ## WEEK6 2024.5.9-2024.5.15
 |Task Link|Description|Assigned to| Finished? |
 |---|---|---|-----------|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/126| Improve MangoDB dabase seccurity by putting the username and password inside the global environment of Google Cloud| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/130| Add null checking for repositories finding entity| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/149| Write tests for service files |[@Zihan Liu](https://github.com/zihanltesla)| |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Add response for all ws request |[@Zihan Liu](https://github.com/zihanltesla)| |
