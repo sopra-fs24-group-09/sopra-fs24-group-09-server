@@ -194,9 +194,10 @@ public class GameController {
                 if (room.getRoomPlayersList().contains(user.getId())) {
                     roomService.exitRoom(room, user);
                     socketService.broadcastLobbyInfo();
-                    socketService.broadcastGameinfo(roomID, receiptID);
+
                     if (roomRepository.findByRoomId(roomID).isPresent()) {
                         socketService.broadcastPlayerInfo(roomID, "exitroom");
+                        socketService.broadcastGameinfo(roomID, receiptID);
                         socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
                     }
                 }
