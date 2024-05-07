@@ -376,10 +376,10 @@ public class GameService {
             socketService.broadcastGameinfo(game.getRoomId(), "score");
             socketService.broadcastPlayerInfo(game.getRoomId(), "null");
 //            latch.countDown();
-            // 显示回复正确加分
         } else {
             System.out.println("回答错误");
-        } //显示回答错误
+            throw new RuntimeException("Wrong answer");
+        } 
     }
 
     public void displayRoundScores(Player player) {
