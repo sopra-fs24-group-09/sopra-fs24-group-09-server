@@ -125,7 +125,7 @@ public class GameController {
         System.out.println("[enterRoom msg received] RoomID: " + roomId + ", UserID: " + userID);
 
         try {
-            Room room=roomService.findRoomById(userID,roomId);
+            Room room=roomRepository.findByRoomId(roomId).get();
             User user = userService.findUserById(userID);
             if (room != null) {
                     //if the user is already in the room
@@ -188,13 +188,13 @@ public class GameController {
 
         try {
             if (roomRepository.findByRoomId(roomID).isPresent()) {
-                Room room = roomService.findRoomById(userID, roomID); // Assumes findRoomById only needs roomId
+                Room room = roomRepository.findByRoomId(roomID).get();
                 User user = userService.findUserById(userID);
 
                 if (room.getRoomPlayersList().contains(user.getId())) {
                     roomService.exitRoom(room, user);
                     socketService.broadcastLobbyInfo();
-                    // socketService.broadcastGameinfo(roomID, receiptID);
+                    socketService.broadcastGameinfo(roomID, receiptID);
                     if (roomRepository.findByRoomId(roomID).isPresent()) {
                         socketService.broadcastPlayerInfo(roomID, "exitroom");
                         socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
@@ -231,7 +231,7 @@ public class GameController {
         }
 
         try {
-            Room room=roomService.findRoomById(userID,roomID);  // Adjusted to use roomId directly if applicable
+            Room room=roomRepository.findByRoomId(roomID).get();
             gameService.checkIfAllReady(room);  // Checks if all players in the room are ready
             socketService.broadcastResponse(userID, roomID, true, "Game started successfully", receiptID);
             gameService.startGame(room);  // Starts the game

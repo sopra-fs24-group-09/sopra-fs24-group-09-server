@@ -73,14 +73,14 @@ public class RoomService {
         }
     }
 
-    public Room findRoomById(String userId, String roomId){
-        if (!roomRepository.findByRoomId(roomId).isPresent()){
-            // String jsonMessage = "{\"message\":\"Room not found!\"}"; 
-            // template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
-            throw new RuntimeException( "Room not found");
-        }
-        return roomRepository.findByRoomId(roomId).get();
-    }
+    // public Room findRoomById(String userId, String roomId){
+    //     if (!roomRepository.findByRoomId(roomId).isPresent()){
+    //         // String jsonMessage = "{\"message\":\"Room not found!\"}"; 
+    //         // template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
+    //         throw new RuntimeException( "Room not found");
+    //     }
+    //     return roomRepository.findByRoomId(roomId).get();
+    // }
 
     public <T> void enterRoom(Room room, User user){
         // if (room.getRoomPlayersList().contains(user.getId())) {
