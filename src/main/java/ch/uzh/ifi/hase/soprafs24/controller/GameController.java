@@ -48,7 +48,7 @@ public class GameController {
     @MessageMapping("/message/users/ready/{roomId}")
     public void ready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptId = null; // Initialize receiptId
-        String userId = payload.getMessage().getUserID();
+        String userID = payload.getMessage().getUserID();
 
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
@@ -60,14 +60,16 @@ public class GameController {
             System.out.println("Receipt ID not found " + roomId);
         }
 
+        System.out.println("[ready msg received] RoomID: " + roomId + ", UserID: " + userID);
+
         try {
-            gameService.Ready(userId, roomId);
-            socketService.broadcastResponse(userId, roomId, true,"ready " + userId, receiptId);
+            gameService.Ready(userID, roomId);
+            socketService.broadcastResponse(userID, roomId, true,"ready " + userID, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
             // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
-            socketService.broadcastResponse(userId, roomId,false, "ready" + userId, receiptId);
+            socketService.broadcastResponse(userID, roomId,false, "ready" + userID, receiptId);
         }
     }
 
@@ -75,7 +77,7 @@ public class GameController {
     @MessageMapping("/message/users/unready/{roomId}")
     public void unready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptId = null; // Initialize receiptId
-        String userId = payload.getMessage().getUserID();
+        String userID = payload.getMessage().getUserID();
     
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
@@ -86,15 +88,17 @@ public class GameController {
         } else {
             System.out.println("Receipt ID not found for roomId: " + roomId);
         }
+
+        System.out.println("[Unready msg received] RoomID: " + roomId + ", UserID: " + userID);
     
         try {
-            gameService.UnReady(userId);
-            socketService.broadcastResponse(userId, roomId, true, "unready " + userId, receiptId);
+            gameService.UnReady(userID);
+            socketService.broadcastResponse(userID, roomId, true, "unready " + userID, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
             // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
-            socketService.broadcastResponse(userId, roomId,false, "ready" + userId, receiptId);
+            socketService.broadcastResponse(userID, roomId,false, "ready" + userID, receiptId);
         }
     }
 
@@ -185,7 +189,7 @@ public class GameController {
 
             if (room != null && room.getRoomPlayersList().contains(user.getId())) {
                 roomService.exitRoom(room, user);
-                socketService.broadcastGameinfo(roomID, receiptID);
+                // socketService.broadcastGameinfo(roomID, receiptID);
                 socketService.broadcastPlayerInfo(roomID, "exitroom");
                 socketService.broadcastLobbyInfo();
                 socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
@@ -194,6 +198,7 @@ public class GameController {
             }
         } catch (Exception e) {
             // Log error or handle exception
+            e.printStackTrace(); 
             System.out.println("Error exiting room: " + e.getMessage());
             socketService.broadcastLobbyInfo();
             socketService.broadcastResponse(userID, roomID, false, "Failed to exit room: " + e.getMessage(), receiptID);
