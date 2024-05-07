@@ -191,6 +191,7 @@ public class GameController {
                 roomService.exitRoom(room, user);
                 // socketService.broadcastGameinfo(roomID, receiptID);
                 socketService.broadcastPlayerInfo(roomID, "exitroom");
+                socketService.broadcastGameinfo(roomID, "exitroom");
                 socketService.broadcastLobbyInfo();
                 socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
             } else {
