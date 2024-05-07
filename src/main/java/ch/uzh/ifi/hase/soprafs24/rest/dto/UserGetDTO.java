@@ -15,8 +15,17 @@ public class UserGetDTO {
   @JsonFormat(pattern="dd-MM-yyyy")
   private Date birthday;
   private String avatar;
+  private String inRoomId;
 
-  public String getAvatar() {
+    public String getInRoomId() {
+        return inRoomId;
+    }
+
+    public void setInRoomId(String inRoomId) {
+        this.inRoomId = inRoomId;
+    }
+
+    public String getAvatar() {
     return avatar;
   }
 
