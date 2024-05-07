@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -32,8 +33,9 @@ public class GameController {
     private PlayerService playerService;
     private GameRepository gameRepository;
     private PlayerRepository playerRepository;
+    private RoomRepository roomRepository;
 
-    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("playerRepository") PlayerRepository playerRepository){
+    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("roomRepository") RoomRepository roomRepository){
         this.socketService = socketService;
         this.gameService=gameService;
         this.roomService = roomService;
@@ -42,6 +44,7 @@ public class GameController {
         this.playerService = playerService;
         this.playerRepository = playerRepository;
         this.playerRepository = playerRepository;
+        this.roomRepository = roomRepository;
     }
 
     //set ready
@@ -184,17 +187,22 @@ public class GameController {
         System.out.println("[exitRoom msg received] RoomID: " + roomID + ", UserID: " + userID);
 
         try {
-            Room room=roomService.findRoomById(userID,roomID); // Assumes findRoomById only needs roomId
-            User user = userService.findUserById(userID);
+            if (roomRepository.findByRoomId(roomID).isPresent()) {
+                Room room = roomService.findRoomById(userID, roomID); // Assumes findRoomById only needs roomId
+                User user = userService.findUserById(userID);
 
-            if (room != null && room.getRoomPlayersList().contains(user.getId())) {
-                roomService.exitRoom(room, user);
-                // socketService.broadcastGameinfo(roomID, receiptID);
-                socketService.broadcastPlayerInfo(roomID, "exitroom");
-                socketService.broadcastLobbyInfo();
-                socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
-            } else {
-                socketService.broadcastResponse(userID, roomID, false, "Failed to exit room", receiptID);
+                if (room.getRoomPlayersList().contains(user.getId())) {
+                    roomService.exitRoom(room, user);
+                    socketService.broadcastLobbyInfo();
+                    // socketService.broadcastGameinfo(roomID, receiptID);
+                    if (roomRepository.findByRoomId(roomID).isPresent()) {
+                        socketService.broadcastPlayerInfo(roomID, "exitroom");
+                        socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
+                    }
+                }
+                else {
+                    socketService.broadcastResponse(userID, roomID, false, "Failed to exit room", receiptID);
+                }
             }
         } catch (Exception e) {
             // Log error or handle exception
@@ -254,7 +262,7 @@ public class GameController {
             socketService.broadcastResponse(userID, roomID, true, "Answer submitted successfully", receiptID);
         } catch (Exception e) {
             System.out.println("Error submitting answer: " + e.getMessage());
-            socketService.broadcastResponse(userID, roomID, false, "Failed to submit answer: " + e.getMessage(), receiptID);
+            socketService.broadcastResponse(userID, roomID, false, "Failed to validate answer: " + e.getMessage(), receiptID);
         }
     }
 
