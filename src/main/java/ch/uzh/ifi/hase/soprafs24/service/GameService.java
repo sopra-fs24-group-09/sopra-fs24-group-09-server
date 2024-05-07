@@ -354,6 +354,7 @@ public class GameService {
         for (String userId : game.getRoomPlayersList()) {
             User user = userRepository.findById(userId).get();
             user.setPlayerStatus(PlayerStatus.UNREADY);
+            user.setInRoomId(null);
             userRepository.save(user);
         }
 

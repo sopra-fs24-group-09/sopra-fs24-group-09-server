@@ -190,7 +190,9 @@ public class GameController {
             if (roomRepository.findByRoomId(roomID).isPresent()) {
                 Room room = roomRepository.findByRoomId(roomID).get();
                 User user = userService.findUserById(userID);
-
+                if (room.getRoomProperty().equals(RoomProperty.INGAME)){
+                    throw new Exception("Cannot exit room while game is in progress");
+                }
                 if (room.getRoomPlayersList().contains(user.getId())) {
                     roomService.exitRoom(room, user);
                     socketService.broadcastLobbyInfo();

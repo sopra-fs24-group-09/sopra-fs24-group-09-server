@@ -65,6 +65,7 @@ public class RoomService {
 
             User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
             roomOwner.setPlayerStatus(PlayerStatus.READY);
+            roomOwner.setInRoomId(newRoom.getRoomId());
             userRepository.save(roomOwner);
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
@@ -97,11 +98,18 @@ public class RoomService {
             // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new RuntimeException("You can not enter a room that is in game!");
         }
+
+        if (user.getInRoomId()!=null && !user.getInRoomId().equals(room.getRoomId())){
+            // String jsonMessage = "{\"message\":\"You can not enter a room when you are in another room!\"}";
+            // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
+            throw new RuntimeException("You can not enter a room when you are in another room!");
+        }
         boolean id_equal = (user.getId()).equals(room.getRoomOwnerId());
-        
+
         //if the user is not room owner then set the status to unready
         if (!id_equal){
             user.setPlayerStatus(PlayerStatus.UNREADY);
+            user.setInRoomId(room.getRoomId());
         }
         room.addRoomPlayerList(user.getId());
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
@@ -129,12 +137,12 @@ public class RoomService {
                 newOwner.setPlayerStatus(PlayerStatus.READY);
                 userRepository.save(newOwner);
             }
-            user.setPlayerStatus(PlayerStatus.UNREADY);
-            userRepository.save(user);
-
             room.getRoomPlayersList().remove(user.getId());
             roomRepository.save(room);
         }
+        user.setPlayerStatus(PlayerStatus.UNREADY);
+        user.setInRoomId(null);
+        userRepository.save(user);
     }
 
     /**
