@@ -86,6 +86,7 @@ public class SocketService {
         UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(roomowner);
         HashMap<String, Object> info = new HashMap<>();
         info.put("roomID", room.getRoomId());
+        info.put("roomName", room.getRoomName());
         info.put("theme", room.getTheme());
         info.put("roomOwner", roomOwnerDTO);
 //        info.put("gameStatus", room.getRoomProperty());
