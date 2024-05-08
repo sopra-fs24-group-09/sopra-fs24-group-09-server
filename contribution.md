@@ -83,7 +83,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Bro
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/95 | Change ui and disabled conditions for buttons.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/82 | Implement a button disabled based on the status for users to quit the room.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/83 | Implement a start button disabled based on the status for the room owner to start the game.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
-
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/135 | Assign a random avatar to the user when creating user #135            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/84 | Lobby information will update in real-time when rooms changing #84            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 
 
 ## WEEK5 2024.5.1-2024.5.8
@@ -103,7 +104,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/105| Im
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/108 | Add proper debouncing / throttling for the buttons(reqs) in the game room page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/134 | Add toast for button interaction in the gameroom page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/136 | request in the lobby page needs throttling.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
-
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/102 | Add token authentication in all requests #102            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/101 | Change all alerts into toast pop-up in lobby page #101            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 
 
 ## WEEK6 2024.5.9-2024.5.15
