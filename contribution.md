@@ -76,6 +76,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/86| Ran
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/106| Implement enterroom and exitroom reminder and websocket message | [@Zehao Zhang](https://github.com/Zehao-Zhang)   | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/37| Store the reverse audio files in a database or file system for easy retrieval.| [@Zihan Liu](https://github.com/zihanltesla) |:white_check_mark:|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zihan Liu](https://github.com/zihanltesla) |:white_check_mark:|
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/95 | Change ui and disabled conditions for buttons.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/82 | Implement a button disabled based on the status for users to quit the room.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/83 | Implement a start button disabled based on the status for the room owner to start the game.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 ## WEEK5 2024.5.1-2024.5.8
 |Task Link|Description|Assigned to| Finished? |
@@ -87,6 +91,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/115| Im
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/143| Add websocket response for ready and unready request |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/142| Add websocket response for enter room request |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/105| Implement return lobby information by websocket |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/108 | Add proper debouncing / throttling for the buttons(reqs) in the game room page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/134 | Add toast for button interaction in the gameroom page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/136 | request in the lobby page needs throttling.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 
 ## WEEK6 2024.5.9-2024.5.15
