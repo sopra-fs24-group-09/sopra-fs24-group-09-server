@@ -55,7 +55,7 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/55| Abl
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/33| Implement logic to validate the timing of the upload, ensuring it falls within the specified time window| [@Zehao Zhang](https://github.com/Zehao-Zhang) |:white_check_mark:|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Implement gameservice for managing the game process | [@Zehao Zhang](https://github.com/Zehao-Zhang)   |:white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/67|Once new audio is sent from backend, the page should imediatly show or update this audio.| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
-|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/67|Once new audio is sent from backend, the page should imediatly show or update this audio.| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/68|When the speaker is recording, guess player should should not have access to use audioRecorder. | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/72|Implement the on-Receive function to deal with different messages from WebSocket| [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan](https://github.com/yixuan-zhou-uzh) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/73|Implement the send function to form different messages to WebSocket| [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan](https://github.com/yixuan-zhou-uzh) | :white_check_mark:|
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/65 | A user can click avatar in his/her profile popup to change his/her avatar.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
@@ -76,9 +76,14 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/86| Ran
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/106| Implement enterroom and exitroom reminder and websocket message | [@Zehao Zhang](https://github.com/Zehao-Zhang)   | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/37| Store the reverse audio files in a database or file system for easy retrieval.| [@Zihan Liu](https://github.com/zihanltesla) |:white_check_mark:|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zihan Liu](https://github.com/zihanltesla) |:white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/150|[deploy] Make GCP instance to F2, forbid scale out.| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/94|Prevent unsupported broswer playing game| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/98|Fetch the latest roomlist before enter room action| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/103|If lose connection (rest network err or ws disconnected) with server, clean storage and alert user, send to login page | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/95 | Change ui and disabled conditions for buttons.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/82 | Implement a button disabled based on the status for users to quit the room.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/83 | Implement a start button disabled based on the status for the room owner to start the game.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 
 ## WEEK5 2024.5.1-2024.5.8
@@ -91,6 +96,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/115| Im
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/143| Add websocket response for ready and unready request |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/142| Add websocket response for enter room request |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/105| Implement return lobby information by websocket |[@Zihan Liu](https://github.com/zihanltesla)|:white_check_mark: |
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/117|Set lobby guard for players who already in | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/121|Limit the maxiam record time to avoid generate big file which broken the ws connection| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/124|Implement router logic to redirect all invalid user to login page| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/125|Implement router logic to redirect all invalid URL to lobby or login page| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/108 | Add proper debouncing / throttling for the buttons(reqs) in the game room page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/134 | Add toast for button interaction in the gameroom page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/136 | request in the lobby page needs throttling.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
@@ -104,3 +113,5 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/126| Im
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/130| Add null checking for repositories finding entity| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/149| Write tests for service files |[@Zihan Liu](https://github.com/zihanltesla)| |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Add response for all ws request |[@Zihan Liu](https://github.com/zihanltesla)| |
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/138|Refactor all ws and rest api interface by typescript with static typecheck.| [@Shaochang Tan](https://github.com/petertheprocess) | |
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/137|Add inout filter for empty input prevent empty username| [@Shaochang Tan](https://github.com/petertheprocess) | |
