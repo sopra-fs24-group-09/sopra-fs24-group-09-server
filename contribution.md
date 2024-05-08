@@ -80,6 +80,11 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Bro
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/94|Prevent unsupported broswer playing game| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/98|Fetch the latest roomlist before enter room action| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/103|If lose connection (rest network err or ws disconnected) with server, clean storage and alert user, send to login page | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/95 | Change ui and disabled conditions for buttons.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/82 | Implement a button disabled based on the status for users to quit the room.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/83 | Implement a start button disabled based on the status for the room owner to start the game.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
+
 
 ## WEEK5 2024.5.1-2024.5.8
 |Task Link|Description|Assigned to| Finished? |
@@ -95,6 +100,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/105| Im
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/121|Limit the maxiam record time to avoid generate big file which broken the ws connection| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/124|Implement router logic to redirect all invalid user to login page| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/125|Implement router logic to redirect all invalid URL to lobby or login page| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/108 | Add proper debouncing / throttling for the buttons(reqs) in the game room page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/134 | Add toast for button interaction in the gameroom page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/136 | request in the lobby page needs throttling.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+
 
 
 ## WEEK6 2024.5.9-2024.5.15
