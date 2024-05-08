@@ -8,10 +8,8 @@ import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,9 +30,6 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
-
-    @Autowired
-    private SimpMessagingTemplate template;
 
     public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository) {
         this.gameRepository = gameRepository;
@@ -70,6 +65,7 @@ public class RoomService {
 
             User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
             roomOwner.setPlayerStatus(PlayerStatus.READY);
+            roomOwner.setInRoomId(newRoom.getRoomId());
             userRepository.save(roomOwner);
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
@@ -78,14 +74,14 @@ public class RoomService {
         }
     }
 
-    public Room findRoomById(String userId, String roomId){
-        if (!roomRepository.findByRoomId(roomId).isPresent()){
-            // String jsonMessage = "{\"message\":\"Room not found!\"}"; 
-            // template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
-            throw new RuntimeException( "Room not found");
-        }
-        return roomRepository.findByRoomId(roomId).get();
-    }
+    // public Room findRoomById(String userId, String roomId){
+    //     if (!roomRepository.findByRoomId(roomId).isPresent()){
+    //         // String jsonMessage = "{\"message\":\"Room not found!\"}"; 
+    //         // template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
+    //         throw new RuntimeException( "Room not found");
+    //     }
+    //     return roomRepository.findByRoomId(roomId).get();
+    // }
 
     public <T> void enterRoom(Room room, User user){
         // if (room.getRoomPlayersList().contains(user.getId())) {
@@ -102,11 +98,18 @@ public class RoomService {
             // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new RuntimeException("You can not enter a room that is in game!");
         }
+
+        if (user.getInRoomId()!=null && !user.getInRoomId().equals(room.getRoomId())){
+            // String jsonMessage = "{\"message\":\"You can not enter a room when you are in another room!\"}";
+            // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
+            throw new RuntimeException("You can not enter a room when you are in another room!");
+        }
         boolean id_equal = (user.getId()).equals(room.getRoomOwnerId());
-        
+
         //if the user is not room owner then set the status to unready
         if (!id_equal){
             user.setPlayerStatus(PlayerStatus.UNREADY);
+            user.setInRoomId(room.getRoomId());
         }
         room.addRoomPlayerList(user.getId());
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
@@ -117,10 +120,12 @@ public class RoomService {
 
     public void exitRoom(Room room, User user){
         if (!room.getRoomPlayersList().contains(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is not in game");
+            throw new RuntimeException( "User is not in game");
         }
         if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
             if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){
+                System.out.println(room.getRoomId());
+                System.out.println(gameRepository.findByRoomId(room.getRoomId()).isPresent());
                 gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
             }
             roomRepository.delete(room);
@@ -132,12 +137,12 @@ public class RoomService {
                 newOwner.setPlayerStatus(PlayerStatus.READY);
                 userRepository.save(newOwner);
             }
-            user.setPlayerStatus(PlayerStatus.UNREADY);
-            userRepository.save(user);
-
             room.getRoomPlayersList().remove(user.getId());
             roomRepository.save(room);
         }
+        user.setPlayerStatus(PlayerStatus.UNREADY);
+        user.setInRoomId(null);
+        userRepository.save(user);
     }
 
     /**
