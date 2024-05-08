@@ -17,6 +17,7 @@ public class User implements Serializable {
     private String id;
 
     private String password;
+    private String inRoomId;
 
     private String username;
 
@@ -33,6 +34,14 @@ public class User implements Serializable {
 
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date birthday;
+
+    public String getInRoomId() {
+        return inRoomId;
+    }
+
+    public void setInRoomId(String inRoomId) {
+        this.inRoomId = inRoomId;
+    }
 
     public PlayerStatus getPlayerStatus() {
         return playerStatus;

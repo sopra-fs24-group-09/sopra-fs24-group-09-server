@@ -76,9 +76,10 @@ public class GameService {
         this.userRepository = userRepository;
     }
 
-    public void Ready(String userId) {
+    public void Ready(String userId, String roomId) {
         User user = userService.findUserById(userId);
-
+        // String jsonMessage = "{\"message\":\"This room is full!\"}"; 
+        // template.convertAndSendToUser(user.getId(), "/response/"+ roomId, jsonMessage);
         user.setPlayerStatus(PlayerStatus.READY);
         userRepository.save(user);
     }
@@ -92,17 +93,23 @@ public class GameService {
 
     public void checkIfAllReady(Room room) {
         if (room.getRoomPlayersList().size() < 2) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "2 or more players are required to start the game");
+            throw new RuntimeException( "2 or more players are required to start the game");
         }
+
+        //check if the game is start already
+        if (room.getRoomProperty() == RoomProperty.INGAME) {
+            throw new RuntimeException("The game has already been started for this room");
+        }
+        
         List<String> playerList = room.getRoomPlayersList();
         for (String id : playerList) { // Fix: Iterate over the playerList
             User user = userService.findUserById(id); // Fix: Get the user from the player
             if (user.getPlayerStatus() != PlayerStatus.READY) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not all players are ready");
+                throw new RuntimeException("Not all players are ready");
                 // Notify unready players
             }
         }
-        startGame(room);
+        // startGame(room);
     }
 
     public void startGame(Room room) {
@@ -110,6 +117,7 @@ public class GameService {
         // database
         room.setRoomProperty(RoomProperty.INGAME);
         roomRepository.save(room);
+        socketService.broadcastLobbyInfo();
         Game game = new Game(room);
 
         if (game.getTheme() == null) {
@@ -167,6 +175,8 @@ public class GameService {
 //        Runnable displayScoresTask = () -> displayScores(game);
 //        executeWithTimeout(displayScoresTask, 50, TimeUnit.SECONDS);
         displayScores(game);
+        room.setRoomProperty(RoomProperty.GAMEOVER);
+        roomRepository.save(room);
         try {
             Thread.sleep(30000);//20000
         } catch (InterruptedException e) {
@@ -224,9 +234,9 @@ public class GameService {
         
         // Guess - if no audio uploaded, jump to next round
         if (voice != null &&  voice.length() != 0) {
-            game.getCurrentSpeaker().setRoundFinished(true);
-            playerRepository.save(game.getCurrentSpeaker());
-
+            Player currentSpeaker = playerRepository.findById(game.getCurrentSpeaker().getId()).get();
+            currentSpeaker.setRoundFinished(true);
+            playerRepository.save(currentSpeaker);
             socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
             game.setRoundStatus(RoundStatus.guess);
             gameRepository.save(game);
@@ -236,6 +246,7 @@ public class GameService {
 //            executeWithTimeout(guessPhaseTask, 30, TimeUnit.SECONDS);
 
             guessPhase(game);
+
             try {
                 Thread.sleep(30000);
             } catch (InterruptedException e) {
@@ -252,7 +263,6 @@ public class GameService {
         }
 
         calculateScore(game);
-
         revealPhase(game);
         try {
             Thread.sleep(10000);
@@ -339,14 +349,15 @@ public class GameService {
     }
 
     public void endGame(Game game) {
+
         for (String playerId : game.getRoomPlayersList()) {
             Player player = playerRepository.findById(playerId).get();
-
             playerRepository.delete(player);
         }
         for (String userId : game.getRoomPlayersList()) {
             User user = userRepository.findById(userId).get();
             user.setPlayerStatus(PlayerStatus.UNREADY);
+            user.setInRoomId(null);
             userRepository.save(user);
         }
 
@@ -354,6 +365,7 @@ public class GameService {
 
         System.out.println("Game ended");
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
+        socketService.broadcastLobbyInfo();
     }
 
     public void validateAnswer(Game game, Player player, String guess) {
@@ -368,10 +380,10 @@ public class GameService {
             socketService.broadcastGameinfo(game.getRoomId(), "score");
             socketService.broadcastPlayerInfo(game.getRoomId(), "null");
 //            latch.countDown();
-            // 显示回复正确加分
         } else {
             System.out.println("回答错误");
-        } //显示回答错误
+            throw new RuntimeException("Wrong answer");
+        } 
     }
 
     public void displayRoundScores(Player player) {
