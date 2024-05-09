@@ -1,4 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
+import ch.uzh.ifi.hase.soprafs24.annotation.UserLoginToken;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
@@ -51,6 +52,7 @@ public class GameController {
     }
 
     //set ready
+    @UserLoginToken
     @MessageMapping("/message/users/ready/{roomId}")
     public void ready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptId = null; // 初始化receiptId
@@ -78,6 +80,7 @@ public class GameController {
     }
 
     //set unready
+    @UserLoginToken
     @MessageMapping("/message/users/unready/{roomId}")
     public void unready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptId = null; // Initialize receiptId
@@ -106,6 +109,7 @@ public class GameController {
 
 
     //enterroom
+    @UserLoginToken
     @MessageMapping("/message/users/enterroom/{roomId}")
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptID = null; // Initialize receiptId
@@ -167,6 +171,7 @@ public class GameController {
     }
 
     //leaveroom
+    @UserLoginToken
     @MessageMapping("/message/users/exitroom/{roomId}")
     public void exitRoom(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receipID = (String) headerAccessor.getHeader("receipt");
@@ -190,6 +195,7 @@ public class GameController {
 
 
     //startgame
+    @UserLoginToken
     @MessageMapping("/message/games/start/{roomId}")
     public void startGame(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
@@ -201,6 +207,7 @@ public class GameController {
     }
 
     //submitAnswer
+    @UserLoginToken
     @MessageMapping("/message/games/validate/{roomId}")
     public void submitAnswer(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<AnswerGuess> payload) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
@@ -213,6 +220,7 @@ public class GameController {
     }
 
     //submitAudio
+    @UserLoginToken
     @MessageMapping("/message/games/audio/upload/{roomId}")
     public void uploadAudio(SimpMessageHeaderAccessor headerAccessor,@DestinationVariable("roomId") String roomId,@Payload TimestampedRequest<PlayerAudio> payload) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
@@ -220,13 +228,15 @@ public class GameController {
         String voice = payload.getMessage().getAudioData();
         gameService.setPlayerAudio(roomId,userID,voice);
     }
-    
+
+    @UserLoginToken
     @MessageMapping("/message/response")
     public void response(@Payload String payload) {
         System.out.println(payload);
     }
 
     //notifyLobbyinfo
+    @UserLoginToken
     @MessageMapping("/message/lobby/info")
     public void notifyLobbyInfo(SimpMessageHeaderAccessor headerAccessor) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
