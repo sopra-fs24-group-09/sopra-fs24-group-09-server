@@ -32,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional
@@ -204,7 +205,11 @@ public class GameService {
             try (InputStream inputStream = connection.getInputStream()) {
                 JsonNode jsonNode = objectMapper.readTree(inputStream);
                 for (JsonNode wordNode : jsonNode) {
-                    words.add(wordNode.get("word").asText());
+                    String word = wordNode.get("word").asText();
+                    // only add words that contain only letters and no numbers or special characters
+                    if (Pattern.matches("^[a-zA-Z]+$", word)) {
+                        words.add(word);
+                    }
                 }
             } catch (JsonProcessingException e) {
                 throw new IOException("Failed to parse JSON", e);

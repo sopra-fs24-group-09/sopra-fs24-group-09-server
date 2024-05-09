@@ -251,6 +251,9 @@ public class GameController {
         String receiptID = null;
         String userID = payload.getMessage().getUserID();
         String guess = payload.getMessage().getGuess();
+        
+        // Remove special characters and space from guess
+        guess = guess.replaceAll("[^a-zA-Z0-9]", "");
     
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
