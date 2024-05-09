@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.socket.WebSocketHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,38 +19,37 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Autowired
     UserService userService;
     @Override
-    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
-        String token = httpServletRequest.getHeader("Authorization");
-        // Get token from http request header.
-//        schema of Authorization header looks like this: Bearer <token>,
-//        therefore we need to remove the "Bearer " part. What remains, which is token itself.
-        // if there is no Annotation
-        if(!(object instanceof HandlerMethod)){
-            return true;
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String token = request.getHeader("Authorization");
+        // 标准化提取Token逻辑
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);  // 移除 "Bearer " 前缀
+        } else {
+            token = null;
         }
-        HandlerMethod handlerMethod=(HandlerMethod)object;
-        Method method=handlerMethod.getMethod();
 
-        //Check if Annotated with @UserLoginToken
-        if (method.isAnnotationPresent(UserLoginToken.class)) {
-            UserLoginToken userLoginToken = method.getAnnotation(UserLoginToken.class);
-            if (userLoginToken.required()) {
-                // peform simple token based authentication
-                // 只检查token不为null且不为空的情况
-                if (token == null) {
+        // 针对普通HTTP请求的拦截
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            Method method = handlerMethod.getMethod();
+
+            if (method.isAnnotationPresent(UserLoginToken.class)) {
+                UserLoginToken userLoginToken = method.getAnnotation(UserLoginToken.class);
+                if (userLoginToken.required() && (token == null || !userService.findByToken(token))) {
                     String tokenNullMessage = "Please log in with correct credentials. Not AUTHORIZED.";
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format(tokenNullMessage));
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, tokenNullMessage);
                 }
-                token=token.substring(7);
-
-                if (!userService.findByToken(token)) {
-                    String tokenNullMessage = "Please log in with correct credentials. Not AUTHORIZED.";
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format(tokenNullMessage));
-                }
-
-                return true;
             }
         }
+//         WebSocket的握手请求也可能通过这个拦截器
+        else if (handler instanceof WebSocketHandler) {
+            if (token == null || !userService.findByToken(token)) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 设置HTTP状态码
+                response.getWriter().write("Not AUTHORIZED");
+                return false;
+            }
+        }
+
         return true;
     }
 
