@@ -53,6 +53,7 @@ public class GameController {
     @MessageMapping("/message/users/ready/{roomId}")
     public void ready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptId = null; // Initialize receiptId
+        String token = null;
         String userID = payload.getMessage().getUserID();
 
         // Try to extract receiptId from nativeHeaders
@@ -60,6 +61,7 @@ public class GameController {
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
         if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
             receiptId = nativeHeaders.get("receiptId").get(0);
+            token = nativeHeaders.get("token").get(0);
             System.out.println("Receipt ID found for roomId: " + roomId);
         } else {
             System.out.println("Receipt ID not found " + roomId);
@@ -68,13 +70,16 @@ public class GameController {
         System.out.println("[ready msg received] RoomID: " + roomId + ", UserID: " + userID);
 
         try {
+            if (!userService.findByToken(token)) {
+                throw new IllegalStateException("Invalid or expired token");
+            }
             gameService.Ready(userID, roomId);
             socketService.broadcastResponse(userID, roomId, true,"ready " + userID, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
             // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
-            socketService.broadcastResponse(userID, roomId,false, "ready" + userID, receiptId);
+            socketService.broadcastResponse(userID, roomId,false,  "Failed to ready: " + e.getMessage(), receiptId);
         }
     }
 
@@ -83,6 +88,7 @@ public class GameController {
     @MessageMapping("/message/users/unready/{roomId}")
     public void unready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
         String receiptId = null; // Initialize receiptId
+        String token = null;
         String userID = payload.getMessage().getUserID();
     
         // Try to extract receiptId from nativeHeaders
@@ -90,21 +96,25 @@ public class GameController {
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
         if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
             receiptId = nativeHeaders.get("receiptId").get(0);
+            token = nativeHeaders.get("token").get(0);
             System.out.println("Receipt ID found for roomId: " + roomId);
+            System.out.println("Token found for roomId: " +token);
         } else {
             System.out.println("Receipt ID not found for roomId: " + roomId);
         }
-
         System.out.println("[Unready msg received] RoomID: " + roomId + ", UserID: " + userID);
     
         try {
+            if (!userService.findByToken(token)) {
+                throw new IllegalStateException("Invalid or expired token");
+            }
             gameService.UnReady(userID);
             socketService.broadcastResponse(userID, roomId, true, "unready " + userID, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
             // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
-            socketService.broadcastResponse(userID, roomId,false, "ready" + userID, receiptId);
+            socketService.broadcastResponse(userID, roomId,false,  "Failed to unready: " + e.getMessage(), receiptId);
         }
     }
 
