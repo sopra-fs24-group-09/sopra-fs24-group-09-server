@@ -3,7 +3,6 @@ import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
@@ -16,8 +15,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.time.Instant;
 import java.util.*;
 
 /**
@@ -74,7 +71,6 @@ public class RoomService {
             User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
             roomOwner.setPlayerStatus(PlayerStatus.READY);
             userRepository.save(roomOwner);
-
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
         } catch (Exception e) {
@@ -84,9 +80,9 @@ public class RoomService {
 
     public Room findRoomById(String userId, String roomId){
         if (!roomRepository.findByRoomId(roomId).isPresent()){
-            String jsonMessage = "{\"message\":\"Room not found!\"}"; 
-            template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
+            // String jsonMessage = "{\"message\":\"Room not found!\"}"; 
+            // template.convertAndSendToUser(userId, "/response/"+ roomId, jsonMessage);
+            throw new RuntimeException( "Room not found");
         }
         return roomRepository.findByRoomId(roomId).get();
     }
@@ -97,18 +93,24 @@ public class RoomService {
         // }
         // Check full or not
         if (room.getRoomPlayersList().size() >= room.getMaxPlayersNum()) {
-            String jsonMessage = "{\"message\":\"This room is full!\"}"; 
-            template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This room is full!");
+            // String jsonMessage = "{\"message\":\"This room is full!\"}"; 
+            // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
+            throw new RuntimeException( "This room is full!");
         }
         if (room.getRoomProperty() != RoomProperty.WAITING){
-            String jsonMessage = "{\"message\":\"You can not enter a room that is in game!\"}"; 
-            template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not enter a room that is in game");
+            // String jsonMessage = "{\"message\":\"You can not enter a room that is in game!\"}"; 
+            // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
+            throw new RuntimeException("You can not enter a room that is in game!");
         }
-
+        boolean id_equal = (user.getId()).equals(room.getRoomOwnerId());
+        
+        //if the user is not room owner then set the status to unready
+        if (!id_equal){
+            user.setPlayerStatus(PlayerStatus.UNREADY);
+        }
         room.addRoomPlayerList(user.getId());
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
+        userRepository.save(user);
         roomRepository.save(room);
     }
 

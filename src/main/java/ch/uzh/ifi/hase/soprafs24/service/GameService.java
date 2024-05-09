@@ -76,9 +76,10 @@ public class GameService {
         this.userRepository = userRepository;
     }
 
-    public void Ready(String userId) {
+    public void Ready(String userId, String roomId) {
         User user = userService.findUserById(userId);
-
+        // String jsonMessage = "{\"message\":\"This room is full!\"}"; 
+        // template.convertAndSendToUser(user.getId(), "/response/"+ roomId, jsonMessage);
         user.setPlayerStatus(PlayerStatus.READY);
         userRepository.save(user);
     }
@@ -94,6 +95,12 @@ public class GameService {
         if (room.getRoomPlayersList().size() < 2) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "2 or more players are required to start the game");
         }
+
+        //check if the game is start already
+        if (room.getRoomProperty() == RoomProperty.INGAME) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The game has already been started for this room");
+        }
+        
         List<String> playerList = room.getRoomPlayersList();
         for (String id : playerList) { // Fix: Iterate over the playerList
             User user = userService.findUserById(id); // Fix: Get the user from the player
@@ -224,9 +231,9 @@ public class GameService {
         
         // Guess - if no audio uploaded, jump to next round
         if (voice != null &&  voice.length() != 0) {
-            game.getCurrentSpeaker().setRoundFinished(true);
-            playerRepository.save(game.getCurrentSpeaker());
-
+            Player currentSpeaker = playerRepository.findById(game.getCurrentSpeaker().getId()).get();
+            currentSpeaker.setRoundFinished(true);
+            playerRepository.save(currentSpeaker);
             socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(),voice);
             game.setRoundStatus(RoundStatus.guess);
             gameRepository.save(game);
@@ -236,6 +243,7 @@ public class GameService {
 //            executeWithTimeout(guessPhaseTask, 30, TimeUnit.SECONDS);
 
             guessPhase(game);
+
             try {
                 Thread.sleep(30000);
             } catch (InterruptedException e) {
@@ -252,7 +260,6 @@ public class GameService {
         }
 
         calculateScore(game);
-
         revealPhase(game);
         try {
             Thread.sleep(10000);
