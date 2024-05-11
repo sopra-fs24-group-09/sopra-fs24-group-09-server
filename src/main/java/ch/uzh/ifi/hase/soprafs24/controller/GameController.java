@@ -66,16 +66,18 @@ public class GameController {
         }
 
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userID, roomId, false, false, "Invalid or expired token", receiptId);
+                return; // Stop further processing
             }
             gameService.Ready(userID, roomId);
-            socketService.broadcastResponse(userID, roomId, true,"ready " + userID, receiptId);
+            socketService.broadcastResponse(userID, roomId, true, true,"unready " + userID, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
             // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
-            socketService.broadcastResponse(userID, roomId,false,  "Failed to ready: " + e.getMessage(), receiptId);
+            socketService.broadcastResponse(userID, roomId,false, true,  "Failed to unready: " + e.getMessage(), receiptId);
         }
     }
 
@@ -96,16 +98,18 @@ public class GameController {
         }
     
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userID, roomId, false, false, "Invalid or expired token", receiptId);
+                return; // Stop further processing
             }
             gameService.UnReady(userID);
-            socketService.broadcastResponse(userID, roomId, true, "unready " + userID, receiptId);
+            socketService.broadcastResponse(userID, roomId, true, true,"unready " + userID, receiptId);
             socketService.broadcastPlayerInfo(roomId, receiptId);
             socketService.broadcastGameinfo(roomId, receiptId);
             // socketService.broadcastLobbyInfo();
         } catch (Exception e) {
-            socketService.broadcastResponse(userID, roomId,false,  "Failed to unready: " + e.getMessage(), receiptId);
+            socketService.broadcastResponse(userID, roomId,false, true,  "Failed to unready: " + e.getMessage(), receiptId);
         }
     }
 
@@ -127,8 +131,10 @@ public class GameController {
         }
 
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userID, roomId, false, false, "Invalid or expired token", receiptID);
+                return; // Stop further processing
             }
             else {
                 if (roomRepository.findByRoomId(roomId).isPresent()) {
@@ -151,7 +157,7 @@ public class GameController {
                         socketService.broadcastGameinfo(roomId, receiptID);
                         socketService.broadcastPlayerInfo(roomId, "enterroom");
                         socketService.broadcastLobbyInfo();
-                        socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
+                        socketService.broadcastResponse(userID, roomId, true, true, "enter room", receiptID);
 
                     }
                     //if the user is not in the room
@@ -161,7 +167,7 @@ public class GameController {
                         socketService.broadcastGameinfo(roomId, receiptID);
                         socketService.broadcastPlayerInfo(roomId, "enterRoom");
                         socketService.broadcastLobbyInfo();
-                        socketService.broadcastResponse(userID, roomId, true, "enter room", receiptID);
+                        socketService.broadcastResponse(userID, roomId, true,true, "enter room", receiptID);
                     }
                 }
             }
@@ -169,7 +175,7 @@ public class GameController {
         } catch (Exception e) {
             // Log error or handle exception
             System.out.println("Error entering room: " + e.getMessage());
-            socketService.broadcastResponse(userID, roomId, false, e.getMessage(), receiptID);
+            socketService.broadcastResponse(userID, roomId, false,true, e.getMessage(), receiptID);
             socketService.broadcastLobbyInfo();
         }
     }
@@ -191,8 +197,10 @@ public class GameController {
         }
 
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userID, roomID, false, false, "Invalid or expired token", receiptID);
+                return; // Stop further processing
             }
             else {
                 if (roomRepository.findByRoomId(roomID).isPresent()) {
@@ -208,11 +216,11 @@ public class GameController {
                         if (roomRepository.findByRoomId(roomID).isPresent()) {
                             socketService.broadcastPlayerInfo(roomID, "exitroom");
                             socketService.broadcastGameinfo(roomID, receiptID);
-                            socketService.broadcastResponse(userID, roomID, true, "Successfully exited room", receiptID);
+                            socketService.broadcastResponse(userID, roomID, true,true, "Successfully exited room", receiptID);
                         }
                     }
                     else {
-                        socketService.broadcastResponse(userID, roomID, false, "Failed to exit room", receiptID);
+                        socketService.broadcastResponse(userID, roomID, false,true, "Failed to exit room", receiptID);
                     }
                 }
             }
@@ -221,7 +229,7 @@ public class GameController {
             e.printStackTrace(); 
             System.out.println("Error exiting room: " + e.getMessage());
             socketService.broadcastLobbyInfo();
-            socketService.broadcastResponse(userID, roomID, false, "Failed to exit room: " + e.getMessage(), receiptID);
+            socketService.broadcastResponse(userID, roomID, false,true, "Failed to exit room: " + e.getMessage(), receiptID);
         }
     }
 
@@ -242,8 +250,10 @@ public class GameController {
         }
 
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userID, roomID, false, false, "Invalid or expired token", receiptID);
+                return; // Stop further processing
             }
             else {
                 if (!roomRepository.findByRoomId(roomID).isPresent()) {
@@ -252,7 +262,7 @@ public class GameController {
                 else {
                     Room room = roomRepository.findByRoomId(roomID).get();
                     gameService.checkIfAllReady(room);  // Checks if all players in the room are ready
-                    socketService.broadcastResponse(userID, roomID, true, "Game started successfully", receiptID);
+                    socketService.broadcastResponse(userID, roomID, true,true, "Game started successfully", receiptID);
                     gameService.startGame(room);  // Starts the game
                     // Send success response back to user
                 }
@@ -260,7 +270,7 @@ public class GameController {
         } catch (Exception e) {
             // Handle errors during game start, such as not all players being ready
             System.out.println("Error starting game: " + e.getMessage());
-            socketService.broadcastResponse(userID, roomID, false, "Failed to start game: " + e.getMessage(), receiptID);
+            socketService.broadcastResponse(userID, roomID, false,true, "Failed to start game: " + e.getMessage(), receiptID);
         }
     }
     //submitAnswer
@@ -283,18 +293,20 @@ public class GameController {
         }
     
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userID, roomID, false, false, "Invalid or expired token", receiptID);
+                return; // Stop further processing
             }
             else {
                 Game game = gameService.findGameById(roomID);
                 Player player = playerService.findPlayerById(userID);
                 gameService.validateAnswer(game, player, guess);
-                socketService.broadcastResponse(userID, roomID, true, "Answer submitted successfully", receiptID);
+                socketService.broadcastResponse(userID, roomID, true,true, "Answer submitted successfully", receiptID);
             }
         } catch (Exception e) {
             System.out.println("Error submitting answer: " + e.getMessage());
-            socketService.broadcastResponse(userID, roomID, false, "Failed to validate answer: " + e.getMessage(), receiptID);
+            socketService.broadcastResponse(userID, roomID, false,true, "Failed to validate answer: " + e.getMessage(), receiptID);
         }
     }
 
@@ -315,16 +327,18 @@ public class GameController {
         }
 
         try {
-            if (!userService.findByToken(token)) {
-                throw new IllegalStateException("Invalid or expired token");
+            if (token == null || !userService.findByToken(token)) {
+                // Token is invalid or expired, send a response with auth set to false
+                socketService.broadcastResponse(userId, roomId, false, false, "Invalid or expired token", receiptId);
+                return; // Stop further processing
             }
             else {
                 gameService.setPlayerAudio(roomId, userId, voice);
-                socketService.broadcastResponse(userId, roomId, true, "Audio uploaded successfully", receiptId);
+                socketService.broadcastResponse(userId, roomId, true,true, "Audio uploaded successfully", receiptId);
             }
         } catch (Exception e) {
             System.out.println("Error uploading audio: " + e.getMessage());
-            socketService.broadcastResponse(userId, roomId, false, "Failed to upload audio: " + e.getMessage(), receiptId);
+            socketService.broadcastResponse(userId, roomId, false,true, "Failed to upload audio: " + e.getMessage(), receiptId);
         }
     }
 
