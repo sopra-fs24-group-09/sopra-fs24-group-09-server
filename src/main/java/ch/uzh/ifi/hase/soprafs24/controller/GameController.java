@@ -145,6 +145,7 @@ public class GameController {
                         //if the game is started and the user is entering the room
                         if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
                             Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+                            //if the game is in the guess round
                             if (game.getRoundStatus().equals(RoundStatus.guess)) {
                                 String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
                                 socketService.broadcastGameinfo(roomId, receiptID);
@@ -169,6 +170,9 @@ public class GameController {
                         socketService.broadcastLobbyInfo();
                         socketService.broadcastResponse(userID, roomId, true,true, "enter room", receiptID);
                     }
+                }
+                else {
+                    throw new Exception("Room not found");
                 }
             }
 
@@ -223,6 +227,9 @@ public class GameController {
                         socketService.broadcastResponse(userID, roomID, false,true, "Failed to exit room", receiptID);
                     }
                 }
+                else {
+                    throw new Exception("Room not found");}
+                
             }
         } catch (Exception e) {
             // Log error or handle exception
