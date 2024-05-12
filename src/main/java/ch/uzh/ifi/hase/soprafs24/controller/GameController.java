@@ -226,6 +226,9 @@ public class GameController {
                         socketService.broadcastResponse(userID, roomID, false,true, "Failed to exit room", receiptID);
                     }
                 }
+                else {
+                    throw new Exception("Room not found");}
+                
             }
         } catch (Exception e) {
             // Log error or handle exception
