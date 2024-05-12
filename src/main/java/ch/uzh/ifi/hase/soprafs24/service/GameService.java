@@ -178,6 +178,9 @@ public class GameService {
         displayScores(game);
         room.setRoomProperty(RoomProperty.GAMEOVER);
         roomRepository.save(room);
+        socketService.broadcastGameinfo(game.getRoomId(), "gameover");
+        socketService.broadcastPlayerInfo(game.getRoomId(), "gameover");
+        socketService.broadcastLobbyInfo();
         try {
             Thread.sleep(30000);//20000
         } catch (InterruptedException e) {
