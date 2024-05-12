@@ -170,6 +170,9 @@ public class GameController {
                         socketService.broadcastResponse(userID, roomId, true,true, "enter room", receiptID);
                     }
                 }
+                else {
+                    throw new Exception("Room not found");
+                }
             }
 
         } catch (Exception e) {
