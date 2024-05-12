@@ -145,6 +145,7 @@ public class GameController {
                         //if the game is started and the user is entering the room
                         if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
                             Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+                            //if the game is in the guess round
                             if (game.getRoundStatus().equals(RoundStatus.guess)) {
                                 String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
                                 socketService.broadcastGameinfo(roomId, receiptID);
