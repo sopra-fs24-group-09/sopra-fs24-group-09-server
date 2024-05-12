@@ -1,4 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
+import ch.uzh.ifi.hase.soprafs24.annotation.UserLoginToken;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
@@ -27,6 +28,7 @@ public class RoomController {
     }
 
     //This method is used to get all rooms in the lobby
+    @UserLoginToken
     @GetMapping("/games/lobby")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -43,6 +45,7 @@ public class RoomController {
     }
 
     //This method is used to create a new room
+    @UserLoginToken
     @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.annotation.UserLoginToken;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
@@ -28,6 +29,7 @@ public class UserController {
     this.userService = userService;
   }
 
+  @UserLoginToken
   @GetMapping("/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
@@ -73,6 +75,7 @@ public class UserController {
   }
 
   //logout
+  @UserLoginToken
   @PostMapping("/users/logout")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
@@ -87,6 +90,7 @@ public class UserController {
   }
 
   //Get method for getting the information for profile page
+  @UserLoginToken
   @GetMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
@@ -96,6 +100,7 @@ public class UserController {
   }
 
   //Put method for editing the user profile
+  @UserLoginToken
   @PutMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
