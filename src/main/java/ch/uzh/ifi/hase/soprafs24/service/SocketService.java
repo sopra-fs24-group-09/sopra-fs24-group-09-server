@@ -203,9 +203,10 @@ public class SocketService {
         sendMessage("/lobby/info", null, lobbyInfo, null);
     }
 
-    public void broadcastResponse(String userId, String roomId,boolean isSuccess, String response, String receiptId) {
+    public void broadcastResponse(String userId, String roomId,boolean isSuccess, boolean isAuth, String response, String receiptId) {
         Response responseObj = new Response();
         responseObj.setSuccess(isSuccess);
+        responseObj.setAuth(isAuth);
         responseObj.setreceiptId(receiptId);
         responseObj.setMessage(response);
         System.out.println(receiptId);
