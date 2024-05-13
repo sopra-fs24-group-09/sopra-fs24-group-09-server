@@ -137,6 +137,9 @@ public class GameController {
                 return; // Stop further processing
             }
             else {
+                if (userService.findUserById(userID).getInRoomId() != null && !roomRepository.findByRoomId(userService.findUserById(userID).getInRoomId()).isPresent()) {
+                    userService.findUserById(userID).setInRoomId(null);
+                }
                 if (roomRepository.findByRoomId(roomId).isPresent()) {
                     //if the user is already in the room
                     Room room = roomRepository.findByRoomId(roomId).get();
