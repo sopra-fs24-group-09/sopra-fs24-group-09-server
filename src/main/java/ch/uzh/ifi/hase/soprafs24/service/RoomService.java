@@ -51,6 +51,13 @@ public class RoomService {
         if (existingRoom.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room already exists");
         }
+
+        //check if the room name contains spaces or special characters
+        if (newRoom.getRoomName().matches(".*[\\s\\p{Punct}].*")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room name should not contain spaces or special characters");
+        }
+        
+        //check if the number of players is between 2 and 5
         if (newRoom.getMaxPlayersNum() < 2 || newRoom.getMaxPlayersNum() > 5){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The number of players should be between 2 and 5");
         }

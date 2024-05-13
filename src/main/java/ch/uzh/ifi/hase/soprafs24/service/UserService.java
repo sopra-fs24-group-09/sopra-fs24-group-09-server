@@ -92,6 +92,10 @@ public class UserService {
   }
 
   public User createUser(User newUser) {
+    // check if the username with spaces or special characters
+    if (newUser.getUsername() == null || newUser.getUsername().isEmpty() || newUser.getUsername().matches(".*[\\s\\p{Punct}].*")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User name must not be empty and should not contain spaces or special characters");
+    }
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     newUser.setRegisterDate(new Date());
