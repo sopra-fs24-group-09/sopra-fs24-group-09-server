@@ -17,8 +17,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set MongoDB Password Environment Variable
-        run: echo "MONGODB_PASSWORD=${{ secrets.MONGODB_PASSWORD }}" >> $GITHUB_ENV
+      - name: Prepare app.yaml
+        run: sed -i "s/PLACEHOLDER/${{ secrets.MONGODB_PASSWORD }}/g" app.yaml
 
       - name: Deploy to App Engine
         id: deploy
