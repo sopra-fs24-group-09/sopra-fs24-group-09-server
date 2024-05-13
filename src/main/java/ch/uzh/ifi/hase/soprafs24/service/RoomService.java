@@ -51,6 +51,9 @@ public class RoomService {
         if (existingRoom.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room already exists");
         }
+        if (newRoom.getMaxPlayersNum() < 2 || newRoom.getMaxPlayersNum() > 5){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The number of players should be between 2 and 5");
+        }
 
         try {
             newRoom.setRoomName(newRoom.getRoomName());
