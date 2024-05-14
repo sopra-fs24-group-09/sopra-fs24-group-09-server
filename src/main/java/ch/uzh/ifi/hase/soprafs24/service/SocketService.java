@@ -178,27 +178,32 @@ public class SocketService {
         List<Room> rooms = roomRepository.findAll(); // Fetch all rooms
         List<Map<String, Object>> lobbyInfo = new ArrayList<>();
         for (Room room : rooms) {
-            Map<String, Object> roomInfo = new HashMap<>();
-            List<Map<String, Object>> playersInfo = new ArrayList<>();
-    
-            for (String playerId : room.getRoomPlayersList()) {
-                User user = userRepository.findById(playerId).get();
-                Map<String, Object> playerInfo = new HashMap<>();
-                playerInfo.put("userId", user.getId());
-                playerInfo.put("userName", user.getUsername());
-                playerInfo.put("avatar", user.getAvatar());
-                playersInfo.add(playerInfo); 
+            if (room.getRoomPlayersList().size() == 0){
+                roomRepository.delete(room);
             }
+            else {
+                Map<String, Object> roomInfo = new HashMap<>();
+                List<Map<String, Object>> playersInfo = new ArrayList<>();
 
-            roomInfo.put("roomId", room.getRoomId());
-            roomInfo.put("roomOwnerId", room.getRoomOwnerId());
-            roomInfo.put("roomName", room.getRoomName());
-            roomInfo.put("roomMaxNum", room.getMaxPlayersNum());
-            roomInfo.put("theme", room.getTheme());
-            roomInfo.put("status", room.getRoomProperty());
-            roomInfo.put("roomPlayersList", playersInfo);
-    
-            lobbyInfo.add(roomInfo);
+                for (String playerId : room.getRoomPlayersList()) {
+                    User user = userRepository.findById(playerId).get();
+                    Map<String, Object> playerInfo = new HashMap<>();
+                    playerInfo.put("userId", user.getId());
+                    playerInfo.put("userName", user.getUsername());
+                    playerInfo.put("avatar", user.getAvatar());
+                    playersInfo.add(playerInfo);
+                }
+
+                roomInfo.put("roomId", room.getRoomId());
+                roomInfo.put("roomOwnerId", room.getRoomOwnerId());
+                roomInfo.put("roomName", room.getRoomName());
+                roomInfo.put("roomMaxNum", room.getMaxPlayersNum());
+                roomInfo.put("theme", room.getTheme());
+                roomInfo.put("status", room.getRoomProperty());
+                roomInfo.put("roomPlayersList", playersInfo);
+
+                lobbyInfo.add(roomInfo);
+            }
         }
         sendMessage("/lobby/info", null, lobbyInfo, null);
     }
