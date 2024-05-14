@@ -68,8 +68,8 @@ public class RoomService {
             newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
-            // newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
-            newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
+            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+//            newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
 
             newRoom = roomRepository.save(newRoom);
 
@@ -132,10 +132,8 @@ public class RoomService {
         if (!room.getRoomPlayersList().contains(user.getId())) {
             throw new RuntimeException( "User is not in game");
         }
-        if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
+        if (room.getRoomPlayersList().size() == 1){
             if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){
-                System.out.println(room.getRoomId());
-                System.out.println(gameRepository.findByRoomId(room.getRoomId()).isPresent());
                 gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
             }
             roomRepository.delete(room);

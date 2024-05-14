@@ -1,3 +1,4 @@
+
 // package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 // import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
