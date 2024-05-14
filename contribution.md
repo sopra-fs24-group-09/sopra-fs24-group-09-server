@@ -117,6 +117,10 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/149| Wr
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Add response for all ws request |[@Zihan Liu](https://github.com/zihanltesla)| |
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/138|Refactor all ws and rest api interface by typescript with static typecheck.| [@Shaochang Tan](https://github.com/petertheprocess) | |
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/137|Add inout filter for empty input prevent empty username| [@Shaochang Tan](https://github.com/petertheprocess) | |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/143 | Modify enter room logic for token check            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/142 | Enhance guide in Lobby            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/150 | [UI] In lobby page, the text font of different buttons are different. Need to unify them.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/141 | Display room capacity and how much empty seats left            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 
 
 ## WEEK7 2024.5.16-2024.5.21
