@@ -113,8 +113,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/105| Im
 |---|---|---|-----------|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/126| Improve MangoDB dabase seccurity by putting the username and password inside the global environment of Google Cloud| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/130| Add null checking for repositories finding entity| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/149| Write tests for service files |[@Zihan Liu](https://github.com/zihanltesla)| |
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Add response for all ws request |[@Zihan Liu](https://github.com/zihanltesla)| |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/149| Write tests for service files |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark:|
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Add response for all ws request |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/138|Refactor all ws and rest api interface by typescript with static typecheck.| [@Shaochang Tan](https://github.com/petertheprocess) | |
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/137|Add inout filter for empty input prevent empty username| [@Shaochang Tan](https://github.com/petertheprocess) | |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/143 | Modify enter room logic for token check            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
@@ -128,3 +128,5 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Ad
 |---|---|---|-----------|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/104| Implement return player words by websocket| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage |[@Zihan Liu](https://github.com/zihanltesla)||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| Sonarqube checking and configuration |[@Zihan Liu](https://github.com/zihanltesla)||
