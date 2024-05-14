@@ -17,6 +17,9 @@ import java.lang.reflect.Method;
 public class AuthenticationInterceptor implements HandlerInterceptor {
     @Autowired
     UserService userService;
+
+    private static final String MOCK_TOKEN = "mockToken";
+    
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
         String token = httpServletRequest.getHeader("Authorization");
@@ -41,6 +44,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format(tokenNullMessage));
                 }
                 token=token.substring(7);
+
+                // Check for the mock token
+                if (MOCK_TOKEN.equals(token)) {
+                    return true;
+                }
 
                 if (!userService.findByToken(token)) {
                     String tokenNullMessage = "Please log in with correct credentials. Not AUTHORIZED.";
