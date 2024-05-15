@@ -110,7 +110,6 @@ public class GameService {
                 // Notify unready players
             }
         }
-        // startGame(room);
     }
 
     public void startGame(Room room) {
@@ -172,7 +171,7 @@ public class GameService {
         }
 
         // Display scores after every player has spoken
-        System.out.println("展示："+LocalDateTime.now());
+        System.out.println("Revealing："+LocalDateTime.now());
 //        Runnable displayScoresTask = () -> displayScores(game);
 //        executeWithTimeout(displayScoresTask, 50, TimeUnit.SECONDS);
         displayScores(game);
@@ -187,7 +186,7 @@ public class GameService {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
-        System.out.println("结束："+ LocalDateTime.now());
+        System.out.println("End Revealing："+ LocalDateTime.now());
         // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
         // players leave
         if (gameRepository.findByRoomId(game.getRoomId()).isPresent()){
@@ -226,7 +225,7 @@ public class GameService {
         game.setRoundStatus(RoundStatus.speak);
         gameRepository.save(game);
 
-        System.out.println("说话："+LocalDateTime.now());
+        System.out.println("Speak："+LocalDateTime.now());
 //        Runnable speakPhaseTask = () -> speakPhase(game);
 //        executeWithTimeout(speakPhaseTask, 20, TimeUnit.SECONDS);
         speakPhase(game);
@@ -236,7 +235,7 @@ public class GameService {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
-        System.out.println("说话结束"+ LocalDateTime.now());
+        System.out.println("End speak"+ LocalDateTime.now());
         // Broadcast the audio to all players
         String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
         
@@ -249,7 +248,7 @@ public class GameService {
             game.setRoundStatus(RoundStatus.guess);
             gameRepository.save(game);
 
-            System.out.println("猜："+LocalDateTime.now());
+            System.out.println("guess："+LocalDateTime.now());
 //            Runnable guessPhaseTask = () -> guessPhase(game);
 //            executeWithTimeout(guessPhaseTask, 30, TimeUnit.SECONDS);
 
@@ -261,7 +260,7 @@ public class GameService {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
-            System.out.println("猜结束："+LocalDateTime.now());
+            System.out.println("endguess："+LocalDateTime.now());
 
         } else {
             // if the speaker does not upload the audio, he will get -4 points and marked this word as No Speak
@@ -389,7 +388,6 @@ public class GameService {
             socketService.broadcastPlayerInfo(game.getRoomId(), "null");
 //            latch.countDown();
         } else {
-            System.out.println("回答错误");
             throw new RuntimeException("Wrong answer");
         } 
     }
@@ -397,7 +395,6 @@ public class GameService {
     public void displayRoundScores(Player player) {
         // Display the scores of all players for this round
         player.getScoreDetails();
-        // 展示回合得分
     }
 
     public void displayScores(Game game) {
@@ -433,7 +430,6 @@ public class GameService {
             playerRepository.save(player);
 //            latch.countDown();
 
-            //如果实在猜的阶段，广播声音直接给所有人
             if (game.getRoundStatus() == RoundStatus.guess) {
                 socketService.broadcastSpeakerAudio(game.getRoomId(), player.getId(), voice);
             }

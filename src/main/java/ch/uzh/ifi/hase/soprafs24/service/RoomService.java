@@ -68,8 +68,8 @@ public class RoomService {
             newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
-            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
-//            newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
+            // newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
 
             newRoom = roomRepository.save(newRoom);
 
@@ -108,11 +108,13 @@ public class RoomService {
             // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new RuntimeException("You can not enter a room that is in game!");
         }
-
         if (user.getInRoomId()!=null && !user.getInRoomId().equals(room.getRoomId())){
-            // String jsonMessage = "{\"message\":\"You can not enter a room when you are in another room!\"}";
-            // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
-            throw new RuntimeException("You can not enter a room when you are in another room!");
+            if (!roomRepository.findByRoomId(user.getInRoomId()).isPresent()){
+                user.setInRoomId(null);
+            }
+            else{
+                throw new RuntimeException("You can not enter a room when you are in another room!");
+            }
         }
         boolean id_equal = (user.getId()).equals(room.getRoomOwnerId());
 
@@ -132,8 +134,10 @@ public class RoomService {
         if (!room.getRoomPlayersList().contains(user.getId())) {
             throw new RuntimeException( "User is not in game");
         }
-        if (room.getRoomPlayersList().size() == 1){
+        if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() == 1){
             if (gameRepository.findByRoomId(room.getRoomId()).isPresent()){
+                System.out.println(room.getRoomId());
+                System.out.println(gameRepository.findByRoomId(room.getRoomId()).isPresent());
                 gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
             }
             roomRepository.delete(room);
