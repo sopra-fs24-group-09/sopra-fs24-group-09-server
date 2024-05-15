@@ -83,13 +83,13 @@ public class SocketService {
         // Optional<Game> optionalGame = gameRepository.findByRoomId(roomId);
         // Game game = optionalGame.orElseThrow(() ->
         // new IllegalStateException("No game found with room ID: " + roomId));
-        if(gameRepository.findByRoomId(roomId).isEmpty()){
-            throw new IllegalStateException("No game found with room ID in broadcastgameinfo: " + roomId);
-        }
+        // if(gameRepository.findByRoomId(roomId).isEmpty()){
+        //     throw new IllegalStateException("No game found with room ID in broadcastgameinfo: " + roomId);
+        // }
         Room room = roomRepository.findByRoomId(roomId).get();
-        if(userRepository.findById(room.getRoomOwnerId()).isEmpty()){
-            throw new IllegalStateException("No room owner found with room ID in broadcastgameinfo: " + roomId);
-        }
+        // if(userRepository.findById(room.getRoomOwnerId()).isEmpty()){
+        //     throw new IllegalStateException("No room owner found with room ID in broadcastgameinfo: " + roomId);
+        // }
         User roomowner = userRepository.findById(room.getRoomOwnerId()).get();
         UserGetDTO roomOwnerDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(roomowner);
         HashMap<String, Object> info = new HashMap<>();
@@ -109,9 +109,9 @@ public class SocketService {
             info.put("gameStatus", "ready");
         }
         else{
-            if(gameRepository.findByRoomId(roomId).isEmpty()){
-                throw new IllegalStateException("No game found with room ID in broadcastgameinfo: " + roomId);
-            }
+            // if(gameRepository.findByRoomId(roomId).isEmpty()){
+            //     throw new IllegalStateException("No game found with room ID in broadcastgameinfo: " + roomId);
+            // }
             Game game = gameRepository.findByRoomId(roomId).get();
             PlayerGetDTO currentSpeakerDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(game.getCurrentSpeaker());
 
@@ -158,9 +158,9 @@ public class SocketService {
                 }
                 // After game starts
                 else {
-                    if(playerRepository.findById(id).isEmpty()){
-                        throw new IllegalStateException("No player found with id in broadcastplayerinfo: " + id);
-                    }
+                    // if(playerRepository.findById(id).isEmpty()){
+                    //     throw new IllegalStateException("No player found with id in broadcastplayerinfo: " + id);
+                    // }
                     Player player = playerRepository.findById(id).get();
                     List<Map<String, Object>> scoreDetails = player.getScoreDetails();
                     scoreMap.put("total", player.getTotalScore());
