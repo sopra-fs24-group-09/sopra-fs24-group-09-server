@@ -123,6 +123,14 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Ad
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/142 | Enhance guide in Lobby            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/150 | [UI] In lobby page, the text font of different buttons are different. Need to unify them.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/141 | Display room capacity and how much empty seats left            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/144 | Deprecate the room name in the path variable.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/164 | Fix the bug of automatically logging out two user concurrently due to incorrect token check in the game room page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/174 | 
+Show different ui for the current user in the gameroom page.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/175 | 
+Refactor on the leaderboard component for it to show the data better.             | [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/176 | 
+Limit the input form to be invalid with special symbol and disable the button as well.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 
 
 ## WEEK7 2024.5.16-2024.5.21
