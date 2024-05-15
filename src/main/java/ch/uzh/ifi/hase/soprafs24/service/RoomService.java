@@ -52,9 +52,19 @@ public class RoomService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room already exists");
         }
 
-        //check if the room name contains spaces or special characters
-        if (newRoom.getRoomName().matches(".*[\\s\\p{Punct}].*")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room name should not contain spaces or special characters");
+        // check if the room name is empty
+        if (newRoom.getRoomName() == null || newRoom.getRoomName().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room name must not be empty");
+        }
+
+        // check if the room name contains spaces
+        if (newRoom.getRoomName().chars().anyMatch(Character::isWhitespace)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room name should not contain spaces");
+        }
+
+        //check if the room name contains special characters
+        if (newRoom.getRoomName().chars().anyMatch(ch -> !Character.isLetterOrDigit(ch))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room name should not contain special characters");
         }
         
         //check if the number of players is between 2 and 5

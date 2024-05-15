@@ -73,7 +73,8 @@ public class SocketService {
             System.out.println(destination );
             simpMessagingTemplate.convertAndSend(destination, timestampedMessage);
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            System.out.println("Error in sending message");
         }
     }
 
@@ -238,7 +239,7 @@ public class SocketService {
         try {
             jsonMessage = objectMapper.writeValueAsString(responseObj);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             responseObj.setSuccess(false);
         }
         template.convertAndSendToUser(userId, "/response/" + roomId, jsonMessage);
