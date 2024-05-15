@@ -157,7 +157,7 @@ public class GameController {
                                 Game game = gameRepository.findByRoomId(room.getRoomId()).get();
                                 //if the game is in the guess round
                                 if (game.getRoundStatus().equals(RoundStatus.guess)) {
-                                    if (playerRepository.findById(user.getId()).isEmpty()) {
+                                    if (playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()) {
                                         throw new Exception("Cannot find player");
                                     }
                                     String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
@@ -249,7 +249,7 @@ public class GameController {
             }
         } catch (Exception e) {
             // Log error or handle exception
-            e.printStackTrace(); 
+            // e.printStackTrace(); 
             System.out.println("Error exiting room: " + e.getMessage());
             socketService.broadcastLobbyInfo();
             socketService.broadcastResponse(userID, roomID, false,true, "Failed to exit room: " + e.getMessage(), receiptID);
