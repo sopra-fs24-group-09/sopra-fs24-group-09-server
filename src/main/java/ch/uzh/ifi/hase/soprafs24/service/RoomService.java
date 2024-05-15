@@ -108,11 +108,13 @@ public class RoomService {
             // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
             throw new RuntimeException("You can not enter a room that is in game!");
         }
-
         if (user.getInRoomId()!=null && !user.getInRoomId().equals(room.getRoomId())){
-            // String jsonMessage = "{\"message\":\"You can not enter a room when you are in another room!\"}";
-            // template.convertAndSendToUser(user.getId(), "/response/"+ room.getRoomId(), jsonMessage);
-            throw new RuntimeException("You can not enter a room when you are in another room!");
+            if (!roomRepository.findByRoomId(user.getInRoomId()).isPresent()){
+                user.setInRoomId(null);
+            }
+            else{
+                throw new RuntimeException("You can not enter a room when you are in another room!");
+            }
         }
         boolean id_equal = (user.getId()).equals(room.getRoomOwnerId());
 

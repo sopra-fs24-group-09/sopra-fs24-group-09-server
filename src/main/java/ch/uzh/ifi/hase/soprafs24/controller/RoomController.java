@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.annotation.UserLoginToken;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
@@ -22,9 +24,11 @@ public class RoomController {
 
 
     private final RoomService roomService;
+    private final RoomRepository roomRepository;
 
-    RoomController(RoomService roomService) {
+    RoomController(RoomService roomService, @Qualifier("roomRepository") RoomRepository roomRepository) {
         this.roomService = roomService;
+        this.roomRepository = roomRepository;
     }
 
     //This method is used to get all rooms in the lobby
@@ -39,7 +43,12 @@ public class RoomController {
 
         // convert each user to the API representation
         for (Room room : rooms) {
-            roomGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRoomGetDTO(room));
+            if (room.getRoomPlayersList().size() == 0) {
+                roomRepository.delete(room);
+            }
+            else {
+                roomGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRoomGetDTO(room));
+            }
         }
         return roomGetDTOs;
     }
@@ -57,14 +66,6 @@ public class RoomController {
         return DTOMapper.INSTANCE.convertEntityToRoomGetDTO(createdRoom);
     }
 
-//    @PutMapping("/games/{roomId}")
-//    @ResponseStatus(HttpStatus.OK)
-//    @ResponseBody
-//    public void enterRoom(@RequestBody UserPutDTO userPutDTO, @PathVariable String roomId) {
-//        User user = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-//        Room room = roomService.findRoomById(roomId);
-//        roomService.enterRoom(room, user);
-//    }
 
     @PostMapping("/games/guard")
     @ResponseStatus(HttpStatus.OK)
