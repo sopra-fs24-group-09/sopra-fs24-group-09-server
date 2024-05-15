@@ -43,6 +43,9 @@ public class PlayerService {
 
     public Player findPlayerById(String playerId){
         if (playerRepository.findById(playerId).isPresent()){
+            if(playerRepository.findById(playerId).isEmpty()){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found");
+            }
             return playerRepository.findById(playerId).get();
         }
         else{
