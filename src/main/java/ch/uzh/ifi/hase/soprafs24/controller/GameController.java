@@ -151,10 +151,8 @@ public class GameController {
                         if (room.getRoomPlayersList().contains(user.getId())) {
                             //if the game is started and the user is entering the room
                             if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
-                                if(gameRepository.findByRoomId(room.getRoomId()).isEmpty()){
-                                    throw new Exception("Game not found");
-                                }
-                                Game game = gameRepository.findByRoomId(room.getRoomId()).get();
+
+                                Game game = gameRepository.findByRoomId(room.getRoomId()).orElseThrow(() -> new Exception("Game not found"));
                                 //if the game is in the guess round
                                 if (game.getRoundStatus().equals(RoundStatus.guess)) {
                                     if (playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()) {

@@ -108,11 +108,10 @@ public class UserService {
           "User name should not contain spaces or special characters");
     }
     // check if the password is empty
-    if (newUser.getUsername().chars().anyMatch(ch -> !Character.isLetterOrDigit(ch))) {
+    if (newUser.getPassword() == null || newUser.getPassword().isEmpty()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-          "User name should not contain special characters");
+          "Password must not be empty");
     }
-
 
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
