@@ -52,12 +52,13 @@ public class SocketService {
             @Qualifier("userRepository") UserRepository userRepository,
             @Qualifier("playerRepository") PlayerRepository playerRepository,
             @Qualifier("roomRepository") RoomRepository roomRepository,
-            @Qualifier("gameRepository") GameRepository gameRepository, RoomService roomService) {
+            @Qualifier("gameRepository") GameRepository gameRepository, RoomService roomService, ObjectMapper objectMapper) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.objectMapper = objectMapper;
     }
 
     // helper function for sending message to destination with JSON format

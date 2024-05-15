@@ -1,270 +1,744 @@
-// package ch.uzh.ifi.hase.soprafs24.controller;
-// import ch.uzh.ifi.hase.soprafs24.entity.Game;
-// import ch.uzh.ifi.hase.soprafs24.entity.Player;
-// import ch.uzh.ifi.hase.soprafs24.entity.Room;
-// import ch.uzh.ifi.hase.soprafs24.entity.User;
-// import ch.uzh.ifi.hase.soprafs24.model.AnswerGuess;
-// import ch.uzh.ifi.hase.soprafs24.model.PlayerAndRoom;
-// import ch.uzh.ifi.hase.soprafs24.model.PlayerAudio;
-// import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
-// import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
-// import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
-// import ch.uzh.ifi.hase.soprafs24.service.GameService;
-// import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
-// import ch.uzh.ifi.hase.soprafs24.service.RoomService;
-// import ch.uzh.ifi.hase.soprafs24.service.SocketService;
-// import ch.uzh.ifi.hase.soprafs24.service.UserService;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.MockitoAnnotations;
-// import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-// import java.util.HashMap;
-// import java.util.Optional;
+package ch.uzh.ifi.hase.soprafs24.controller;
+import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Game;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.entity.Room;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.model.AnswerGuess;
+import ch.uzh.ifi.hase.soprafs24.model.PlayerAndRoom;
+import ch.uzh.ifi.hase.soprafs24.model.PlayerAudio;
+import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
+import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
+import ch.uzh.ifi.hase.soprafs24.service.RoomService;
+import ch.uzh.ifi.hase.soprafs24.service.SocketService;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
-// import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.*;
 
-// class GameControllerTest {
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.*;
 
-//     @Mock
-//     private SocketService socketService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
-//     @Mock
-//     private GameService gameService;
+class GameControllerTest {
 
-//     @Mock
-//     private RoomService roomService;
+    @Mock
+    private SocketService socketService;
 
-//     @Mock
-//     private UserService userService;
+    @Mock
+    private GameService gameService;
 
-//     @Mock
-//     private PlayerService playerService;
+    @Mock
+    private RoomService roomService;
 
-//     @Mock
-//     private GameRepository gameRepository;
+    @Mock
+    private UserService userService;
 
-//     @Mock
-//     private RoomRepository roomRepository;
+    @Mock
+    private PlayerService playerService;
 
-//     @InjectMocks
-//     private GameController gameController;
+    @Mock
+    private GameRepository gameRepository;
 
-//     @BeforeEach
-//     void setUp() {
-//         MockitoAnnotations.openMocks(this);
-//     }
+    @Mock
+    private RoomRepository roomRepository;
 
-//     @Test
-//     void testReady() {
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
-//         PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class); // Mock the PlayerAndRoom object
-//         String receiptId = "receiptId";
-//         String userId = "userID";
-//         String roomId = "roomID";
+    @Mock
+    private PlayerRepository playerRepository;
+
+    @InjectMocks
+    private GameController gameController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testReady() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String userId = "userID";
+        String roomId = "roomID";
+        String token = "validToken";
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(playerAndRoom.getRoomID()).thenReturn(roomId);
+        when(userService.findByToken(token)).thenReturn(true);
+
+        gameController.ready(headerAccessor, roomId, payload);
+
+        verify(gameService).Ready(userId, roomId);
+        verify(socketService).broadcastResponse(userId, roomId, true, true, "unready " + userId, receiptId);
+        verify(socketService).broadcastPlayerInfo(roomId, receiptId);
+        verify(socketService).broadcastGameinfo(roomId, receiptId);
+    }
+
+    @Test
+    void testReadyInvalidToken() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String userId = "userID";
+        String roomId = "roomID";
+        String token = "invalidToken";
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(false);
+
+        gameController.ready(headerAccessor, roomId, payload);
+
+        verify(socketService).broadcastResponse(userId, roomId, false, false, "Invalid or expired token", receiptId);
+        verify(gameService, never()).Ready(anyString(), anyString());
+    }
+
+    @Test
+    void testReadyException() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String userId = "userID";
+        String roomId = "roomID";
+        String token = "validToken";
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
+        doThrow(new RuntimeException("Test Exception")).when(gameService).Ready(userId, roomId);
+
+        gameController.ready(headerAccessor, roomId, payload);
+
+        verify(socketService).broadcastResponse(userId, roomId, false, true, "Failed to unready: Test Exception", receiptId);
+        verify(socketService, never()).broadcastPlayerInfo(roomId, receiptId);
+        verify(socketService, never()).broadcastGameinfo(roomId, receiptId);
+    }
+
+    @Test
+    void testUnready() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String userId = "userID";
+        String roomId = "roomID";
+        String token = "validToken";
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(playerAndRoom.getRoomID()).thenReturn(roomId);
+        when(userService.findByToken(token)).thenReturn(true);
+
+        gameController.unready(headerAccessor, roomId, payload);
+
+        verify(gameService).UnReady(userId);
+        verify(socketService).broadcastResponse(userId, roomId, true, true, "unready " + userId, receiptId);
+        verify(socketService).broadcastPlayerInfo(roomId, receiptId);
+        verify(socketService).broadcastGameinfo(roomId, receiptId);
+    }
+
+    @Test
+    void testEnterRoom() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        Room room = mock(Room.class);
+        User user = mock(User.class);
+        Game game = mock(Game.class);
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
+        when(userService.findUserById(userId)).thenReturn(user);
+        when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
+        when(room.getRoomPlayersList()).thenReturn(Collections.singletonList(userId));
+        when(room.getRoomProperty()).thenReturn(RoomProperty.INGAME);
+        when(game.getRoundStatus()).thenReturn(RoundStatus.guess);
+        when(game.getCurrentSpeaker()).thenReturn(mock(Player.class));
+
+        // Call the controller method
+        gameController.enterRoom(headerAccessor, roomId, payload);
+
+        // Verify interactions
+        verify(roomService).enterRoom(room, user);
+        verify(socketService).broadcastGameinfo(roomId, receiptId);
+        verify(socketService).broadcastPlayerInfo(roomId, "enterRoom");
+        verify(socketService).broadcastLobbyInfo();
+        verify(socketService).broadcastResponse(userId, roomId, true, true, "enter room", receiptId);
+    }
+
+    @Test
+    void testEnterRoomAlreadyInRoom() {
+        // Mock necessary objects
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        Player currentSpeaker = mock(Player.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        Room room = mock(Room.class);
+        Game game = mock(Game.class);
+        User user = mock(User.class);
     
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(payload.getMessage()).thenReturn(playerAndRoom); // Ensure getMessage() does not return null
-//         when(playerAndRoom.getUserID()).thenReturn(userId); // Set up getPlayerID() to return a specific user ID
-//         when(playerAndRoom.getRoomID()).thenReturn(roomId); // Set up getRoomID() to return a specific room ID
+        // Mocking headers
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
     
-//         gameController.ready(headerAccessor, payload);
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
+        when(userService.findUserById(userId)).thenReturn(user);
+        when(user.getId()).thenReturn(userId); // Ensure user.getId() returns userId
+        when(room.getRoomPlayersList()).thenReturn(Collections.singletonList(userId)); // Ensure room contains userId
+        when(room.getRoomProperty()).thenReturn(RoomProperty.INGAME);
+        when(room.getRoomId()).thenReturn(roomId);
+        when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
+        when(game.getRoundStatus()).thenReturn(RoundStatus.guess);
+        when(game.getCurrentSpeaker()).thenReturn(currentSpeaker);
+        when(currentSpeaker.getId()).thenReturn("speakerId");
+        when(playerRepository.findById("speakerId")).thenReturn(Optional.of(currentSpeaker));
+        when(currentSpeaker.getAudioData()).thenReturn("audioData");
     
-//         verify(gameService).Ready(userId);
-//         verify(socketService).broadcastPlayerInfo(roomId, receiptId);
-//         verify(socketService).broadcastGameinfo(roomId, receiptId);
-//     }
-
-//     @Test
-//     void testUnready() {
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
-//         PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class); // Mock the PlayerAndRoom object
-//         String receiptId = "receiptId";
-//         String userId = "userID";
-//         String roomId = "roomID";
+        // Call the controller method
+        gameController.enterRoom(headerAccessor, roomId, payload);
     
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(payload.getMessage()).thenReturn(playerAndRoom); // Ensure getMessage() does not return null
-//         when(playerAndRoom.getUserID()).thenReturn(userId); // Set up getPlayerID() to return a specific user ID
-//         when(playerAndRoom.getRoomID()).thenReturn(roomId); // Set up getRoomID() to return a specific room ID
+        // Verify interactions for when user is already in the room and game is started and in guess round
+        verify(socketService,times(2)).broadcastGameinfo(roomId, receiptId);
+        verify(socketService,times(2)).broadcastPlayerInfo(roomId, "enterroom");
+        verify(socketService, times(2)).broadcastLobbyInfo(); 
+        verify(socketService).broadcastSpeakerAudio(null, "speakerId", "audioData");
+        verify(socketService).broadcastResponse(userId, roomId, true, true, "enter room", receiptId);
+    }
+
+    @Test
+    void testEnterRoomInvalidToken() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "invalidToken";
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(false);
+
+        // Call the controller method
+        gameController.enterRoom(headerAccessor, roomId, payload);
+
+        // Verify interactions
+        verify(socketService).broadcastResponse(userId, roomId, false, false, "Invalid or expired token", receiptId);
+    }
+
+    @Test
+    void testEnterRoomNotFound() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        User user = mock(User.class); // Mock User object
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.empty());
+        when(userService.findUserById(userId)).thenReturn(user); // Return a mocked user
+
+        // Call the controller method
+        gameController.enterRoom(headerAccessor, roomId, payload);
+
+        // Verify interactions
+        verify(socketService).broadcastResponse(userId, roomId, false, true, "Room not found", receiptId);
+    }
     
-//         gameController.unready(headerAccessor, payload);
-    
-//         verify(gameService).UnReady(userId);
-//         verify(socketService).broadcastPlayerInfo(roomId, receiptId);
-//         verify(socketService).broadcastGameinfo(roomId, receiptId);
-//     }
 
-//     @Test
-//     void testEnterRoom() {
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
-//         PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class); // Mock the PlayerAndRoom object
-//         String receiptId = "receiptId";
-//         String roomId = "roomID";
-//         String userId = "userID";
-//         Room room = mock(Room.class);
-//         User user = mock(User.class);
-    
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(headerAccessor.getSessionAttributes()).thenReturn(new HashMap<String, Object>() {{
-//             put("roomId", roomId);
-//         }});
-//         when(payload.getMessage()).thenReturn(playerAndRoom); // Ensure getMessage() does not return null
-//         when(playerAndRoom.getUserID()).thenReturn(userId); // Set up getPlayerID() to return a specific user ID
-//         when(roomService.findRoomById(userId,roomId)).thenReturn(room);
-//         when(userService.findUserById(userId)).thenReturn(user);
-    
-//         gameController.enterRoom(headerAccessor, payload);
-    
-//         verify(roomService).enterRoom(room, user);
-//         verify(socketService).broadcastGameinfo(roomId, receiptId);
-//         verify(socketService).broadcastPlayerInfo(roomId, "enterroom");
-//     }
+    @Test
+    void testExitRoom() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        Room room = mock(Room.class);
+        User user = mock(User.class);
 
-//     @Test
-//     void testExitRoom() {
-//         // Set up headerAccessor and payload
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
-//         PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
-//         Room room = mock(Room.class);
-//         User user = mock(User.class);
-//         String receiptId = "receiptId";
-//         String roomId = "roomId";
-//         String userId = "userId";
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
 
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(headerAccessor.getSessionAttributes()).thenReturn(new HashMap<String, Object>() {{ put("roomId", roomId); }});
-//         when(payload.getMessage()).thenReturn(playerAndRoom);
-//         when(playerAndRoom.getUserID()).thenReturn(userId);
-//         when(roomService.findRoomById(userId,roomId)).thenReturn(room);
-//         when(userService.findUserById(userId)).thenReturn(user);
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
 
-//         // Additional setup for gameRepository
-//         when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(new Game()));
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
+        when(userService.findUserById(userId)).thenReturn(user);
+        when(room.getRoomPlayersList()).thenReturn(Collections.singletonList(userId));
+        when(user.getId()).thenReturn(userId); // Ensure user.getId() returns userId
+        when(room.getRoomProperty()).thenReturn(RoomProperty.WAITING); // Room is not in game
 
-//         // Execute the test method
-//         gameController.exitRoom(headerAccessor, payload);
-        
-//         // Verify broadcast methods are called since game exists for the room
-//         verify(socketService).broadcastGameinfo(roomId, receiptId);
-//         verify(socketService).broadcastPlayerInfo(roomId, "exitroom");
-//     }
+        // Call the controller method
+        gameController.exitRoom(headerAccessor, roomId, payload);
 
+        // Verify interactions
+        verify(roomService).exitRoom(room, user);
+        verify(socketService).broadcastLobbyInfo();
+        verify(socketService).broadcastPlayerInfo(roomId, "exitroom");
+        verify(socketService).broadcastGameinfo(roomId, receiptId);
+        verify(socketService).broadcastResponse(userId, roomId, true, true, "Successfully exited room", receiptId);
+    }
 
-//     @Test
-//     void testStartGame() {
-//         // Mock the header accessor and payload
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
-//         PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+    @Test
+    void testExitRoomInvalidToken() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "invalidToken";
 
-//         // Test data
-//         String receiptId = "receiptId";
-//         String roomId = "roomID";
-//         String userId = "userID";
-//         Room room = mock(Room.class);
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
 
-//         // Setting up the mocks
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(payload.getMessage()).thenReturn(playerAndRoom);
-//         when(playerAndRoom.getRoomID()).thenReturn(roomId);
-//         when(playerAndRoom.getUserID()).thenReturn(userId);
-//         when(roomService.findRoomById(userId,roomId)).thenReturn(room);
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(false);
 
-//         // Calling the method under test
-//         gameController.startGame(headerAccessor, payload);
+        // Call the controller method
+        gameController.exitRoom(headerAccessor, roomId, payload);
 
-//         // Verifying that the correct services were called
-//         verify(roomService).findRoomById(userId,roomId);
-//         verify(gameService).checkIfAllReady(room);
-        
-//         // Verifying no more interactions
-//         verifyNoMoreInteractions(roomService);
-//         verifyNoMoreInteractions(gameService);
-//     }
+        // Verify interactions
+        verify(socketService).broadcastResponse(userId, roomId, false, false, "Invalid or expired token", receiptId);
+    }
 
-//     @Test
-//     void testSubmitAnswer() {
-//         // Mocking the header accessor and payload
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<AnswerGuess> payload = mock(TimestampedRequest.class);
-//         AnswerGuess answerGuess = mock(AnswerGuess.class);
+    @Test
+    void testExitRoomGameInProgress() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        Room room = mock(Room.class);
+        User user = mock(User.class);
 
-//         // Test data
-//         String receiptId = "receiptId";
-//         String userId = "userID";
-//         String roomId = "roomID";
-//         String guess = "guess";
-//         Game game = mock(Game.class);
-//         Player player = mock(Player.class);
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
 
-//         // Setting up mocks
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(payload.getMessage()).thenReturn(answerGuess);
-//         when(answerGuess.getUserID()).thenReturn(userId);
-//         when(answerGuess.getRoomID()).thenReturn(roomId);
-//         when(answerGuess.getGuess()).thenReturn(guess);
-//         when(gameService.findGameById(roomId)).thenReturn(game);
-//         when(playerService.findPlayerById(userId)).thenReturn(player);
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
+        when(userService.findUserById(userId)).thenReturn(user);
+        when(room.getRoomProperty()).thenReturn(RoomProperty.INGAME); // Room is in game
 
-//         // Method under test
-//         gameController.submitAnswer(headerAccessor, payload);
+        // Call the controller method
+        gameController.exitRoom(headerAccessor, roomId, payload);
 
-//         // Verifications
-//         verify(gameService).findGameById(roomId);
-//         verify(playerService).findPlayerById(userId);
-//         verify(gameService).validateAnswer(game, player, guess);
-        
-//         // Additional checks
-//         verifyNoMoreInteractions(gameService, playerService);
-//     }
+        // Verify interactions
+        verify(socketService).broadcastResponse(userId, roomId, false, true, "Failed to exit room: Cannot exit room while game is in progress", receiptId);
+    }
 
-//     @Test
-//     void testUploadAudio() {
-//         // Mocking header accessor and payload
-//         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
-//         @SuppressWarnings("unchecked")
-//         TimestampedRequest<PlayerAudio> payload = mock(TimestampedRequest.class);
-//         PlayerAudio playerAudio = mock(PlayerAudio.class);
+    @Test
+    void testExitRoomNotFound() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        User user = mock(User.class);
 
-//         // Define test data
-//         String receiptId = "receiptId";
-//         String userId = "userID";
-//         String roomId = "roomID";
-//         String audioData = "audioData";
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
 
-//         // Set up mock behaviors
-//         when(headerAccessor.getHeader("receipt")).thenReturn(receiptId);
-//         when(headerAccessor.getSessionAttributes()).thenReturn(new HashMap<String, Object>() {{
-//             put("roomId", roomId);
-//         }});
-//         when(payload.getMessage()).thenReturn(playerAudio);
-//         when(playerAudio.getUserID()).thenReturn(userId);
-//         when(playerAudio.getAudioData()).thenReturn(audioData);
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.empty());
+        when(userService.findUserById(userId)).thenReturn(user);
 
-//         // Method under test
-//         gameController.uploadAudio(headerAccessor, payload);
+        // Call the controller method
+        gameController.exitRoom(headerAccessor, roomId, payload);
 
-//         // Verify the interactions
-//         verify(headerAccessor).getSessionAttributes();
-//         verify(gameService).setPlayerAudio(roomId, userId, audioData);
-
-//         // Ensure no unnecessary interactions
-//         verifyNoMoreInteractions(gameService);
-//     }
+        // Verify interactions
+        verify(socketService).broadcastResponse(userId, roomId, false, true, "Failed to exit room: Room not found", receiptId);
+    }
 
 
+    @Test
+    void testStartGame_withValidTokenAndRoom() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "valid-token";
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userID);
+
+        Room room = new Room();
+        room.setRoomId(roomID);
+
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomID)).thenReturn(Optional.of(room));
+
+        gameController.startGame(headerAccessor, roomID, payload);
+
+        verify(gameService, times(1)).checkIfAllReady(room);
+        verify(gameService, times(1)).startGame(room);
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, true, true, "Game started successfully", receiptID);
+    }
+
+    @Test
+    void testSubmitAnswer_withValidToken() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "valid-token";
+        String guess = "validGuess";
+        AnswerGuess answerGuess = mock(AnswerGuess.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<AnswerGuess> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(answerGuess);
+        when(answerGuess.getUserID()).thenReturn(userID);
+        when(answerGuess.getGuess()).thenReturn(guess);
+
+        Game game = new Game();
+        Player player = new Player();
+
+        when(userService.findByToken(token)).thenReturn(true);
+        when(gameService.findGameById(roomID)).thenReturn(game);
+        when(playerService.findPlayerById(userID)).thenReturn(player);
+
+        gameController.submitAnswer(headerAccessor, roomID, payload);
+
+        verify(gameService, times(1)).validateAnswer(game, player, guess.replaceAll("[^a-zA-Z0-9]", ""));
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, true, true, "Answer submitted successfully", receiptID);
+    }
+
+    @Test
+    void testSubmitAnswer_withInvalidToken() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "invalid-token";
+        String guess = "validGuess";
+        AnswerGuess answerGuess = mock(AnswerGuess.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<AnswerGuess> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(answerGuess);
+        when(answerGuess.getUserID()).thenReturn(userID);
+        when(answerGuess.getGuess()).thenReturn(guess);
+
+        when(userService.findByToken(token)).thenReturn(false);
+
+        gameController.submitAnswer(headerAccessor, roomID, payload);
+
+        verify(gameService, never()).validateAnswer(any(), any(), any());
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, false, false, "Invalid or expired token", receiptID);
+    }
+
+    @Test
+    void testSubmitAnswer_gameNotFound() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "valid-token";
+        String guess = "validGuess";
+        AnswerGuess answerGuess = mock(AnswerGuess.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<AnswerGuess> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(answerGuess);
+        when(answerGuess.getUserID()).thenReturn(userID);
+        when(answerGuess.getGuess()).thenReturn(guess);
+
+        when(userService.findByToken(token)).thenReturn(true);
+        when(gameService.findGameById(roomID)).thenThrow(new RuntimeException("Game not found"));
+
+        gameController.submitAnswer(headerAccessor, roomID, payload);
+
+        verify(gameService, never()).validateAnswer(any(), any(), any());
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, false, true, "Failed to validate answer: Game not found", receiptID);
+    }
+
+    @Test
+    void testSubmitAnswer_withException() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "valid-token";
+        String guess = "validGuess";
+        AnswerGuess answerGuess = mock(AnswerGuess.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<AnswerGuess> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(answerGuess);
+        when(answerGuess.getUserID()).thenReturn(userID);
+        when(answerGuess.getGuess()).thenReturn(guess);
+
+        Game game = new Game();
+        Player player = new Player();
+
+        when(userService.findByToken(token)).thenReturn(true);
+        when(gameService.findGameById(roomID)).thenReturn(game);
+        when(playerService.findPlayerById(userID)).thenReturn(player);
+        doThrow(new RuntimeException("Test exception")).when(gameService).validateAnswer(game, player, guess.replaceAll("[^a-zA-Z0-9]", ""));
+
+        gameController.submitAnswer(headerAccessor, roomID, payload);
+
+        verify(gameService, times(1)).validateAnswer(game, player, guess.replaceAll("[^a-zA-Z0-9]", ""));
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, false, true, "Failed to validate answer: Test exception", receiptID);
+    }
 
 
-// }
+    @Test
+    void testUploadAudio_withValidToken() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "valid-token";
+        String voice = "audioData";
+        PlayerAudio playerAudio = mock(PlayerAudio.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAudio> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAudio);
+        when(playerAudio.getUserID()).thenReturn(userID);
+        when(playerAudio.getAudioData()).thenReturn(voice);
+
+        when(userService.findByToken(token)).thenReturn(true);
+
+        gameController.uploadAudio(headerAccessor, roomID, payload);
+
+        verify(gameService, times(1)).setPlayerAudio(roomID, userID, voice);
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, true, true, "Audio uploaded successfully", receiptID);
+    }
+
+    @Test
+    void testUploadAudio_withInvalidToken() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "invalid-token";
+        String voice = "audioData";
+        PlayerAudio playerAudio = mock(PlayerAudio.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAudio> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAudio);
+        when(playerAudio.getUserID()).thenReturn(userID);
+        when(playerAudio.getAudioData()).thenReturn(voice);
+
+        when(userService.findByToken(token)).thenReturn(false);
+
+        gameController.uploadAudio(headerAccessor, roomID, payload);
+
+        verify(gameService, never()).setPlayerAudio(anyString(), anyString(), anyString());
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, false, false, "Invalid or expired token", receiptID);
+    }
+
+    @Test
+    void testUploadAudio_withException() {
+        String roomID = "room1";
+        String userID = "user1";
+        String receiptID = "receipt1";
+        String token = "valid-token";
+        String voice = "audioData";
+        PlayerAudio playerAudio = mock(PlayerAudio.class);
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAudio> payload = mock(TimestampedRequest.class);
+
+        // Setting up nativeHeaders
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", Collections.singletonList(receiptID));
+        nativeHeaders.put("token", Collections.singletonList(token));
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAudio);
+        when(playerAudio.getUserID()).thenReturn(userID);
+        when(playerAudio.getAudioData()).thenReturn(voice);
+
+        when(userService.findByToken(token)).thenReturn(true);
+        doThrow(new RuntimeException("Test exception")).when(gameService).setPlayerAudio(roomID, userID, voice);
+
+        gameController.uploadAudio(headerAccessor, roomID, payload);
+
+        verify(gameService, times(1)).setPlayerAudio(roomID, userID, voice);
+        verify(socketService, times(1)).broadcastResponse(userID, roomID, false, true, "Failed to upload audio: Test exception", receiptID);
+    }
+
+
+    @Test
+    void testResponse() {
+        // Set up the payload
+        String payload = "Test payload";
+
+        // Capture System.out output
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        // Call the controller method
+        gameController.response(payload);
+
+        // Verify the output
+        assertEquals("Test payload\n", outContent.toString());
+    }
+
+    @Test
+    void testNotifyLobbyInfo() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+
+        // Capture System.out output
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        // Call the controller method
+        gameController.notifyLobbyInfo(headerAccessor);
+
+        // Verify the output
+        assertEquals("receive the lobby request!\n", outContent.toString());
+
+        // Verify interactions
+        verify(socketService, times(1)).broadcastLobbyInfo();
+    }
+
+}
