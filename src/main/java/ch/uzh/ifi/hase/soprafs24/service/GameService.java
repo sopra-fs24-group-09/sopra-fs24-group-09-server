@@ -50,19 +50,28 @@ public class GameService {
 
     public void executeWithTimeout(Runnable task, long timeout, TimeUnit unit) {
         Future<?> future = executor.submit(task);
-
+    
         executor.schedule(() -> {
             if (!future.isDone()) {
                 future.cancel(true);
             }
         }, timeout, unit);
-
+    
         try {
-            this.latch.await(timeout, unit);
+            boolean completed = this.latch.await(timeout, unit);
+            if (!completed) {
+                // Handle the case where the wait timed out
+                System.out.println("Task timed out");
+            } else {
+                // Handle the case where the wait completed
+                System.out.println("Task completed successfully");
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
+            // Handle the case where the wait was interrupted
+            System.out.println("Task interrupted");
         }
-    }
+        }
 
     public GameService(@Qualifier("playerRepository") PlayerRepository playerRepository,
             @Qualifier("userRepository") UserRepository userRepository,
@@ -157,6 +166,9 @@ public class GameService {
 
         while (game.getCurrentRoundNum() < game.getRoomPlayersList().size()) {
             String currentId = game.getRoomPlayersList().get(game.getCurrentRoundNum());
+            if(playerRepository.findById(currentId).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player currentSpeaker = playerRepository.findById(currentId).get();
             currentSpeaker.setIfGuessed(false);
             playerRepository.save(currentSpeaker);
@@ -237,10 +249,17 @@ public class GameService {
         }
         System.out.println("End speak"+ LocalDateTime.now());
         // Broadcast the audio to all players
+        if(playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()){
+            throw new RuntimeException("Player not found");
+        }
         String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
         
         // Guess - if no audio uploaded, jump to next round
         if (voice != null &&  voice.length() != 0) {
+
+            if(playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player currentSpeaker = playerRepository.findById(game.getCurrentSpeaker().getId()).get();
             currentSpeaker.setRoundFinished(true);
             playerRepository.save(currentSpeaker);
@@ -264,6 +283,9 @@ public class GameService {
 
         } else {
             // if the speaker does not upload the audio, he will get -4 points and marked this word as No Speak
+            if(playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player speaker = playerRepository.findById(game.getCurrentSpeaker().getId()).get();
             speaker.setSpeakScore(speaker.getSpeakScore() - 4);
             playerRepository.save(speaker);
@@ -280,8 +302,14 @@ public class GameService {
     }
 
     public void calculateScore(Game game_old) {
+        if(gameRepository.findByRoomId(game_old.getRoomId()).isEmpty()){
+            throw new RuntimeException("Game not found");
+        }
         Game game = gameRepository.findByRoomId(game_old.getRoomId()).get();
         for (String playerId : game.getRoomPlayersList()) {
+            if(playerRepository.findById(playerId).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player player = playerRepository.findById(playerId).get();
             // Speaker or Guesser
             if (!player.getId().equals(game.getCurrentSpeaker().getId())) {
@@ -300,6 +328,9 @@ public class GameService {
             }
             else {
                 // Speaker gets 2 points for each guesser
+                if(gameRepository.findByRoomId(game.getRoomId()).isEmpty()){
+                    throw new RuntimeException("Game not found");
+                }
                 Integer scoreList = gameRepository.findByRoomId(game.getRoomId()).get().getAnsweredPlayerList().size();
                 Integer score = 2*scoreList;
 
@@ -314,6 +345,9 @@ public class GameService {
 
     public void jumpToNextRound(Game game) {
         for (String playerId : game.getRoomPlayersList()) {
+            if(playerRepository.findById(playerId).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player player = playerRepository.findById(playerId).get();
             player.setAudioData("");
             player.setRoundFinished(false);
@@ -358,10 +392,16 @@ public class GameService {
     public void endGame(Game game) {
 
         for (String playerId : game.getRoomPlayersList()) {
+            if(playerRepository.findById(playerId).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player player = playerRepository.findById(playerId).get();
             playerRepository.delete(player);
         }
         for (String userId : game.getRoomPlayersList()) {
+            if (userRepository.findById(userId).isEmpty()){
+                throw new RuntimeException("User not found");
+            }
             User user = userRepository.findById(userId).get();
             user.setPlayerStatus(PlayerStatus.UNREADY);
             user.setInRoomId(null);
@@ -371,6 +411,9 @@ public class GameService {
         gameRepository.delete(game);
 
         System.out.println("Game ended");
+        if(roomRepository.findById(game.getRoomId()).isEmpty()){
+            throw new RuntimeException("Room not found");
+        }
         roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
         socketService.broadcastLobbyInfo();
     }
@@ -408,6 +451,9 @@ public class GameService {
 
     public Game findGameById(String roomId) {
         if (gameRepository.findById(roomId).isPresent()) {
+            if(gameRepository.findById(roomId).isEmpty()){
+                throw new RuntimeException("Game not found");
+            }
             return gameRepository.findById(roomId).get();
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found");
@@ -420,8 +466,14 @@ public class GameService {
 
         List<Player> playerlist = new ArrayList<>();
         for (String id : game.getRoomPlayersList()) {
+            if(playerRepository.findById(id).isEmpty()){
+                throw new RuntimeException("Player not found");
+            }
             Player player = playerRepository.findById(id).get();
             playerlist.add(player);
+        }
+        if(playerRepository.findById(playerId).isEmpty()){
+            throw new RuntimeException("Player not found");
         }
         Player player = playerRepository.findById(playerId).get();
         boolean isPlayerInList = playerlist.stream().anyMatch(p -> p.getId().equals(player.getId()));
