@@ -90,6 +90,33 @@ public class UserServiceTest {
    }
 
    @Test
+   public void createUser_Space_include() {
+       User testUser = new User();
+       testUser.setUsername("test Username");
+       testUser.setPassword("testPassword");
+
+       assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+   }
+
+   @Test
+    public void createUser_Username_null() {
+         User testUser = new User();
+         testUser.setUsername(null);
+         testUser.setPassword("testPassword");
+    
+         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+    }
+
+    @Test
+    public void createUser_Password_null() {
+         User testUser = new User();
+         testUser.setUsername("testUsername");
+         testUser.setPassword(null);
+    
+         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+    }
+
+   @Test
    public void getUserById_validInput_success() {
        // Mock the userRepository to return the testUser object
        given(userRepository.findById(Mockito.any())).willReturn(java.util.Optional.ofNullable(testUser));
