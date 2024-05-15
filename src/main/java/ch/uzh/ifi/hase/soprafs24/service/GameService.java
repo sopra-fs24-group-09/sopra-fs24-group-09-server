@@ -67,7 +67,7 @@ public class GameService {
                 System.out.println("Task completed successfully");
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             // Handle the case where the wait was interrupted
             System.out.println("Task interrupted");
         }
