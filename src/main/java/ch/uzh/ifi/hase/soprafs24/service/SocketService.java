@@ -83,8 +83,8 @@ public class SocketService {
         // Optional<Game> optionalGame = gameRepository.findByRoomId(roomId);
         // Game game = optionalGame.orElseThrow(() ->
         // new IllegalStateException("No game found with room ID: " + roomId));
-        if(gameRepository.findByRoomId(roomId).isEmpty()){
-            throw new IllegalStateException("No game found with room ID in broadcastgameinfo: " + roomId);
+        if(roomRepository.findByRoomId(roomId).isEmpty()){
+            throw new IllegalStateException("No room found with room ID in broadcastgameinfo: " + roomId);
         }
         Room room = roomRepository.findByRoomId(roomId).get();
         if(userRepository.findById(room.getRoomOwnerId()).isEmpty()){
@@ -158,9 +158,9 @@ public class SocketService {
                 }
                 // After game starts
                 else {
-                    if(playerRepository.findById(id).isEmpty()){
-                        throw new IllegalStateException("No player found with id in broadcastplayerinfo: " + id);
-                    }
+                    // if(playerRepository.findById(id).isEmpty()){
+                    //     throw new IllegalStateException("No player found with id in broadcastplayerinfo: " + id);
+                    // }
                     Player player = playerRepository.findById(id).get();
                     List<Map<String, Object>> scoreDetails = player.getScoreDetails();
                     scoreMap.put("total", player.getTotalScore());

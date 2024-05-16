@@ -137,15 +137,9 @@ public class GameService {
         game.setGameStatus(GameStatus.ingame);
         gameRepository.save(game);
         List<String> words;
-
-        try {
-            // Attempt to retrieve words related to the game's theme from the API
-            words = getWords(game.getTheme().toString());
-            Collections.shuffle(words); // Shuffle the words to ensure random assignment
-        } catch (IOException e) {
-            System.err.println("Failed to retrieve words: " + e.getMessage());
-            return; // Exit the method if words cannot be retrieved
-        }
+        // Assign a word to each player according to their index in the player list to
+        words = room.getRoomWordsList();
+        Collections.shuffle(words);
 
         for (String id : game.getRoomPlayersList()) {
             User user = userService.findUserById(id);
@@ -204,32 +198,6 @@ public class GameService {
         if (gameRepository.findByRoomId(game.getRoomId()).isPresent()){
             endGame(game);
         }
-    }
-
-    public List<String> getWords(String theme) throws IOException {
-        List<String> words = new ArrayList<>();
-        String apiUrl = "https://api.datamuse.com/words?ml=" + theme;
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try (InputStream inputStream = connection.getInputStream()) {
-                JsonNode jsonNode = objectMapper.readTree(inputStream);
-                for (JsonNode wordNode : jsonNode) {
-                    String word = wordNode.get("word").asText();
-                    // only add words that contain only letters and no numbers or special characters
-                    if (Pattern.matches("^[a-zA-Z]+$", word)) {
-                        words.add(word);
-                    }
-                }
-            } catch (JsonProcessingException e) {
-                throw new IOException("Failed to parse JSON", e);
-            }
-        }
-        return words;
     }
 
     public void proceedTurn(Game game) {

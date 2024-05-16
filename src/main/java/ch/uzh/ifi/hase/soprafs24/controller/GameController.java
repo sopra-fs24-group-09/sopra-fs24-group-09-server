@@ -148,32 +148,30 @@ public class GameController {
                     Room room = roomRepository.findByRoomId(roomId).get();
                     User user = userService.findUserById(userID);
                     //if the user is already in the room
-                        if (room.getRoomPlayersList().contains(user.getId())) {
-                            //if the game is started and the user is entering the room
-                            if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
-                                if(gameRepository.findByRoomId(room.getRoomId()).isEmpty()){
-                                    throw new Exception("Game not found");
-                                }
-                                Game game = gameRepository.findByRoomId(room.getRoomId()).get();
-                                //if the game is in the guess round
-                                if (game.getRoundStatus().equals(RoundStatus.guess)) {
-                                    if (playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()) {
-                                        throw new Exception("Cannot find player");
-                                    }
-                                    String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
-                                    socketService.broadcastGameinfo(roomId, receiptID);
-                                    socketService.broadcastPlayerInfo(roomId, "enterroom");
-                                    socketService.broadcastLobbyInfo();
-                                    socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
-                                }
-                            }
-                            //if the game is not started and the user is entering the room
-                            socketService.broadcastGameinfo(roomId, receiptID);
-                            socketService.broadcastPlayerInfo(roomId, "enterroom");
-                            socketService.broadcastLobbyInfo();
-                            socketService.broadcastResponse(userID, roomId, true, true, "enter room", receiptID);
+                    if (room.getRoomPlayersList().contains(user.getId())) {
+                        //if the game is started and the user is entering the room
+                        if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
 
+                            Game game = gameRepository.findByRoomId(room.getRoomId()).orElseThrow(() -> new Exception("Game not found"));
+                            //if the game is in the guess round
+                            if (game.getRoundStatus().equals(RoundStatus.guess)) {
+                                if (playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()) {
+                                    throw new Exception("Cannot find player");
+                                }
+                                String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
+                                socketService.broadcastGameinfo(roomId, receiptID);
+                                socketService.broadcastPlayerInfo(roomId, "enterroom");
+                                socketService.broadcastLobbyInfo();
+                                socketService.broadcastSpeakerAudio(game.getRoomId(), game.getCurrentSpeaker().getId(), voice);
+                            }
                         }
+                        //if the game is not started and the user is entering the room
+                        socketService.broadcastGameinfo(roomId, receiptID);
+                        socketService.broadcastPlayerInfo(roomId, "enterroom");
+                        socketService.broadcastLobbyInfo();
+                        socketService.broadcastResponse(userID, roomId, true, true, "enter room", receiptID);
+
+                    }
                     //if the user is not in the room
                     else {
                         System.out.println("User " + user.getUsername() + " is entering room " + room.getRoomId());
@@ -243,9 +241,6 @@ public class GameController {
                         socketService.broadcastResponse(userID, roomID, false,true, "Failed to exit room", receiptID);
                     }
                 }
-                else {
-                    throw new Exception("Room not found");}
-                
             }
         } catch (Exception e) {
             // Log error or handle exception
@@ -286,10 +281,17 @@ public class GameController {
                     if (roomRepository.findByRoomId(roomID).isEmpty()) {
                         throw new Exception("Room not found");
                     }
+
                     Room room = roomRepository.findByRoomId(roomID).get();
-                    gameService.checkIfAllReady(room);  // Checks if all players in the room are ready
-                    socketService.broadcastResponse(userID, roomID, true,true, "Game started successfully", receiptID);
-                    gameService.startGame(room);  // Starts the game
+                    if (room.getRoomWordsList() == null || room.getRoomWordsList().size() == 0) {
+                        throw new Exception("Room does not have enough words to start game");
+                    }
+                    else {
+                        gameService.checkIfAllReady(room);  // Checks if all players in the room are ready
+                        socketService.broadcastResponse(userID, roomID, true, true, "Game started successfully", receiptID);
+                        gameService.startGame(room);  // Starts the game
+                        // Send success response back to user
+                    }
                     // Send success response back to user
                 }
             }

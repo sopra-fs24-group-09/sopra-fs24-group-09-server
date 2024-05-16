@@ -37,8 +37,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Prepare app.yaml
+      - name: Prepare app.yaml MONGODB_PASSWORD
         run: sed -i "s/PLACEHOLDER/${{ secrets.MONGODB_PASSWORD }}/g" app.yaml
+
+      - name: Prepare app.yaml API_KEY
+        run: sed -i "s/PLACEHOLDER/${{ secrets.API_KEY }}/g" app.yaml
 
       - name: Deploy to App Engine
         id: deploy
