@@ -22,9 +22,17 @@ public class Room implements Serializable {
     private String roomOwnerId;
     private RoomProperty roomProperty;
     private List<String> roomPlayersList = new ArrayList<>();
+    private List<String> roomWordsList = new ArrayList<>();
 
+    public List<String> getRoomWordsList() {
+        return roomWordsList;
+    }
 
-//    private int currentPlayerIndex = 0; // index inside
+    public void setRoomWordsList(List<String> roomWordsList) {
+        this.roomWordsList = roomWordsList;
+    }
+
+    //    private int currentPlayerIndex = 0; // index inside
 
     public String getRoomOwnerId() {
         return roomOwnerId;

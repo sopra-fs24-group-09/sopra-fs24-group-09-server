@@ -6,6 +6,9 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,7 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User Service
@@ -78,22 +88,120 @@ public class RoomService {
             newRoom.setMaxPlayersNum(newRoom.getMaxPlayersNum());
             newRoom.setRoomOwnerId(newRoom.getRoomOwnerId());
             newRoom.setRoomProperty(RoomProperty.WAITING);
-            // newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
+            newRoom.addRoomPlayerList(newRoom.getRoomOwnerId());
             newRoom.setRoomPlayersList(newRoom.getRoomPlayersList());
 
+            final String theme = newRoom.getTheme().toString();
+            // Async fetch words for the theme while creating the room
+            CompletableFuture<List<String>> wordsFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return getWords(theme);
+                } catch (IOException e) {
+                    System.err.println("Error while getting words: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
+            });
+
+            // Save the room to enter but loading words before start
             newRoom = roomRepository.save(newRoom);
-            if(userRepository.findById(newRoom.getRoomOwnerId()).isEmpty()){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room owner not found");
-            }
-            User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).get();
+
+            User roomOwner = userRepository.findById(newRoom.getRoomOwnerId()).orElseThrow(() -> new RuntimeException("User not found"));
             roomOwner.setPlayerStatus(PlayerStatus.READY);
             roomOwner.setInRoomId(newRoom.getRoomId());
             userRepository.save(roomOwner);
+
+            String roomId = newRoom.getRoomId();
+            wordsFuture.thenAccept(wordsList -> {
+                Optional<Room> optionalRoom = roomRepository.findByRoomId(roomId);
+                if (optionalRoom.isPresent()) {
+                    Room roomToUpdate = optionalRoom.get();
+                    roomToUpdate.setRoomWordsList(wordsList);
+                    roomRepository.save(roomToUpdate);
+                } else {
+                    System.err.println("Room not found for id: " + roomId);
+                }
+            });
+
             log.debug("Created Information for Room: {}", newRoom);
             return newRoom;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Something unexpected went wrong when creating a game", e);
         }
+    }
+
+    public List<String> getWords(String theme) throws IOException {
+        List<String> words = new ArrayList<>();
+        String apiUrl = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
+        String apiKey = System.getenv("API_KEY");
+
+        // Build request with glm-4 model and a message asking for a list of words with the given theme
+        String requestBody = "{\n" +
+                "    \"model\": \"glm-4\",\n" +
+                "    \"messages\": [\n" +
+                "        {\n" +
+                "            \"role\": \"user\",\n" +
+                "            \"content\": \"Generate a JSON list of words with the theme '" + theme + "' and ensure each word has no more than three syllables in the following format: {\\\"words\\\": [\\\"word1\\\", \\\"word2\\\", \\\"word3\\\", ...]}\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+
+        // Connection
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", "Bearer " + apiKey);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        // Send request
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = requestBody.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        // Get response
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                // Resolve JSON response
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonResponse = objectMapper.readTree(response.toString());
+                JsonNode wordsNode = jsonResponse.path("choices").get(0).path("message").path("content");
+
+                // Extract JSON from message content
+                String messageContent = wordsNode.asText();
+                Pattern pattern = Pattern.compile("\\{\\s*\"words\"\\s*:\\s*\\[[^\\]]*\\]\\s*\\}");
+                Matcher matcher = pattern.matcher(messageContent);
+                if (matcher.find()) {
+                    String jsonString = matcher.group();
+
+                    // Wordlist
+                    JsonNode wordsList = objectMapper.readTree(jsonString).path("words");
+
+                    for (JsonNode wordNode : wordsList) {
+                        String word = wordNode.asText();
+                        if (Pattern.matches("^[a-zA-Z]+$", word)) {
+                            words.add(word);
+                        }
+                    }
+                } else {
+                    throw new IOException("Failed to extract JSON from message content");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new IOException("Failed to parse JSON response", e);
+            }
+        } else {
+            throw new IOException("HTTP response code: " + responseCode);
+        }
+
+        return words;
     }
 
     // public Room findRoomById(String userId, String roomId){
