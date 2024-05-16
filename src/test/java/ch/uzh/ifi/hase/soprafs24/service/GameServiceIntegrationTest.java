@@ -178,7 +178,7 @@ public class GameServiceIntegrationTest {
         game.setCurrentSpeaker(p1);
     
         // Mock external method calls
-        when(gameService.getWords(anyString())).thenReturn(Arrays.asList("word1", "word2", "word3"));
+//        when(gameService.getWords(anyString())).thenReturn(Arrays.asList("word1", "word2", "word3"));
         when(userService.findUserById("player1")).thenReturn(player1);
         when(userService.findUserById("player2")).thenReturn(player2);
         when(userService.findUserById("player3")).thenReturn(player3);
