@@ -124,9 +124,11 @@ public class GameController {
 
         // Print the log
         long timestamp = payload.getTimestamp();
-        Room room_print = roomRepository.findByRoomId(roomId).get();
+        // Room room_print = roomRepository.findByRoomId(roomId).get();
         User user_print = userService.findUserById(userID);
-        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "enterroom:"  );
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
+
 
 
         // Try to extract receiptId from nativeHeaders
@@ -152,6 +154,10 @@ public class GameController {
                     //if the user is already in the room
                     Room room = roomRepository.findByRoomId(roomId).get();
                     User user = userService.findUserById(userID);
+
+                    // Print the log
+                    System.out.println(timeDifferenceInSeconds+ ":["+room.getRoomName() + "]"+ user_print.getUsername() + "enterroom:"  );
+
                     //if the user is already in the room
                     if (room.getRoomPlayersList().contains(user.getId())) {
                         //if the game is started and the user is entering the room
@@ -214,9 +220,10 @@ public class GameController {
 
         // Print the log
         long timestamp = payload.getTimestamp();
-        Room room_print = roomRepository.findByRoomId(roomID).get();
         User user_print = userService.findUserById(userID);
-        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "enterroom:"  );
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
+
 
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
@@ -235,7 +242,10 @@ public class GameController {
             else {
                 if (roomRepository.findByRoomId(roomID).isPresent()) {
                     Room room = roomRepository.findByRoomId(roomID).orElseThrow(() -> new Exception("Game not found"));
+
                     User user = userService.findUserById(userID);
+                    System.out.println(timeDifferenceInSeconds+ ":["+room.getRoomName() + "]"+ user_print.getUsername() + "exitroom:"  );
+                    
                     if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
                         throw new Exception("Cannot exit room while game is in progress");
                     }
@@ -276,7 +286,9 @@ public class GameController {
         long timestamp = payload.getTimestamp();
         Room room_print = roomRepository.findByRoomId(roomID).get();
         User user_print = userService.findUserById(userID);
-        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "Startgame"  );
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
+        System.out.println(timeDifferenceInSeconds+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "startgame:"  );
 
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
@@ -334,7 +346,9 @@ public class GameController {
         long timestamp = payload.getTimestamp();
         Room room_print = roomRepository.findByRoomId(roomID).get();
         User user_print = userService.findUserById(userID);
-        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "validate:" + guess  );
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
+        System.out.println(timeDifferenceInSeconds+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "validate:" + guess  );
         
         // Remove special characters and space from guess
         guess = guess.replaceAll("[^a-zA-Z0-9]", "");
@@ -377,7 +391,9 @@ public class GameController {
         long timestamp = payload.getTimestamp();
         Room room_print = roomRepository.findByRoomId(roomId).get();
         User user_print = userService.findUserById(userId);
-        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "uploadAudio" + voice.length());
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
+        System.out.println(timeDifferenceInSeconds+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "uploadAudio" + voice.length()  );
 
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
