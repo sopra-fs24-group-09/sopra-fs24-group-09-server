@@ -62,7 +62,7 @@ public class GameController {
         if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
             receiptId = nativeHeaders.get("receiptId").get(0);
             token = nativeHeaders.get("token").get(0);
-            System.out.println("Receipt ID found for roomId: " + roomId);
+            // System.out.println("Receipt ID found for roomId: " + roomId);
         }
 
         try {
@@ -122,6 +122,13 @@ public class GameController {
         String token = null;
         String userID = payload.getMessage().getUserID();
 
+        // Print the log
+        long timestamp = payload.getTimestamp();
+        Room room_print = roomRepository.findByRoomId(roomId).get();
+        User user_print = userService.findUserById(userID);
+        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "enterroom:"  );
+
+
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
@@ -130,6 +137,7 @@ public class GameController {
             token = nativeHeaders.get("token").get(0);
         }
 
+
         try {
             if (token == null || !userService.findByToken(token)) {
                 // Token is invalid or expired, send a response with auth set to false
@@ -137,19 +145,20 @@ public class GameController {
                 return; // Stop further processing
             }
             else {
-                if (userService.findUserById(userID).getInRoomId() != null && !roomRepository.findByRoomId(userService.findUserById(userID).getInRoomId()).isPresent()) {
+                if (userService.findUserById(userID).getInRoomId() != null && (!roomRepository.findByRoomId(userService.findUserById(userID).getInRoomId()).isPresent())) {
                     userService.findUserById(userID).setInRoomId(null);
-                }
+                }              
                 if (roomRepository.findByRoomId(roomId).isPresent()) {
                     //if the user is already in the room
-                    if(roomRepository.findByRoomId(roomId).isEmpty()){
-                        throw new Exception("Room not found");
-                    }
                     Room room = roomRepository.findByRoomId(roomId).get();
                     User user = userService.findUserById(userID);
                     //if the user is already in the room
                     if (room.getRoomPlayersList().contains(user.getId())) {
                         //if the game is started and the user is entering the room
+                        if(room.getRoomProperty().equals(RoomProperty.GAMEOVER)){
+                            userService.findUserById(userID).setInRoomId(null);
+                            throw new Exception("Game is over");
+                        }
                         if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
 
                             Game game = gameRepository.findByRoomId(room.getRoomId()).orElseThrow(() -> new Exception("Game not found"));
@@ -203,6 +212,12 @@ public class GameController {
         String token = null;
         String userID = payload.getMessage().getUserID();
 
+        // Print the log
+        long timestamp = payload.getTimestamp();
+        Room room_print = roomRepository.findByRoomId(roomID).get();
+        User user_print = userService.findUserById(userID);
+        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "enterroom:"  );
+
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
@@ -219,10 +234,7 @@ public class GameController {
             }
             else {
                 if (roomRepository.findByRoomId(roomID).isPresent()) {
-                    if (roomRepository.findByRoomId(roomID).isEmpty()) {
-                        throw new Exception("Room not found");
-                    }
-                    Room room = roomRepository.findByRoomId(roomID).get();
+                    Room room = roomRepository.findByRoomId(roomID).orElseThrow(() -> new Exception("Game not found"));
                     User user = userService.findUserById(userID);
                     if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
                         throw new Exception("Cannot exit room while game is in progress");
@@ -259,6 +271,13 @@ public class GameController {
         String token = null;
         String userID = payload.getMessage().getUserID();
 
+
+        // Print the log
+        long timestamp = payload.getTimestamp();
+        Room room_print = roomRepository.findByRoomId(roomID).get();
+        User user_print = userService.findUserById(userID);
+        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "Startgame"  );
+
         // Try to extract receiptId from nativeHeaders
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
@@ -284,7 +303,7 @@ public class GameController {
 
                     Room room = roomRepository.findByRoomId(roomID).get();
                     if (room.getRoomWordsList() == null || room.getRoomWordsList().size() == 0) {
-                        throw new Exception("Room does not have enough words to start game");
+                        throw new Exception("Bigmodel is generating words, please wait a moment");
                     }
                     else {
                         gameService.checkIfAllReady(room);  // Checks if all players in the room are ready
@@ -309,6 +328,13 @@ public class GameController {
         String userID = payload.getMessage().getUserID();
         String token = null;
         String guess = payload.getMessage().getGuess();
+
+
+        // Print the log
+        long timestamp = payload.getTimestamp();
+        Room room_print = roomRepository.findByRoomId(roomID).get();
+        User user_print = userService.findUserById(userID);
+        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "validate:" + guess  );
         
         // Remove special characters and space from guess
         guess = guess.replaceAll("[^a-zA-Z0-9]", "");
@@ -346,7 +372,12 @@ public class GameController {
         String token = null;
         String userId = payload.getMessage().getUserID();
         String voice = payload.getMessage().getAudioData();
-        System.out.println("user upload voice:"+ voice );
+
+        // Print the log
+        long timestamp = payload.getTimestamp();
+        Room room_print = roomRepository.findByRoomId(roomId).get();
+        User user_print = userService.findUserById(userId);
+        System.out.println(timestamp+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "uploadAudio" + voice.length());
 
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
@@ -382,7 +413,7 @@ public class GameController {
     @MessageMapping("/message/lobby/info")
     public void notifyLobbyInfo(SimpMessageHeaderAccessor headerAccessor) {
         // String receipId = (String) headerAccessor.getHeader("receipt");
-        System.out.println("receive the lobby request!");
+        // System.out.println("receive the lobby request!");
         socketService.broadcastLobbyInfo();
     }
 
