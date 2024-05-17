@@ -312,7 +312,7 @@ public class GameController {
         
         // Remove special characters and space from guess
         guess = guess.replaceAll("[^a-zA-Z0-9]", "");
-    
+        System.out.println("user upload guess:"+ guess );
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
         if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
@@ -346,6 +346,7 @@ public class GameController {
         String token = null;
         String userId = payload.getMessage().getUserID();
         String voice = payload.getMessage().getAudioData();
+        System.out.println("user upload voice:"+ voice );
 
         @SuppressWarnings("unchecked")
         Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
