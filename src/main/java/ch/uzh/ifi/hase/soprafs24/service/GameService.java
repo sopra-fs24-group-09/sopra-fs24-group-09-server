@@ -122,7 +122,7 @@ public class GameService {
         }
     }
 
-    @Async
+    @Async("taskExecutor")
     public void startGame(Room room) {
         // Initialize a new game object and player objects, then save them to the
         // database
