@@ -282,11 +282,11 @@ public class RoomService {
                 newOwner.setPlayerStatus(PlayerStatus.READY);
                 userRepository.save(newOwner);
             }
-            if (playerRepository.findById(user.getId()).isPresent()){
-                playerRepository.delete(playerRepository.findById(user.getId()).get());
-            }
             room.getRoomPlayersList().remove(user.getId());
             roomRepository.save(room);
+        }
+        if (playerRepository.findById(user.getId()).isPresent()){
+            playerRepository.delete(playerRepository.findById(user.getId()).get());
         }
         user.setPlayerStatus(PlayerStatus.UNREADY);
         user.setInRoomId(null);
