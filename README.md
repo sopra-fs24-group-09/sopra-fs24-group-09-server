@@ -1,5 +1,5 @@
 
-<h1 align="center">SoPra FS23 - Drawing & Guessing</h1>
+<h1 align="center">SoPra FS24 - KAEPS</h1>
 <h2 align="center"> :pencil: Introduction</h2>
 "'KAEPS' is a web-based multiplayer game that engages players with a unique auditory challenge. Players take turns retrieving random words or phrases from an API, recording them, and then having the system invert the audio. Guessers must attempt their mimicry and decipher the original word from the second-reversed playback, with the system checking their submitted answer. To realize this game, two core concepts are using a word-distributed API to give a random word and utilizing the Web Audio API to enhance the web apps' capability to process real-time audio efficiently. 'KAEPS' is ideal for web deployment due to its straightforward interface, ease of access without complex installations, and the flexibility to support cross-platform access, showcasing the suitability of web technologies for interactive and engaging online games
 <h3 align="center">:round_pushpin: Goal</h3>
@@ -66,7 +66,7 @@ The following extensions can help you get started more easily:
 -   `vscjava.vscode-spring-boot-dashboard`
 -   `vscjava.vscode-java-pack`
 
-**Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs23` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
+**Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs24` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
 
 ### Building with Gradle
 You can use the local Gradle Wrapper to build the application.
