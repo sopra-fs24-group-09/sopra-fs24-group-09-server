@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -40,11 +41,13 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    private final PlayerRepository playerRepository;
 
-    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository) {
+    public RoomService(@Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("playerRepository") PlayerRepository playerRepository) {
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
+        this.playerRepository = playerRepository;
     }
 
     public List<Room> getRooms() {
@@ -243,6 +246,10 @@ public class RoomService {
             user.setPlayerStatus(PlayerStatus.UNREADY);
             user.setInRoomId(room.getRoomId());
         }
+        else{
+            user.setPlayerStatus(PlayerStatus.READY);
+            user.setInRoomId(room.getRoomId());
+        }
         room.addRoomPlayerList(user.getId());
         System.out.println("Roomplayerslist now is:"+room.getRoomPlayersList());
         userRepository.save(user);
@@ -274,6 +281,9 @@ public class RoomService {
                 User newOwner = userRepository.findById(room.getRoomPlayersList().get(1)).get();
                 newOwner.setPlayerStatus(PlayerStatus.READY);
                 userRepository.save(newOwner);
+            }
+            if (playerRepository.findById(user.getId()).isPresent()){
+                playerRepository.delete(playerRepository.findById(user.getId()).get());
             }
             room.getRoomPlayersList().remove(user.getId());
             roomRepository.save(room);
