@@ -29,6 +29,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -121,6 +122,7 @@ public class GameService {
         }
     }
 
+    @Async
     public void startGame(Room room) {
         // Initialize a new game object and player objects, then save them to the
         // database
