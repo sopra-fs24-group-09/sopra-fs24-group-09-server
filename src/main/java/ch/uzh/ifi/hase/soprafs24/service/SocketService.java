@@ -25,6 +25,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,6 +63,7 @@ public class SocketService {
     }
 
     // helper function for sending message to destination with JSON format
+    @Async("webSocketTaskExecutor")
     public <T> void sendMessage(String destination, String roomId, T info, String receiptId) {
         try {
             // Wrapping the info object within Timestamped
@@ -228,6 +230,7 @@ public class SocketService {
         sendMessage("/lobby/info", null, lobbyInfo, null);
     }
 
+    @Async("webSocketTaskExecutor")
     public void broadcastResponse(String userId, String roomId,boolean isSuccess, boolean isAuth, String response, String receiptId) {
         Response responseObj = new Response();
         responseObj.setSuccess(isSuccess);
