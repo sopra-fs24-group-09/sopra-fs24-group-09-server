@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -37,6 +38,8 @@ public class RoomServiceTest {
     private GameRepository gameRepository;
     @Mock
     private GameService gameService;
+    @Mock
+    private PlayerRepository playerRepository;
 
     @InjectMocks
     private RoomService roomService;
@@ -45,7 +48,7 @@ public class RoomServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        roomService = new RoomService(roomRepository, userRepository, gameRepository);
+        roomService = new RoomService(roomRepository, userRepository, gameRepository, playerRepository);
     }
 
     @Test
