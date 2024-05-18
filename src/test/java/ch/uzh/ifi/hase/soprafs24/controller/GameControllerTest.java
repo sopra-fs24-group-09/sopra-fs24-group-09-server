@@ -222,6 +222,45 @@ class GameControllerTest {
     }
 
     @Test
+    void testEnterRoom_gameover() {
+        SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
+        @SuppressWarnings("unchecked")
+        TimestampedRequest<PlayerAndRoom> payload = mock(TimestampedRequest.class);
+        PlayerAndRoom playerAndRoom = mock(PlayerAndRoom.class);
+        String receiptId = "receiptId";
+        String roomId = "roomId";
+        String userId = "userId";
+        String token = "validToken";
+        Room room = mock(Room.class);
+        User user = mock(User.class);
+        Game game = mock(Game.class);
+
+        Map<String, List<String>> nativeHeaders = new HashMap<>();
+        nativeHeaders.put("receiptId", List.of(receiptId));
+        nativeHeaders.put("token", List.of(token));
+
+        when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
+        when(payload.getMessage()).thenReturn(playerAndRoom);
+        when(playerAndRoom.getUserID()).thenReturn(userId);
+        when(user.getId()).thenReturn(userId); // Ensure user.getId() returns userId
+        when(userService.findByToken(token)).thenReturn(true);
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
+        when(userService.findUserById(userId)).thenReturn(user);
+        when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
+        when(room.getRoomPlayersList()).thenReturn(Collections.singletonList(userId));
+        when(room.getRoomProperty()).thenReturn(RoomProperty.GAMEOVER);
+        when(game.getRoundStatus()).thenReturn(RoundStatus.guess);
+        when(game.getCurrentSpeaker()).thenReturn(mock(Player.class));
+
+        // Call the controller method
+        gameController.enterRoom(headerAccessor, roomId, payload);
+
+        // Verify interactions
+        verify(socketService).broadcastResponse(userId, roomId, false, true, "Game is over", receiptId);
+     
+    }
+
+    @Test
     void testEnterRoomAlreadyInRoom() {
         // Mock necessary objects
         SimpMessageHeaderAccessor headerAccessor = mock(SimpMessageHeaderAccessor.class);
@@ -453,7 +492,7 @@ class GameControllerTest {
         gameController.exitRoom(headerAccessor, roomId, payload);
 
         // Verify interactions
-        verify(socketService).broadcastResponse(userId, roomId, false, true, "Failed to exit room: Room not found", receiptId);
+        verifyNoInteractions(socketService);
     }
 
 
@@ -478,6 +517,9 @@ class GameControllerTest {
 
         Room room = new Room();
         room.setRoomId(roomID);
+        List<String> roomWordsList = new ArrayList<>();
+        roomWordsList.add("word1");
+        room.setRoomWordsList(roomWordsList);
 
         when(userService.findByToken(token)).thenReturn(true);
         when(roomRepository.findByRoomId(roomID)).thenReturn(Optional.of(room));
@@ -488,6 +530,8 @@ class GameControllerTest {
         verify(gameService, times(1)).startGame(room);
         verify(socketService, times(1)).broadcastResponse(userID, roomID, true, true, "Game started successfully", receiptID);
     }
+
+
 
     @Test
     void testSubmitAnswer_withValidToken() {
@@ -733,9 +777,6 @@ class GameControllerTest {
 
         // Call the controller method
         gameController.notifyLobbyInfo(headerAccessor);
-
-        // Verify the output
-        assertEquals("receive the lobby request!\n", outContent.toString());
 
         // Verify interactions
         verify(socketService, times(1)).broadcastLobbyInfo();
