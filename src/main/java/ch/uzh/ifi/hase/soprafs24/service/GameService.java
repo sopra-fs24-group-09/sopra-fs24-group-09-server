@@ -331,9 +331,9 @@ public class GameService {
     }
 
     public void endGame(Game game) {
-        for (String userId : game.getRoomPlayersList()) {
+        for (String userId : roomRepository.findByRoomId(game.getRoomId()).get().getRoomPlayersList()) {
             User user = userRepository.findById(userId).get();
-            if (user.getInRoomId() == game.getRoomId()) {
+            if (user.getInRoomId().equals(game.getRoomId())) {
                 if (playerRepository.findById(userId).isPresent()) {
                     Player player = playerRepository.findById(userId).get();
                     playerRepository.delete(player);
