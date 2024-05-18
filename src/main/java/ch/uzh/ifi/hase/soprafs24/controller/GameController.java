@@ -170,9 +170,6 @@ public class GameController {
                             Game game = gameRepository.findByRoomId(room.getRoomId()).get();
                             //if the game is in the guess round
                             if (game.getRoundStatus().equals(RoundStatus.guess)) {
-                                if (playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()) {
-                                    throw new Exception("Cannot find player");
-                                }
                                 String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
                                 socketService.broadcastGameinfo(roomId, receiptID);
                                 socketService.broadcastPlayerInfo(roomId, "enterroom");

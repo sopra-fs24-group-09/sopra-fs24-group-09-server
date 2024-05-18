@@ -8,7 +8,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -283,18 +282,12 @@ public class RoomService {
             if (gameRepository.findByRoomId(room.getRoomId()).isPresent()) {
                 System.out.println(room.getRoomId());
                 System.out.println(gameRepository.findByRoomId(room.getRoomId()).isPresent());
-                if (gameRepository.findByRoomId(room.getRoomId()).isEmpty()) {
-                    throw new RuntimeException("Game not found");
-                }
                 gameRepository.delete(gameRepository.findByRoomId(room.getRoomId()).get());
             }
             roomRepository.delete(room);
         } else {
             if (room.getRoomOwnerId().equals(user.getId()) && room.getRoomPlayersList().size() > 1) {
                 room.setRoomOwnerId(room.getRoomPlayersList().get(1));
-                if (userRepository.findById(room.getRoomPlayersList().get(1)).isEmpty()) {
-                    throw new RuntimeException("New room owner not found");
-                }
                 User newOwner = userRepository.findById(room.getRoomPlayersList().get(1)).get();
                 newOwner.setPlayerStatus(PlayerStatus.READY);
                 userRepository.save(newOwner);
