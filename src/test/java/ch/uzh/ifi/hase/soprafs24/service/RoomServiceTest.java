@@ -10,17 +10,18 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.RoomProperty;
+import ch.uzh.ifi.hase.soprafs24.constant.Theme;
 import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -58,6 +59,7 @@ public class RoomServiceTest {
         newRoom.setRoomOwnerId("ownerId");
         newRoom.setRoomName("roomName");
         newRoom.setMaxPlayersNum(3);
+        newRoom.setTheme(Theme.FOOD);
 
         when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
         when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
@@ -95,6 +97,36 @@ public class RoomServiceTest {
     }
 
     @Test
+    void createRoom_Emptyname(){
+        Room newRoom = new Room();
+        newRoom.setRoomId("roomId");
+        newRoom.setRoomOwnerId("ownerId");
+        newRoom.setRoomName("");
+        newRoom.setMaxPlayersNum(3);
+
+        when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
+        when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
+        when(roomRepository.save(any(Room.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        assertThrows(ResponseStatusException.class, () -> roomService.createRoom(newRoom));
+    }
+
+    @Test
+    void createRoom_Special_charactor(){
+        Room newRoom = new Room();
+        newRoom.setRoomId("roomId");
+        newRoom.setRoomOwnerId("ownerId");
+        newRoom.setRoomName("%^&^****");
+        newRoom.setMaxPlayersNum(3);
+
+        when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
+        when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
+        when(roomRepository.save(any(Room.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        assertThrows(ResponseStatusException.class, () -> roomService.createRoom(newRoom));
+    }
+
+    @Test
     void enterRoom_RoomIsFull_ThrowsException() {
         Room room = new Room();
         room.setMaxPlayersNum(1);
@@ -103,8 +135,8 @@ public class RoomServiceTest {
         User user = new User();
         user.setId("newUserId");
 
-        // assertThrows(ResponseStatusException.class, () -> roomService.enterRoom(room, user),
-        //         "Should throw if the room is full.");
+        assertThrows(RuntimeException.class, () -> roomService.enterRoom(room, user),
+                "Should throw if the room is full.");
     }
 
     @Test
@@ -218,5 +250,19 @@ public class RoomServiceTest {
         assertEquals("newOwner", room.getRoomOwnerId());
         verify(roomRepository).save(room);
     }
+
+    @Test
+    void getWords_ValidTheme_ReturnsListOfWords() {
+        String theme = "FOOD";
+        try {
+            List<String> words = roomService.getWords(theme);
+            assertNotNull(words);
+            assertFalse(words.isEmpty());
+        } catch (IOException e) {
+            fail("IOException occurred: " + e.getMessage());
+        }
+    }
+
+    
 
 }

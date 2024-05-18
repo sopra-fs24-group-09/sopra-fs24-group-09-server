@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,8 +65,7 @@ public class GameServiceTest {
         gameService = Mockito.spy(new GameService(playerRepository, userRepository, gameRepository, userService, socketService, roomRepository));
     }
 
-
-
+  
     @Test
     public void speakPhase_shouldSetupAndBroadcastSpeakInfo() {
         Game game = new Game();
@@ -457,6 +455,7 @@ public class GameServiceTest {
         room.setRoomId("1");
         room.setTheme(Theme.FOOD);
         room.setRoomPlayersList(Arrays.asList("player1", "player2", "player3"));
+        room.setRoomWordsList(Arrays.asList("word1", "word2", "word3"));
     
         Game game = new Game(room);
         game.setGameStatus(GameStatus.ingame);

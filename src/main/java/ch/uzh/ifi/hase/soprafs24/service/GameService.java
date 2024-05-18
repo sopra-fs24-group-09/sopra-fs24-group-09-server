@@ -1,8 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,9 +13,6 @@ import ch.uzh.ifi.hase.soprafs24.constant.RoundStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
@@ -33,7 +27,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.regex.Pattern;
 
 @Service
 @Transactional
@@ -218,10 +211,7 @@ public class GameService {
             throw new RuntimeException(e);
         }
         System.out.println("End speak"+ LocalDateTime.now());
-        // Broadcast the audio to all players
-        if(playerRepository.findById(game.getCurrentSpeaker().getId()).isEmpty()){
-            throw new RuntimeException("Player not found");
-        }
+
         String voice = playerRepository.findById(game.getCurrentSpeaker().getId()).get().getAudioData();
         
         // Guess - if no audio uploaded, jump to next round
