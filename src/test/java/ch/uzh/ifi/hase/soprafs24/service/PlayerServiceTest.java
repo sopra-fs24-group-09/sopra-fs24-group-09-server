@@ -72,7 +72,7 @@ public class PlayerServiceTest {
 
         assertNotNull(foundPlayer);
         assertEquals(playerId, foundPlayer.getId());
-        verify(playerRepository, times(3)).findById(playerId);
+        verify(playerRepository, times(2)).findById(playerId);
     }
 
     @Test

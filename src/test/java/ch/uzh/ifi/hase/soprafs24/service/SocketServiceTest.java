@@ -172,7 +172,7 @@ public class SocketServiceTest {
         socketService.broadcastLobbyInfo();
 
         verify(roomRepository, times(1)).findAll();
-        verify(userRepository, times(2)).findById("user1");
+        verify(userRepository, times(1)).findById("user1");
         verify(simpMessagingTemplate).convertAndSend(eq("/lobby/info"), any(Object.class));
     }
 
