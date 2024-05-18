@@ -38,7 +38,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             UserLoginToken userLoginToken = method.getAnnotation(UserLoginToken.class);
             if (userLoginToken.required()) {
                 // peform simple token based authentication
-                // 只检查token不为null且不为空的情况
                 if (token == null) {
                     String tokenNullMessage = "Please log in with correct credentials. Not AUTHORIZED.";
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format(tokenNullMessage));

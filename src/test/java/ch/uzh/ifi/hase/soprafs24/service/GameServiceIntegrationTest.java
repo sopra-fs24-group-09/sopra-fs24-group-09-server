@@ -21,7 +21,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
@@ -161,6 +160,7 @@ public class GameServiceIntegrationTest {
         Game game = new Game(room);
         game.setGameStatus(GameStatus.ingame);
         game.setRoomPlayersList(Arrays.asList("player1", "player2", "player3"));
+        room.setRoomWordsList(Arrays.asList("word1", "word2", "word3"));
 
     
         User player1 = new User();
@@ -176,6 +176,7 @@ public class GameServiceIntegrationTest {
         Player p3 = new Player(player3);
 
         game.setCurrentSpeaker(p1);
+
     
         // Mock external method calls
 //        when(gameService.getWords(anyString())).thenReturn(Arrays.asList("word1", "word2", "word3"));
