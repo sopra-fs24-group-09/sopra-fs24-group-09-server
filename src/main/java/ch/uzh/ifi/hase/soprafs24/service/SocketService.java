@@ -37,9 +37,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class SocketService {
 
     @Autowired
-    private SimpMessagingTemplate template;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -227,7 +224,7 @@ public class SocketService {
             // e.printStackTrace();
             responseObj.setSuccess(false);
         }
-        template.convertAndSendToUser(userId, "/response/" + roomId, jsonMessage);
+        simpMessagingTemplate.convertAndSendToUser(userId, "/response/" + roomId, jsonMessage);
     }
 
 }

@@ -36,17 +36,6 @@ public class RoomPostDTO {
         this.roomOwner = roomOwner;
     }
 
-    /*public ArrayList<User> getRoomPlayers() {
-        return roomPlayers;
-    }*/
-
-    /*public void setRoomPlayers(ArrayList<User> roomPlayers) {
-        this.roomPlayers = roomPlayers;
-    }*/
-
-    //private ArrayList<User> roomPlayers;
-
-
     public String getRoomOwnerId() {
         return roomOwnerId;
     }
