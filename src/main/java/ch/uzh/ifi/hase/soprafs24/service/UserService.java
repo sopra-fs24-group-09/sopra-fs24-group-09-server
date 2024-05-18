@@ -159,9 +159,6 @@ public class UserService {
   }
 
   User checkIfPasswordWrong(User userToBeLoggedIn) {
-    if(userRepository.findByUsername(userToBeLoggedIn.getUsername()).isEmpty()){
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Username not exist!");
-    }
     User userByUsername = userRepository.findByUsername(userToBeLoggedIn.getUsername()).get();
 
     if (userByUsername == null) {
@@ -197,9 +194,6 @@ public class UserService {
   public User userProfileById(String id) {
     Optional<User> userByUserid = userRepository.findById(id);
     if (userByUserid.isPresent()) {
-      if (userByUserid.isEmpty()) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-      }
       return userByUserid.get();
     } else {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with this ID:" + id + " not found!");
@@ -228,9 +222,6 @@ public class UserService {
 
   public User findUserById(String userId) {
     if (userRepository.findById(userId).isPresent()) {
-      if(userRepository.findById(userId).isEmpty()){
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-      }
       return userRepository.findById(userId).get();
     } else {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
