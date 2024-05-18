@@ -168,6 +168,7 @@ public class GameController {
                             if (playerRepository.findById(user.getId()).isPresent()) {
                                 playerRepository.deleteById(user.getId());
                             }
+                            socketService.broadcastPlayerInfo(roomId, "enterroom");
                             throw new Exception("Game is over");
                         }
                         if (room.getRoomProperty().equals(RoomProperty.INGAME)) {
