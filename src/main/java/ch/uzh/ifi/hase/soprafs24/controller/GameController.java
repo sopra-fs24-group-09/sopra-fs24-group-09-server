@@ -48,22 +48,26 @@ public class GameController {
         this.roomRepository = roomRepository;
     }
 
+    private Map<String, String> extractHeaders(SimpMessageHeaderAccessor headerAccessor) {
+        String receiptId = null;
+        String token = null;
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
+        if (nativeHeaders != null) {
+            receiptId = nativeHeaders.containsKey("receiptId") ? nativeHeaders.get("receiptId").get(0) : null;
+            token = nativeHeaders.containsKey("token") ? nativeHeaders.get("token").get(0) : null;
+        }
+        return Map.of("receiptId", receiptId, "token", token);
+    }
+
     //set ready
     @UserLoginToken
     @MessageMapping("/message/users/ready/{roomId}")
     public void ready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receiptId = null; // Initialize receiptId
-        String token = null;
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptId = headers.get("receiptId");
+        String token = headers.get("token");
         String userID = payload.getMessage().getUserID();
-
-        // Try to extract receiptId from nativeHeaders
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptId = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-            // System.out.println("Receipt ID found for roomId: " + roomId);
-        }
 
         try {
             if (token == null || !userService.findByToken(token)) {
@@ -85,17 +89,12 @@ public class GameController {
     @UserLoginToken
     @MessageMapping("/message/users/unready/{roomId}")
     public void unready(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receiptId = null; // Initialize receiptId
-        String token = null;
+
         String userID = payload.getMessage().getUserID();
     
-        // Try to extract receiptId from nativeHeaders
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptId = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-        }
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptId = headers.get("receiptId");
+        String token = headers.get("token");
     
         try {
             if (token == null || !userService.findByToken(token)) {
@@ -118,8 +117,7 @@ public class GameController {
     @UserLoginToken
     @MessageMapping("/message/users/enterroom/{roomId}")
     public void enterRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receiptID = null; // Initialize receiptId
-        String token = null;
+
         String userID = payload.getMessage().getUserID();
 
         // Print the log
@@ -129,15 +127,9 @@ public class GameController {
         long currentTimeMillis = System.currentTimeMillis();
         long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
 
-
-
-        // Try to extract receiptId from nativeHeaders
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptID = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-        }
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptID = headers.get("receiptId");
+        String token = headers.get("token");
 
 
         try {
@@ -210,8 +202,7 @@ public class GameController {
     @UserLoginToken
     @MessageMapping("/message/users/exitroom/{roomId}")
     public void exitRoom(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomID, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receiptID = null; // Initialize receiptId
-        String token = null;
+
         String userID = payload.getMessage().getUserID();
 
         // Print the log
@@ -222,12 +213,9 @@ public class GameController {
 
 
         // Try to extract receiptId from nativeHeaders
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptID = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-        }
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptID = headers.get("receiptId");
+        String token = headers.get("token");
 
         try {
             if (token == null || !userService.findByToken(token)) {
@@ -273,8 +261,7 @@ public class GameController {
     @UserLoginToken
     @MessageMapping("/message/games/start/{roomId}")
     public void startGame(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomID, @Payload TimestampedRequest<PlayerAndRoom> payload) {
-        String receiptID = null; // Initialize receiptId
-        String token = null;
+
         String userID = payload.getMessage().getUserID();
 
 
@@ -287,12 +274,9 @@ public class GameController {
         // System.out.println(timeDifferenceInSeconds+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "startgame:"  );
 
         // Try to extract receiptId from nativeHeaders
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptID = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-        }
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptID = headers.get("receiptId");
+        String token = headers.get("token");
 
         try {
             if (token == null || !userService.findByToken(token)) {
@@ -333,9 +317,8 @@ public class GameController {
     @UserLoginToken
     @MessageMapping("/message/games/validate/{roomId}")
     public void submitAnswer(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomID, @Payload TimestampedRequest<AnswerGuess> payload) {
-        String receiptID = null;
+
         String userID = payload.getMessage().getUserID();
-        String token = null;
         String guess = payload.getMessage().getGuess();
 
 
@@ -348,14 +331,9 @@ public class GameController {
         // System.out.println(timeDifferenceInSeconds+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "validate:" + guess  );
         
         // Remove special characters and space from guess
-        guess = guess.replaceAll("[^a-zA-Z0-9]", "");
-        System.out.println("user upload guess:"+ guess );
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptID = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-        }
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptID = headers.get("receiptId");
+        String token = headers.get("token");
     
         try {
             if (token == null || !userService.findByToken(token)) {
@@ -379,8 +357,6 @@ public class GameController {
     @UserLoginToken
     @MessageMapping("/message/games/audio/upload/{roomId}")
     public void uploadAudio(SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("roomId") String roomId, @Payload TimestampedRequest<PlayerAudio> payload) {
-        String receiptId = null;
-        String token = null;
         String userId = payload.getMessage().getUserID();
         String voice = payload.getMessage().getAudioData();
 
@@ -392,12 +368,9 @@ public class GameController {
         // long timeDifferenceInSeconds = (currentTimeMillis - timestamp) / 1000;
         // System.out.println(timeDifferenceInSeconds+ ":["+room_print.getRoomName() + "]"+ user_print.getUsername() + "uploadAudio" + voice.length()  );
 
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> nativeHeaders = (Map<String, List<String>>) headerAccessor.getHeader("nativeHeaders");
-        if (nativeHeaders != null && nativeHeaders.containsKey("receiptId")) {
-            receiptId = nativeHeaders.get("receiptId").get(0);
-            token = nativeHeaders.get("token").get(0);
-        }
+        Map<String, String> headers = extractHeaders(headerAccessor);
+        String receiptId = headers.get("receiptId");
+        String token = headers.get("token");
 
         try {
             if (token == null || !userService.findByToken(token)) {
