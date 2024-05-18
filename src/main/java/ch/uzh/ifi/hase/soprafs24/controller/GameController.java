@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -35,8 +36,9 @@ public class GameController {
     private GameRepository gameRepository;
     private PlayerRepository playerRepository;
     private RoomRepository roomRepository;
+    private UserRepository userRepository;
 
-    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("roomRepository") RoomRepository roomRepository){
+    public GameController(RoomService roomService, SocketService socketService, UserService userService, PlayerService playerService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate, @Qualifier("gameRepository") GameRepository gameRepository, @Qualifier("playerRepository") PlayerRepository playerRepository, @Qualifier("roomRepository") RoomRepository roomRepository, @Qualifier("userRepository") UserRepository userRepository){
         this.socketService = socketService;
         this.gameService=gameService;
         this.roomService = roomService;
@@ -46,6 +48,7 @@ public class GameController {
         this.playerRepository = playerRepository;
         this.playerRepository = playerRepository;
         this.roomRepository = roomRepository;
+        this.userRepository = userRepository;
     }
 
     private Map<String, String> extractHeaders(SimpMessageHeaderAccessor headerAccessor) {
@@ -141,7 +144,8 @@ public class GameController {
             else {
                 if (userService.findUserById(userID).getInRoomId() != null && (!roomRepository.findByRoomId(userService.findUserById(userID).getInRoomId()).isPresent())) {
                     userService.findUserById(userID).setInRoomId(null);
-                }              
+                    userRepository.save(userService.findUserById(userID));
+                }
                 if (roomRepository.findByRoomId(roomId).isPresent()) {
                     //if the user is already in the room
                     Room room = roomRepository.findByRoomId(roomId).get();
@@ -154,7 +158,11 @@ public class GameController {
                     if (room.getRoomPlayersList().contains(user.getId())) {
                         //if the game is started and the user is entering the room
                         if(room.getRoomProperty().equals(RoomProperty.GAMEOVER)){
-                            userService.findUserById(userID).setInRoomId(null);
+//                            User userForbidden = userRepository.findById(userID).get();
+//                            userForbidden.setInRoomId(null);
+//                            userRepository.save(userForbidden);
+                            room.getRoomPlayersList().remove(user.getId());
+                            roomRepository.save(room);
                             throw new Exception("Game is over");
                         }
                         if (room.getRoomProperty().equals(RoomProperty.INGAME)) {

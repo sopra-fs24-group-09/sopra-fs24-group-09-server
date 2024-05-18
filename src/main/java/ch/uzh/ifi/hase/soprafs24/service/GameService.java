@@ -333,8 +333,10 @@ public class GameService {
     public void endGame(Game game) {
 
         for (String playerId : game.getRoomPlayersList()) {
-            Player player = playerRepository.findById(playerId).get();
-            playerRepository.delete(player);
+            if (playerRepository.findById(playerId).isPresent()){
+                Player player = playerRepository.findById(playerId).get();
+                playerRepository.delete(player);
+            }
         }
         for (String userId : game.getRoomPlayersList()) {
             User user = userRepository.findById(userId).get();
@@ -346,8 +348,10 @@ public class GameService {
         gameRepository.delete(game);
 
         System.out.println("Game ended");
-        roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
-        socketService.broadcastLobbyInfo();
+        if (roomRepository.findByRoomId(game.getRoomId()).isPresent()){
+            roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
+            socketService.broadcastLobbyInfo();
+        }
     }
 
     public void validateAnswer(Game game, Player player, String guess) {
