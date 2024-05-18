@@ -14,6 +14,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Room;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.model.Response;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
@@ -29,6 +30,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SocketServiceTest {
@@ -78,6 +81,34 @@ public class SocketServiceTest {
         when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
         when(room.getRoomOwnerId()).thenReturn("ownerId");
         when(room.getRoomProperty()).thenReturn(RoomProperty.INGAME);
+
+        socketService.broadcastGameinfo(roomId, receiptId);
+
+        verify(simpMessagingTemplate).convertAndSend(eq("/games/info/" + roomId), any(Object.class));
+    }
+
+    @Test
+    public void broadcastGameinfo_waiting() {
+        String roomId = "roomId1";
+        String receiptId = "receipt1";
+        Room room = mock(Room.class);
+        User roomOwner = new User();
+        roomOwner.setId("ownerId");
+        roomOwner.setUsername("ownerUsername");
+        roomOwner.setAvatar("ownerAvatar.jpg");
+
+        Game game = new Game();
+        game.setCurrentAnswer("answer");
+        game.setRoundStatus(RoundStatus.guess);
+        game.setRoundDue("2024-01-01T00:00:00Z");
+        game.setCurrentRoundNum(1);
+        room.setRoomProperty(RoomProperty.WAITING);
+
+        when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
+        when(userRepository.findById("ownerId")).thenReturn(Optional.of(roomOwner));
+        when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
+        when(room.getRoomOwnerId()).thenReturn("ownerId");
+        when(room.getRoomProperty()).thenReturn(RoomProperty.WAITING);
 
         socketService.broadcastGameinfo(roomId, receiptId);
 
@@ -177,5 +208,28 @@ public class SocketServiceTest {
     }
 
 
-
+    @Test
+    void broadcastResponse_SendsCorrectResponse() throws JsonProcessingException {
+        String userId = "userId1";
+        String roomId = "roomId1";
+        boolean isSuccess = true;
+        boolean isAuth = true;
+        String response = "Success";
+        String receiptId = "receipt1";
+    
+        Response expectedResponse = new Response();
+        expectedResponse.setSuccess(isSuccess);
+        expectedResponse.setAuth(isAuth);
+        expectedResponse.setreceiptId(receiptId);
+        expectedResponse.setMessage(response);
+        String expectedJsonMessage = null;
+        
+        // Mock the ObjectMapper to return the expected JSON
+        when(objectMapper.writeValueAsString(expectedResponse)).thenReturn(expectedJsonMessage);
+    
+        socketService.broadcastResponse(userId, roomId, isSuccess, isAuth, response, receiptId);
+    
+        // Verify if the sendMessage method is called correctly
+        verify(simpMessagingTemplate).convertAndSendToUser(eq(userId), eq("/response/roomId1"), eq(expectedJsonMessage));
+    }
 }

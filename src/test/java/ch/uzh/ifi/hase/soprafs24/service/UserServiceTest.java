@@ -9,11 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
 
@@ -275,5 +279,60 @@ public class UserServiceTest {
        Mockito.verify(userRepository).save(existingUser);
        assertEquals("newAvatar.jpg", existingUser.getAvatar(), "Avatar should be updated");
    }
+
+    @Test
+    void findUserById_UserExists_ReturnsUser() {
+        String userId = "userId1";
+        User expectedUser = new User();
+        expectedUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
+
+        User actualUser = userService.findUserById(userId);
+
+        assertNotNull(actualUser);
+        assertEquals(expectedUser, actualUser);
+        verify(userRepository, times(2)).findById(userId);
+    }
+
+    @Test
+    void findUserById_UserDoesNotExist_ThrowsException() {
+        String userId = "userId1";
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.findUserById(userId));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("User not found", exception.getReason());
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    void findByToken_TokenExists_ReturnsTrue() {
+        String token = "validToken";
+        User expectedUser = new User();
+        expectedUser.setToken(token);
+
+        when(userRepository.findByToken(token)).thenReturn(expectedUser);
+
+        boolean exists = userService.findByToken(token);
+
+        assertTrue(exists);
+        verify(userRepository, times(1)).findByToken(token);
+    }
+
+    @Test
+    void findByToken_TokenDoesNotExist_ReturnsFalse() {
+        String token = "invalidToken";
+
+        when(userRepository.findByToken(token)).thenReturn(null);
+
+        boolean exists = userService.findByToken(token);
+
+        assertFalse(exists);
+        verify(userRepository, times(1)).findByToken(token);
+    }
+
 
 }
