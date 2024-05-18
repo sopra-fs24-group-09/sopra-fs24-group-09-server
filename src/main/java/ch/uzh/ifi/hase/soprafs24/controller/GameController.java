@@ -158,9 +158,9 @@ public class GameController {
                     if (room.getRoomPlayersList().contains(user.getId())) {
                         //if the game is started and the user is entering the room
                         if(room.getRoomProperty().equals(RoomProperty.GAMEOVER)){
-//                            User userForbidden = userRepository.findById(userID).get();
-//                            userForbidden.setInRoomId(null);
-//                            userRepository.save(userForbidden);
+                            User userForbidden = userRepository.findById(userID).get();
+                            userForbidden.setInRoomId(null);
+                            userRepository.save(userForbidden);
                             room.getRoomPlayersList().remove(user.getId());
                             roomRepository.save(room);
                             throw new Exception("Game is over");
