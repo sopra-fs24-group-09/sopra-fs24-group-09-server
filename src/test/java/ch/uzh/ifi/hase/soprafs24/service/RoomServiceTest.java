@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -97,6 +98,20 @@ public class RoomServiceTest {
     }
 
     @Test
+    void createRoom_UnvalidnumberPlayer() {
+        Room newRoom = new Room();
+        newRoom.setRoomId("roomId");
+        newRoom.setRoomOwnerId("ownerId");
+        newRoom.setRoomName("room Name");
+        newRoom.setMaxPlayersNum(100);
+
+        when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
+        when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
+        when(roomRepository.save(any(Room.class))).thenAnswer(i -> i.getArguments()[0]);
+        assertThrows(ResponseStatusException.class, () -> roomService.createRoom(newRoom));
+    }
+
+    @Test
     void createRoom_Emptyname(){
         Room newRoom = new Room();
         newRoom.setRoomId("roomId");
@@ -118,6 +133,39 @@ public class RoomServiceTest {
         newRoom.setRoomOwnerId("ownerId");
         newRoom.setRoomName("%^&^****");
         newRoom.setMaxPlayersNum(3);
+
+        when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
+        when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
+        when(roomRepository.save(any(Room.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        assertThrows(ResponseStatusException.class, () -> roomService.createRoom(newRoom));
+    }
+
+
+    @Test
+    void createRoom_UnexpectedException_ThrowsException() {
+        Room newRoom = new Room();
+        newRoom.setRoomId("roomId");
+        newRoom.setRoomOwnerId("ownerId");
+        newRoom.setRoomName("roomName");
+        newRoom.setMaxPlayersNum(3);
+        newRoom.setTheme(Theme.FOOD);
+
+        when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
+        when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
+        when(roomRepository.save(any(Room.class))).thenThrow(new RuntimeException("Unexpected exception"));
+
+        assertThrows(ResponseStatusException.class, () -> roomService.createRoom(newRoom));
+    }
+
+    @Test
+    void createRoom_EmptyTheme_ThrowsException() {
+        Room newRoom = new Room();
+        newRoom.setRoomId("roomId");
+        newRoom.setRoomOwnerId("ownerId");
+        newRoom.setRoomName("roomName");
+        newRoom.setMaxPlayersNum(3);
+        newRoom.setTheme(null);
 
         when(roomRepository.findByRoomId("roomId")).thenReturn(Optional.empty());
         when(userRepository.findById("ownerId")).thenReturn(Optional.of(new User()));
