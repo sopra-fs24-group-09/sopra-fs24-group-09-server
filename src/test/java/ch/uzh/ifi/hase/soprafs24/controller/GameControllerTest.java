@@ -12,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs24.model.TimestampedRequest;
 import ch.uzh.ifi.hase.soprafs24.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.RoomRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.RoomService;
@@ -59,6 +60,8 @@ class GameControllerTest {
 
     @Mock
     private PlayerRepository playerRepository;
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private GameController gameController;
@@ -251,7 +254,7 @@ class GameControllerTest {
         when(room.getRoomProperty()).thenReturn(RoomProperty.GAMEOVER);
         when(game.getRoundStatus()).thenReturn(RoundStatus.guess);
         when(game.getCurrentSpeaker()).thenReturn(mock(Player.class));
-
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         // Call the controller method
         gameController.enterRoom(headerAccessor, roomId, payload);
 
@@ -292,6 +295,7 @@ class GameControllerTest {
         when(room.getRoomProperty()).thenReturn(RoomProperty.INGAME);
         when(room.getRoomId()).thenReturn(roomId);
         when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
+
         when(game.getRoundStatus()).thenReturn(RoundStatus.guess);
         when(game.getCurrentSpeaker()).thenReturn(currentSpeaker);
         when(currentSpeaker.getId()).thenReturn("speakerId");
