@@ -331,18 +331,18 @@ public class GameService {
     }
 
     public void endGame(Game game) {
-
-        for (String playerId : game.getRoomPlayersList()) {
-            Player player = playerRepository.findById(playerId).get();
-            playerRepository.delete(player);
-        }
-        for (String userId : game.getRoomPlayersList()) {
+        for (String userId : roomRepository.findByRoomId(game.getRoomId()).get().getRoomPlayersList()) {
             User user = userRepository.findById(userId).get();
-            user.setPlayerStatus(PlayerStatus.UNREADY);
-            user.setInRoomId(null);
-            userRepository.save(user);
+            if (user.getInRoomId().equals(game.getRoomId())) {
+                if (playerRepository.findById(userId).isPresent()) {
+                    Player player = playerRepository.findById(userId).get();
+                    playerRepository.delete(player);
+                }
+                user.setPlayerStatus(PlayerStatus.UNREADY);
+                user.setInRoomId(null);
+                userRepository.save(user);
+            }
         }
-
         gameRepository.delete(game);
 
         System.out.println("Game ended");
