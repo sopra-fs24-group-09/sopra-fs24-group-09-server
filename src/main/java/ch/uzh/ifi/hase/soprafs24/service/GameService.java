@@ -347,7 +347,7 @@ public class GameService {
 
         System.out.println("Game ended");
         if (roomRepository.findByRoomId(game.getRoomId()).isPresent()){
-            roomRepository.delete(roomRepository.findById(game.getRoomId()).get());
+            roomRepository.delete(roomRepository.findByRoomId(game.getRoomId()).get());
             socketService.broadcastLobbyInfo();
         }
     }
