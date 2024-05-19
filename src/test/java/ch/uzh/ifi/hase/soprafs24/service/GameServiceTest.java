@@ -11,11 +11,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -460,14 +462,18 @@ public class GameServiceTest {
         Game game = new Game(room);
         game.setGameStatus(GameStatus.ingame);
         game.setRoomPlayersList(Arrays.asList("player1", "player2", "player3"));
+        game.setRoomId("1");
 
     
         User player1 = new User();
         player1.setId("player1");
+        player1.setInRoomId("1");
         User player2 = new User();
         player2.setId("player2");
+        player2.setInRoomId("1");
         User player3 = new User();
         player3.setId("player3");
+        player3.setInRoomId("1");
         
     
         Player p1 = new Player(player1);
@@ -488,7 +494,8 @@ public class GameServiceTest {
         when(userRepository.findById("player1")).thenReturn(Optional.of(player1));
         when(userRepository.findById("player2")).thenReturn(Optional.of(player2));
         when(userRepository.findById("player3")).thenReturn(Optional.of(player3));
-        when(roomRepository.findById("1")).thenReturn(Optional.of(room));
+        when(roomRepository.findByRoomId("1")).thenReturn(Optional.of(room));
+        doNothing().when(gameRepository).delete(game);
     
         // Execute the method under test
         gameService.startGame(room);
