@@ -242,12 +242,12 @@ class GameControllerTest {
         when(headerAccessor.getHeader("nativeHeaders")).thenReturn(nativeHeaders);
         when(payload.getMessage()).thenReturn(playerAndRoom);
         when(playerAndRoom.getUserID()).thenReturn(userId);
-        when(user.getId()).thenReturn(userId); // Ensure user.getId() returns userId
+        when(user.getId()).thenReturn(userId);
         when(userService.findByToken(token)).thenReturn(true);
         when(roomRepository.findByRoomId(roomId)).thenReturn(Optional.of(room));
         when(userService.findUserById(userId)).thenReturn(user);
         when(gameRepository.findByRoomId(roomId)).thenReturn(Optional.of(game));
-        when(room.getRoomPlayersList()).thenReturn(Collections.singletonList(userId));
+        when(room.getRoomPlayersList()).thenReturn(new ArrayList<>(List.of(userId)));
         when(room.getRoomProperty()).thenReturn(RoomProperty.GAMEOVER);
         when(game.getRoundStatus()).thenReturn(RoundStatus.guess);
         when(game.getCurrentSpeaker()).thenReturn(mock(Player.class));
