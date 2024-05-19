@@ -104,7 +104,18 @@ public class RoomService {
             // Async fetch words for the theme while creating the room
             CompletableFuture<List<String>> wordsFuture = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return getWords(theme);
+                    List<String> words;
+                    int retryCount = 0;
+                    while (true) {
+                        words = getWords(theme);
+                        if(words != null){
+                            return words;
+                        }
+                        retryCount++;
+                        if (retryCount >= 3) {
+                            return new ArrayList<>(Arrays.asList("sopra", "group", "milestone", "sprint", "task", "client", "server"));
+                        }
+                    }
                 } catch (IOException e) {
                     System.err.println("Error while getting words: " + e.getMessage());
                     throw new RuntimeException(e);
@@ -208,7 +219,7 @@ public class RoomService {
                     throw new IOException("Failed to extract JSON from message content");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                // e.printStackTrace();
                 throw new IOException("Failed to parse JSON response", e);
             }
         } else {
