@@ -178,13 +178,13 @@ public class GameService {
         socketService.broadcastGameinfo(game.getRoomId(), "gameover");
         socketService.broadcastPlayerInfo(game.getRoomId(), "gameover");
         socketService.broadcastLobbyInfo();
-        try {
-            Thread.sleep(30000);//20000
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        }
-        System.out.println("End Revealing："+ LocalDateTime.now());
+//        try {
+//            Thread.sleep(30000);//20000
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//            throw new RuntimeException(e);
+//        }
+//        System.out.println("End Revealing："+ LocalDateTime.now());
         // Display the leaderboard for 2 minutes, and dismiss the room in advance if all
         // players leave
         if (gameRepository.findByRoomId(game.getRoomId()).isPresent()){
