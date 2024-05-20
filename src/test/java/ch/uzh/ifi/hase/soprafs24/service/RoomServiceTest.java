@@ -175,6 +175,17 @@ public class RoomServiceTest {
     }
 
     @Test
+    void createRoom_tooManyRoom(){
+        Room room = new Room();
+        List<Room> roomList = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            roomList.add(room);
+        }
+        when(roomRepository.findAll()).thenReturn(roomList);
+        assertThrows(ResponseStatusException.class, () -> roomService.createRoom(room));
+    }
+
+    @Test
     void enterRoom_RoomIsFull_ThrowsException() {
         Room room = new Room();
         room.setMaxPlayersNum(1);

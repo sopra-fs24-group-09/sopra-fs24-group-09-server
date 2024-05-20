@@ -64,6 +64,9 @@ public class RoomService {
     // Here we create a new room, and we need to set the room property and theme
     // according to the input from client
     public Room createRoom(Room newRoom) {
+        if (roomRepository.findAll().size() >= 10){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only 10 rooms are allowed to exist at the same time!");
+        }
         Optional<Room> existingRoom = roomRepository.findByRoomId(newRoom.getRoomId());
         if (existingRoom.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room already exists");
@@ -163,7 +166,7 @@ public class RoomService {
                 "    \"messages\": [\n" +
                 "        {\n" +
                 "            \"role\": \"user\",\n" +
-                "            \"content\": \"Generate a JSON list of noun words with the theme '" + theme
+                "            \"content\": \"Generate a JSON list of noun words within the theme '" + theme
                 + "' and ensure each word has no more than four syllables and all in lowercase in the following format: {\\\"words\\\": [\\\"word1\\\", \\\"word2\\\", \\\"word3\\\", ...]}\"\n"
                 +
                 "        }\n" +
