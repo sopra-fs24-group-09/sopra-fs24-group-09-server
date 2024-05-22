@@ -133,7 +133,13 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/145| Ad
 ## WEEK7 2024.5.16-2024.5.21
 |Task Link|Description|Assigned to| Finished? |
 |---|---|---|-----------|
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/104| Implement return player words by websocket| [@Zehao Zhang](https://github.com/Zehao-Zhang) ||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage |[@Zihan Liu](https://github.com/zihanltesla)||
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| Sonarqube checking and configuration |[@Zihan Liu](https://github.com/zihanltesla)||
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Broadcast to every player of the ready or start status| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/104| Implement return player words by websocket| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| Sonarqube checking and configuration |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark: |
+
+## WEEK8 2024.5.22-2024.5.24
+|Task Link|Description|Assigned to| Finished? |
+|---|---|---|-----------|
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage| [@Zehao Zhang](https://github.com/Zehao-Zhang & [@Zihan Liu](https://github.com/zihanltesla)) | :white_check_mark: |
+https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/167| Create README.md file for guidance| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla)) | :white_check_mark: |
