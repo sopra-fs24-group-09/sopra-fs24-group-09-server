@@ -56,8 +56,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/33| Imp
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/91| Implement gameservice for managing the game process | [@Zehao Zhang](https://github.com/Zehao-Zhang)   |:white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/67|Once new audio is sent from backend, the page should imediatly show or update this audio.| [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
 |https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/68|When the speaker is recording, guess player should should not have access to use audioRecorder. | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark:|
-|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/72|Implement the on-Receive function to deal with different messages from WebSocket| [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan](https://github.com/yixuan-zhou-uzh) | :white_check_mark:|
-|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/73|Implement the send function to form different messages to WebSocket| [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan](https://github.com/yixuan-zhou-uzh) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/72|Implement the on-Receive function to deal with different messages from WebSocket| [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark:|
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/73|Implement the send function to form different messages to WebSocket| [@Shaochang Tan](https://github.com/petertheprocess) [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark:|
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/65 | A user can click avatar in his/her profile popup to change his/her avatar.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/58 | Implement edit function to modify profiles of user.            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/34 | Close the window when users cancel or successfully create a room            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
@@ -137,9 +137,13 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/75| Bro
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/104| Implement return player words by websocket| [@Zehao Zhang](https://github.com/Zehao-Zhang) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| Sonarqube checking and configuration |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/192 | Add microphone check before start or get ready in a game room.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/202 | Change the info showing after finishing the guide or just quitting the guide(toast).             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 
 ## WEEK8 2024.5.22-2024.5.24
 |Task Link|Description|Assigned to| Finished? |
 |---|---|---|-----------|
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla) | :white_check_mark: |
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/167| Create README.md file for guidance| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/203 | Ui change of the important notes in the guide pop up.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/204 | Ui change of the login / register page, lobby button.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
