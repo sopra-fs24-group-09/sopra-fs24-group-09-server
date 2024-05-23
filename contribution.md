@@ -139,6 +139,8 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Wr
 https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| Sonarqube checking and configuration |[@Zihan Liu](https://github.com/zihanltesla)| :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/192 | Add microphone check before start or get ready in a game room.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/202 | Change the info showing after finishing the guide or just quitting the guide(toast).             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/179 |Special characters and spaces in register name and password fields            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/107 | Modify UI in Lobby page            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 
 ## WEEK8 2024.5.22-2024.5.24
 |Task Link|Description|Assigned to| Finished? |
