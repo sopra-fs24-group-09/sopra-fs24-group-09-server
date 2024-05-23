@@ -227,7 +227,7 @@ public class GameService {
             guessPhase(game);
 
             try {
-                Thread.sleep(30000);
+                Thread.sleep(60000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
@@ -315,7 +315,7 @@ public class GameService {
     }
 
     public void guessPhase(Game game) {
-        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(30)));
+        game.setRoundDue(String.valueOf(ZonedDateTime.now(ZoneId.of("UTC")).plusSeconds(60)));
         gameRepository.save(game);
         socketService.broadcastGameinfo(game.getRoomId(), "guess");
         socketService.broadcastPlayerInfo(game.getRoomId(),  "guess");
