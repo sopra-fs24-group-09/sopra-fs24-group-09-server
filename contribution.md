@@ -153,5 +153,6 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| So
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/204 | Ui change of the login / register page, lobby button.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/pull/197 | lift up z-index of toast.  | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/pull/185 | Transfer to use reactour pkg from byte-guide, which has better support on page resizing.  | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark: |
-
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/205 |Update README file            | [@Han Yang](https://github.com/Haaaan1) & [@Shaochang Tan](https://github.com/petertheprocess) & [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh)| :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/206 | Finish project report for M4            | [@Han Yang](https://github.com/Haaaan1) & [@Shaochang Tan](https://github.com/petertheprocess)  | :white_check_mark: |
 
