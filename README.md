@@ -66,6 +66,12 @@ The following extensions can help you get started more easily:
 -   `vscjava.vscode-spring-boot-dashboard`
 -   `vscjava.vscode-java-pack`
 
+### MongoDB 
+External database MongoDB is adopted, substitute it in application.properties with your own collection.
+
+### Zhipu AI
+Zhipu AI (https://open.bigmodel.cn) is the API we used to distribute words for the game, you will need to use your own API Key
+
 **Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs24` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
 
 ### Building with Gradle
