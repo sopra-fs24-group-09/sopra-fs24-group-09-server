@@ -141,11 +141,17 @@ https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/170| So
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/202 | Change the info showing after finishing the guide or just quitting the guide(toast).             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/179 |Special characters and spaces in register name and password fields            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/107 | Modify UI in Lobby page            | [@Han Yang](https://github.com/Haaaan1)  | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/186 | Memory leak for wasm worker loading.              | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/pull/184 | update room creation popup font size  | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark: |
 
 ## WEEK8 2024.5.22-2024.5.24
 |Task Link|Description|Assigned to| Finished? |
 |---|---|---|-----------|
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla) | :white_check_mark: |
-https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/167| Create README.md file for guidance| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla) | :white_check_mark: |
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/168| Write test to reach 75% coverage| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla) | :white_check_mark: |
+|https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-server/issues/167| Create README.md file for guidance| [@Zehao Zhang](https://github.com/Zehao-Zhang) & [@Zihan Liu](https://github.com/zihanltesla) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/203 | Ui change of the important notes in the guide pop up.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
 | https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/issues/204 | Ui change of the login / register page, lobby button.             | [@yixuan-zhou-uzh](https://github.com/yixuan-zhou-uzh) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/pull/197 | lift up z-index of toast.  | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark: |
+| https://github.com/sopra-fs24-group-09/sopra-fs24-group-09-client/pull/185 | Transfer to use reactour pkg from byte-guide, which has better support on page resizing.  | [@Shaochang Tan](https://github.com/petertheprocess) | :white_check_mark: |
+
+
